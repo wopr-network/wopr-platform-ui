@@ -86,9 +86,7 @@ export default function OnboardChannelSetupPage() {
               All {channels.length} channel{channels.length > 1 ? "s" : ""} configured.
             </p>
           </div>
-          <Button onClick={handleContinue}>
-            Continue to Plugins
-          </Button>
+          <Button onClick={handleContinue}>Continue to Plugins</Button>
         </CardContent>
       </Card>
     );

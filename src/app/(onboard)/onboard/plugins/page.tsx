@@ -106,9 +106,7 @@ export default function OnboardPluginsPage() {
           >
             Skip
           </Button>
-          <Button onClick={handleContinue}>
-            Continue
-          </Button>
+          <Button onClick={handleContinue}>Continue</Button>
         </div>
       </CardFooter>
     </Card>
