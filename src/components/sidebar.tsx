@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,12 @@ const navItems = [
   { label: "Settings", href: "/settings/profile" },
 ];
 
+function isNavActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  if (href === "/settings/profile") return pathname.startsWith("/settings");
+  return pathname.startsWith(href);
+}
+
 export function Sidebar() {
   const pathname = usePathname();
 
@@ -22,19 +29,18 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => (
-          <a
+          <Link
             key={item.href}
             href={item.href}
             className={cn(
               "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              pathname.startsWith(item.href) ||
-                (item.href === "/settings/profile" && pathname.startsWith("/settings"))
+              isNavActive(item.href, pathname)
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-sidebar-foreground/70",
             )}
           >
             {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
       <div className="border-t border-sidebar-border px-6 py-4">

@@ -837,6 +837,22 @@ export async function revokeApiKey(id: string): Promise<void> {
   }
 }
 
+export async function connectOauthProvider(provider: string): Promise<void> {
+  try {
+    await apiFetch(`/settings/profile/oauth/${provider}/connect`, { method: "POST" });
+  } catch {
+    // mock: no-op
+  }
+}
+
+export async function disconnectOauthProvider(provider: string): Promise<void> {
+  try {
+    await apiFetch(`/settings/profile/oauth/${provider}/disconnect`, { method: "POST" });
+  } catch {
+    // mock: no-op
+  }
+}
+
 export async function getOrganization(): Promise<Organization> {
   try {
     return await apiFetch<Organization>("/settings/org");

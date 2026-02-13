@@ -185,14 +185,10 @@ export default function OrgPage() {
                         memberName={member.name}
                         onTransfer={() => handleTransfer(member.id)}
                       />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
-                        onClick={() => handleRemove(member.id)}
-                      >
-                        Remove
-                      </Button>
+                      <RemoveMemberDialog
+                        memberName={member.name}
+                        onRemove={() => handleRemove(member.id)}
+                      />
                     </div>
                   )}
                 </TableCell>
@@ -262,6 +258,49 @@ function InviteDialog({ onInvited }: { onInvited: () => void }) {
             <Button type="submit">Send invitation</Button>
           </DialogFooter>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function RemoveMemberDialog({
+  memberName,
+  onRemove,
+}: {
+  memberName: string;
+  onRemove: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="text-destructive">
+          Remove
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove Member</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove <strong>{memberName}</strong> from the organization?
+            They will lose access immediately.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onRemove();
+              setOpen(false);
+            }}
+          >
+            Remove member
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

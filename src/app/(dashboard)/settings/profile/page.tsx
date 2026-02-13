@@ -17,7 +17,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import type { UserProfile } from "@/lib/api";
-import { changePassword, deleteAccount, getProfile, updateProfile } from "@/lib/api";
+import {
+  changePassword,
+  connectOauthProvider,
+  deleteAccount,
+  disconnectOauthProvider,
+  getProfile,
+  updateProfile,
+} from "@/lib/api";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -70,6 +77,15 @@ export default function ProfilePage() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+  }
+
+  async function handleOauthToggle(provider: string, connected: boolean) {
+    if (connected) {
+      await disconnectOauthProvider(provider);
+    } else {
+      await connectOauthProvider(provider);
+    }
+    await load();
   }
 
   async function handleDelete() {
@@ -181,7 +197,11 @@ export default function ProfilePage() {
             {profile.oauthConnections.map((conn) => (
               <div key={conn.provider} className="flex items-center justify-between">
                 <span className="text-sm font-medium capitalize">{conn.provider}</span>
-                <Button variant={conn.connected ? "outline" : "default"} size="sm">
+                <Button
+                  variant={conn.connected ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => handleOauthToggle(conn.provider, conn.connected)}
+                >
                   {conn.connected ? "Disconnect" : "Connect"}
                 </Button>
               </div>
