@@ -84,6 +84,7 @@ describe("onboarding-store", () => {
       providers: [{ id: "anthropic", name: "Anthropic", key: "sk-ant-test", validated: true }],
       channels: ["discord"],
       channelsConfigured: ["discord"],
+      channelConfigs: {},
       plugins: ["memory", "voice"],
       instanceName: "test-instance",
     });
@@ -102,6 +103,7 @@ describe("onboarding-store", () => {
       providers: [],
       channels: [],
       channelsConfigured: [],
+      channelConfigs: {},
       plugins: [],
       instanceName: "",
     });
@@ -218,6 +220,7 @@ describe("Review page", () => {
       providers: [{ id: "anthropic", name: "Anthropic", key: "sk-ant-test", validated: true }],
       channels: ["discord"],
       channelsConfigured: ["discord"],
+      channelConfigs: {},
       plugins: ["memory"],
       instanceName: "test-wopr",
     });
@@ -238,6 +241,7 @@ describe("Review page", () => {
       providers: [],
       channels: [],
       channelsConfigured: [],
+      channelConfigs: {},
       plugins: [],
       instanceName: "my-instance",
     });
