@@ -25,6 +25,8 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [configText, setConfigText] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [configStatus, setConfigStatus] = useState<"idle" | "saved" | "invalid">("idle");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,8 +47,13 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
   }, [load]);
 
   async function handleAction(action: "start" | "stop" | "restart" | "destroy") {
-    await controlInstance(instanceId, action);
-    await load();
+    setActionError(null);
+    try {
+      await controlInstance(instanceId, action);
+      await load();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : `Failed to ${action} instance`);
+    }
   }
 
   if (loading) {
@@ -107,6 +114,12 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
         </div>
       </div>
 
+      {actionError && (
+        <div className="rounded-md border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {actionError}
+        </div>
+      )}
+
       <Separator />
 
       {/* Tabs */}
@@ -154,7 +167,11 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
                       <TableCell className="font-medium">{plugin.name}</TableCell>
                       <TableCell className="text-muted-foreground">{plugin.version}</TableCell>
                       <TableCell>
-                        <Switch checked={plugin.enabled} aria-label={`Toggle ${plugin.name}`} />
+                        <Switch
+                          checked={plugin.enabled}
+                          disabled
+                          aria-label={`Toggle ${plugin.name}`}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -243,14 +260,22 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
               onChange={(e) => setConfigText(e.target.value)}
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-3">
+            {configStatus === "saved" && (
+              <span className="text-sm text-emerald-500">
+                Config is valid JSON (save API pending)
+              </span>
+            )}
+            {configStatus === "invalid" && (
+              <span className="text-sm text-red-500">Invalid JSON</span>
+            )}
             <Button
               onClick={() => {
                 try {
                   JSON.parse(configText);
-                  // In a real app this would save via API
+                  setConfigStatus("saved");
                 } catch {
-                  // Invalid JSON — no-op for now
+                  setConfigStatus("invalid");
                 }
               }}
             >

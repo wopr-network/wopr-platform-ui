@@ -49,6 +49,7 @@ export function CreateInstanceClient() {
   const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const loadTemplates = useCallback(async () => {
     const data = await listTemplates();
@@ -80,6 +81,7 @@ export function CreateInstanceClient() {
   async function handleSubmit() {
     if (!name.trim() || !selectedTemplate) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const tmpl = templates.find((t) => t.id === selectedTemplate);
       await createInstance({
@@ -90,6 +92,8 @@ export function CreateInstanceClient() {
         plugins: selectedPlugins,
       });
       setCreated(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to create instance");
     } finally {
       setSubmitting(false);
     }
@@ -133,7 +137,10 @@ export function CreateInstanceClient() {
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") handleTemplateSelect(tmpl.id);
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleTemplateSelect(tmpl.id);
+                }
               }}
             >
               <CardHeader className="pb-2">
@@ -223,6 +230,12 @@ export function CreateInstanceClient() {
       </div>
 
       <Separator />
+
+      {submitError && (
+        <div className="rounded-md border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {submitError}
+        </div>
+      )}
 
       <div className="flex justify-end gap-3">
         <Button variant="outline" asChild>

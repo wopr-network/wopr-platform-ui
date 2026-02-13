@@ -34,6 +34,7 @@ export function InstanceListClient() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<InstanceStatus | "all">("all");
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadInstances = useCallback(async () => {
     setLoading(true);
@@ -61,8 +62,13 @@ export function InstanceListClient() {
   }, [instances, search, statusFilter]);
 
   async function handleAction(id: string, action: "start" | "stop" | "restart" | "destroy") {
-    await controlInstance(id, action);
-    await loadInstances();
+    setActionError(null);
+    try {
+      await controlInstance(id, action);
+      await loadInstances();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : `Failed to ${action} instance`);
+    }
   }
 
   function formatUptime(seconds: number | null): string {
@@ -109,6 +115,12 @@ export function InstanceListClient() {
           </SelectContent>
         </Select>
       </div>
+
+      {actionError && (
+        <div className="rounded-md border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {actionError}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex h-40 items-center justify-center text-muted-foreground">
