@@ -31,26 +31,34 @@ export function StepDeploy({ status, onDeploy }: StepDeployProps) {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold tracking-tight">
-          {status === "idle" ? "Ready to deploy" : status === "done" ? "Deployed" : "Deploying..."}
+          {status === "idle"
+            ? "Ready to deploy"
+            : status === "done"
+              ? "Deployed"
+              : status === "error"
+                ? "Deployment failed"
+                : "Deploying..."}
         </h2>
         <p className="mt-2 text-muted-foreground">
           {status === "idle"
             ? "Everything is configured. Launch your WOPR instance."
             : status === "done"
               ? "Your WOPR instance is up and running."
-              : "Setting up your instance..."}
+              : status === "error"
+                ? "Something went wrong. Please try again."
+                : "Setting up your instance..."}
         </p>
       </div>
 
-      {status === "idle" && (
+      {(status === "idle" || status === "error") && (
         <div className="flex justify-center">
           <Button size="lg" className="px-12 text-lg" onClick={onDeploy}>
-            Launch Your WOPR
+            {status === "error" ? "Retry Deploy" : "Launch Your WOPR"}
           </Button>
         </div>
       )}
 
-      {status !== "idle" && (
+      {status !== "idle" && status !== "error" && (
         <div className="space-y-4">
           <Progress value={progressValue} />
           <div className="space-y-2">

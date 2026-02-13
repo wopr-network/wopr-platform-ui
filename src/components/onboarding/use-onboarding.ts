@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   collectConfigFields,
   type OnboardingConfigField,
@@ -91,6 +91,16 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
   const [deployStatus, setDeployStatus] = useState<DeployStatus>("idle");
   const [isCustomFlow, setIsCustomFlow] = useState(false);
 
+  const deployIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const validateTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => {
+    return () => {
+      if (deployIntervalRef.current) clearInterval(deployIntervalRef.current);
+      for (const t of Object.values(validateTimeoutsRef.current)) clearTimeout(t);
+    };
+  }, []);
+
   const stepOrder = isCustomFlow ? CUSTOM_STEP_ORDER : STEP_ORDER;
   const stepIndex = stepOrder.indexOf(step);
   const totalSteps = stepOrder.length;
@@ -108,6 +118,9 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
 
   const selectPreset = useCallback((preset: Preset) => {
     setSelectedPreset(preset);
+    setKeyValues({});
+    setKeyErrors({});
+    setKeyValidating({});
     if (preset.id === "custom") {
       setIsCustomFlow(true);
       setSelectedChannels([]);
@@ -151,12 +164,16 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
       const field = configFields.find((f) => f.key === key);
       if (!field) return;
       const value = keyValues[key] || "";
+      if (validateTimeoutsRef.current[key]) {
+        clearTimeout(validateTimeoutsRef.current[key]);
+      }
       setKeyValidating((prev) => ({ ...prev, [key]: true }));
       // Mock async validation
-      setTimeout(() => {
+      validateTimeoutsRef.current[key] = setTimeout(() => {
         const error = validateField(field, value);
         setKeyErrors((prev) => ({ ...prev, [key]: error }));
         setKeyValidating((prev) => ({ ...prev, [key]: false }));
+        delete validateTimeoutsRef.current[key];
       }, 600);
     },
     [configFields, keyValues],
@@ -217,20 +234,28 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
   }, [step, stepOrder, isCustomFlow]);
 
   const deploy = useCallback(() => {
+    if (deployIntervalRef.current) clearInterval(deployIntervalRef.current);
     setDeployStatus("provisioning");
     const stages: DeployStatus[] = ["configuring", "starting", "health-check", "done"];
     let i = 0;
-    const timer = setInterval(() => {
+    deployIntervalRef.current = setInterval(() => {
       if (i < stages.length) {
         setDeployStatus(stages[i]);
         i++;
       } else {
-        clearInterval(timer);
+        clearInterval(deployIntervalRef.current!);
+        deployIntervalRef.current = null;
       }
     }, 1200);
   }, []);
 
   const reset = useCallback(() => {
+    if (deployIntervalRef.current) {
+      clearInterval(deployIntervalRef.current);
+      deployIntervalRef.current = null;
+    }
+    for (const t of Object.values(validateTimeoutsRef.current)) clearTimeout(t);
+    validateTimeoutsRef.current = {};
     setStep("presets");
     setSelectedPreset(null);
     setSelectedChannels([]);

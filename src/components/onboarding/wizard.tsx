@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { presets as presetData } from "@/lib/onboarding-data";
+import { useRouter } from "next/navigation";
 import { StepChannels } from "./step-channels";
 import { StepDeploy } from "./step-deploy";
 import { StepDone } from "./step-done";
@@ -23,11 +24,11 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 export function OnboardingWizard() {
+  const router = useRouter();
   const [state, actions] = useOnboarding();
 
   function handleGoToDashboard() {
-    // Mock redirect — in production this would use next/navigation
-    window.location.href = "/";
+    router.push("/");
   }
 
   const showNav = state.step !== "presets" && state.step !== "done";
