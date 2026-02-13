@@ -1,15 +1,20 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Channels", href: "/channels" },
   { label: "Plugins", href: "/plugins" },
   { label: "Instances", href: "/instances" },
   { label: "Fleet Health", href: "/fleet/health" },
-  { label: "Settings", href: "/settings" },
+  { label: "Settings", href: "/settings/profile" },
 ];
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="flex h-14 items-center border-b border-sidebar-border px-6">
@@ -20,7 +25,13 @@ export function Sidebar() {
           <a
             key={item.href}
             href={item.href}
-            className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className={cn(
+              "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              pathname.startsWith(item.href) ||
+                (item.href === "/settings/profile" && pathname.startsWith("/settings"))
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-foreground/70",
+            )}
           >
             {item.label}
           </a>
