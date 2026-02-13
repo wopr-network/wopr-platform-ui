@@ -21,9 +21,9 @@ function renderField(
 ) {
   switch (field.setupFlow) {
     case "oauth":
-      return <FieldOAuth key={field.key} field={field} value={value} onChange={onChange} />;
+      return <FieldOAuth key={field.key} field={field} value={value} onChange={onChange} error={error} />;
     case "qr":
-      return <FieldQR key={field.key} field={field} value={value} onChange={onChange} />;
+      return <FieldQR key={field.key} field={field} value={value} onChange={onChange} error={error} />;
     case "interactive":
       return (
         <FieldInteractive
@@ -56,7 +56,14 @@ export function StepRenderer({ step, values, errors, onChange }: StepRendererPro
               rel="noopener noreferrer"
               className="mt-2 inline-block text-sm text-blue-400 underline underline-offset-4 hover:text-blue-300"
             >
-              Open {new URL(step.externalUrl).hostname}
+              Open{" "}
+              {(() => {
+                try {
+                  return new URL(step.externalUrl).hostname;
+                } catch {
+                  return step.externalUrl;
+                }
+              })()}
             </a>
           )}
         </div>

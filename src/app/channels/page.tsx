@@ -93,9 +93,9 @@ export default function ChannelsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="mt-auto">
-                  <Link href={`/channels/setup/${manifest.id}`}>
-                    <Button className="w-full">Connect</Button>
-                  </Link>
+                  <Button className="w-full" asChild>
+                    <Link href={`/channels/setup/${manifest.id}`}>Connect</Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}

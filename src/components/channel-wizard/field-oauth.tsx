@@ -9,9 +9,10 @@ interface FieldOAuthProps {
   field: ConfigField;
   value: string;
   onChange: (key: string, value: string) => void;
+  error?: string;
 }
 
-export function FieldOAuth({ field, value, onChange }: FieldOAuthProps) {
+export function FieldOAuth({ field, value, onChange, error }: FieldOAuthProps) {
   const [status, setStatus] = useState<"idle" | "authorizing" | "authorized">(
     value ? "authorized" : "idle",
   );
@@ -43,6 +44,7 @@ export function FieldOAuth({ field, value, onChange }: FieldOAuthProps) {
         </Button>
         {status === "authorized" && <span className="text-sm text-green-500">Connected</span>}
       </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

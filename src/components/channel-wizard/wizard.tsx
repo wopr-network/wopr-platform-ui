@@ -54,8 +54,12 @@ export function Wizard({ manifest, onComplete, onCancel }: WizardProps) {
       }
 
       if (value && field.validation?.pattern) {
-        const regex = new RegExp(field.validation.pattern);
-        if (!regex.test(value)) {
+        try {
+          const regex = new RegExp(field.validation.pattern);
+          if (!regex.test(value)) {
+            stepErrors[field.key] = field.validation.message || "Invalid format";
+          }
+        } catch {
           stepErrors[field.key] = field.validation.message || "Invalid format";
         }
       }

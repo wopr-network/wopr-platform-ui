@@ -23,9 +23,8 @@ export default function ChannelSetupPage({ params }: { params: Promise<{ plugin:
     );
   }
 
-  function handleComplete(values: Record<string, string>) {
+  function handleComplete(_values: Record<string, string>) {
     // In production this would POST to the API
-    console.log("Channel setup complete:", { plugin, values });
     router.push("/channels");
   }
 

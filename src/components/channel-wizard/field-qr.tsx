@@ -7,9 +7,10 @@ interface FieldQRProps {
   field: ConfigField;
   value: string;
   onChange: (key: string, value: string) => void;
+  error?: string;
 }
 
-export function FieldQR({ field, value, onChange }: FieldQRProps) {
+export function FieldQR({ field, value, onChange, error }: FieldQRProps) {
   function handleSimulateScan() {
     onChange(field.key, `qr-scanned-${Date.now()}`);
   }
@@ -31,6 +32,7 @@ export function FieldQR({ field, value, onChange }: FieldQRProps) {
           {value ? "Scanned" : "Simulate Scan"}
         </button>
       </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
