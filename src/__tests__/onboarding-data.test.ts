@@ -63,7 +63,7 @@ describe("onboarding-data", () => {
       const anthropic = providerPlugins.find((p) => p.id === "anthropic");
       const keyField = anthropic?.configFields[0];
       expect(keyField).toBeDefined();
-      expect(keyField!.validation?.pattern).toBe("^sk-ant-");
+      expect(keyField?.validation?.pattern).toBe("^sk-ant-");
     });
   });
 

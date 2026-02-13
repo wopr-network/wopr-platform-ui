@@ -243,7 +243,7 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
         setDeployStatus(stages[i]);
         i++;
       } else {
-        clearInterval(deployIntervalRef.current!);
+        if (deployIntervalRef.current) clearInterval(deployIntervalRef.current);
         deployIntervalRef.current = null;
       }
     }, 1200);

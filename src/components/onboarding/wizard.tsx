@@ -1,9 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { presets as presetData } from "@/lib/onboarding-data";
-import { useRouter } from "next/navigation";
 import { StepChannels } from "./step-channels";
 import { StepDeploy } from "./step-deploy";
 import { StepDone } from "./step-done";
