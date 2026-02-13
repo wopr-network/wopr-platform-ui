@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { channelManifests } from "@/lib/mock-manifests";
 import { loadOnboardingState, saveOnboardingState } from "@/lib/onboarding-store";
 
 export default function OnboardChannelsPage() {
+  const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export default function OnboardChannelsPage() {
     state.currentStep = 4;
     state.channels = Array.from(selected);
     saveOnboardingState(state);
+    router.push("/onboard/channels/setup");
   }
 
   function handleSkip() {
@@ -43,6 +46,7 @@ export default function OnboardChannelsPage() {
     state.channels = [];
     state.channelsConfigured = [];
     saveOnboardingState(state);
+    router.push("/onboard/plugins");
   }
 
   return (
@@ -95,11 +99,11 @@ export default function OnboardChannelsPage() {
           <Link href="/onboard/keys">Back</Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="ghost" onClick={handleSkip} asChild>
-            <Link href="/onboard/plugins">Skip for now</Link>
+          <Button variant="ghost" onClick={handleSkip}>
+            Skip for now
           </Button>
-          <Button disabled={selected.size === 0} onClick={handleContinue} asChild>
-            <Link href="/onboard/channels/setup">Continue</Link>
+          <Button disabled={selected.size === 0} onClick={handleContinue}>
+            Continue
           </Button>
         </div>
       </CardFooter>

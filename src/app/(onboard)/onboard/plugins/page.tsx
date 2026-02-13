@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/onboarding-store";
 
 export default function OnboardPluginsPage() {
+  const router = useRouter();
   const [enabled, setEnabled] = useState<Set<string>>(new Set(["memory"]));
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function OnboardPluginsPage() {
     state.currentStep = 6;
     state.plugins = Array.from(enabled);
     saveOnboardingState(state);
+    router.push("/onboard/review");
   }
 
   return (
@@ -88,7 +91,7 @@ export default function OnboardPluginsPage() {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="ghost" asChild>
-          <Link href="/onboard/channels">Back</Link>
+          <Link href="/onboard/channels/setup">Back</Link>
         </Button>
         <div className="flex gap-2">
           <Button
@@ -98,13 +101,13 @@ export default function OnboardPluginsPage() {
               state.currentStep = 6;
               state.plugins = [];
               saveOnboardingState(state);
+              router.push("/onboard/review");
             }}
-            asChild
           >
-            <Link href="/onboard/review">Skip</Link>
+            Skip
           </Button>
-          <Button onClick={handleContinue} asChild>
-            <Link href="/onboard/review">Continue</Link>
+          <Button onClick={handleContinue}>
+            Continue
           </Button>
         </div>
       </CardFooter>

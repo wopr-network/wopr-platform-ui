@@ -15,6 +15,7 @@ export interface OnboardingState {
   providers: ProviderConfig[];
   channels: string[];
   channelsConfigured: string[];
+  channelConfigs: Record<string, Record<string, string>>;
   plugins: string[];
   instanceName: string;
 }
@@ -26,6 +27,7 @@ const defaultState: OnboardingState = {
   providers: [],
   channels: [],
   channelsConfigured: [],
+  channelConfigs: {},
   plugins: ["memory"],
   instanceName: "",
 };
@@ -34,7 +36,7 @@ export function loadOnboardingState(): OnboardingState {
   if (typeof window === "undefined") return { ...defaultState };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as OnboardingState;
+    if (raw) return { ...defaultState, ...JSON.parse(raw) };
   } catch {
     // ignore
   }

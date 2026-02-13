@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
 } from "@/lib/onboarding-store";
 
 export default function OnboardKeysPage() {
+  const router = useRouter();
   const [providers, setProviders] = useState<ProviderConfig[]>([]);
   const [visible, setVisible] = useState<Record<string, boolean>>({});
   const [validating, setValidating] = useState<Record<string, boolean>>({});
@@ -48,6 +50,7 @@ export default function OnboardKeysPage() {
     state.currentStep = 3;
     state.providers = providers;
     saveOnboardingState(state);
+    router.push("/onboard/channels");
   }
 
   const allValid = providers.every((p) => p.validated);
@@ -125,8 +128,8 @@ export default function OnboardKeysPage() {
         <Button variant="ghost" asChild>
           <Link href="/onboard/provider">Back</Link>
         </Button>
-        <Button disabled={!allValid} onClick={handleContinue} asChild>
-          <Link href="/onboard/channels">Continue</Link>
+        <Button disabled={!allValid} onClick={handleContinue}>
+          Continue
         </Button>
       </CardFooter>
     </Card>

@@ -15,6 +15,7 @@ import {
   ENHANCEMENT_PLUGINS,
   loadOnboardingState,
   type OnboardingState,
+  saveOnboardingState,
 } from "@/lib/onboarding-store";
 
 type DeployPhase = "idle" | "creating" | "plugins" | "channels" | "health" | "done";
@@ -49,6 +50,11 @@ export default function OnboardReviewPage() {
   }, []);
 
   function handleDeploy() {
+    // Persist instanceName to localStorage before deploying
+    const current = loadOnboardingState();
+    current.instanceName = instanceName;
+    saveOnboardingState(current);
+
     const phases: DeployPhase[] = ["creating", "plugins", "channels", "health", "done"];
     let i = 0;
     function advance() {

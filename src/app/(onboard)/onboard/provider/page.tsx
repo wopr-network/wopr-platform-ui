@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/onboarding-store";
 
 export default function OnboardProviderPage() {
+  const router = useRouter();
   const [selected, setSelected] = useState<Set<AIProviderId>>(new Set());
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function OnboardProviderPage() {
       return prev ?? { id, name: meta?.name ?? id, key: "", validated: false };
     });
     saveOnboardingState(state);
+    router.push("/onboard/keys");
   }
 
   return (
@@ -103,8 +106,8 @@ export default function OnboardProviderPage() {
         <Button variant="ghost" asChild>
           <Link href="/onboard">Back</Link>
         </Button>
-        <Button disabled={selected.size === 0} onClick={handleContinue} asChild>
-          <Link href="/onboard/keys">Continue</Link>
+        <Button disabled={selected.size === 0} onClick={handleContinue}>
+          Continue
         </Button>
       </CardFooter>
     </Card>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Wizard } from "@/components/channel-wizard";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { getManifest } from "@/lib/mock-manifests";
 import { loadOnboardingState, saveOnboardingState } from "@/lib/onboarding-store";
 
 export default function OnboardChannelSetupPage() {
+  const router = useRouter();
   const [channels, setChannels] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [configured, setConfigured] = useState<Set<string>>(new Set());
@@ -23,12 +25,19 @@ export default function OnboardChannelSetupPage() {
 
   const currentChannel = channels[currentIndex];
   const manifest = currentChannel ? getManifest(currentChannel) : undefined;
-  const allDone = configured.size >= channels.length;
+  const allDone = channels.length > 0 && configured.size >= channels.length;
 
-  function handleComplete(_values: Record<string, string>) {
+  function handleComplete(values: Record<string, string>) {
     const next = new Set(configured);
     next.add(currentChannel);
     setConfigured(next);
+
+    // Persist channel config values to localStorage
+    const state = loadOnboardingState();
+    state.channelConfigs = state.channelConfigs ?? {};
+    state.channelConfigs[currentChannel] = values;
+    state.channelsConfigured = Array.from(next);
+    saveOnboardingState(state);
 
     if (currentIndex < channels.length - 1) {
       setCurrentIndex((i) => i + 1);
@@ -46,6 +55,7 @@ export default function OnboardChannelSetupPage() {
     state.currentStep = 5;
     state.channelsConfigured = Array.from(configured);
     saveOnboardingState(state);
+    router.push("/onboard/plugins");
   }
 
   if (channels.length === 0) {
@@ -76,8 +86,8 @@ export default function OnboardChannelSetupPage() {
               All {channels.length} channel{channels.length > 1 ? "s" : ""} configured.
             </p>
           </div>
-          <Button onClick={handleContinue} asChild>
-            <Link href="/onboard/plugins">Continue to Plugins</Link>
+          <Button onClick={handleContinue}>
+            Continue to Plugins
           </Button>
         </CardContent>
       </Card>
