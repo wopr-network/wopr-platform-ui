@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, Suspense, useState } from "react";
 import { OAuthButtons } from "@/components/oauth-buttons";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +46,7 @@ const strengthSegments = [
   { key: "seg-5", index: 4 },
 ];
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -57,6 +57,8 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
 
   const strength = getPasswordStrength(password);
+
+  const searchParams = useSearchParams();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -74,19 +76,25 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error: authError } = await signUp.email({
-      name,
-      email,
-      password,
-    });
+    try {
+      const { error: authError } = await signUp.email({
+        name,
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(authError.message ?? "Failed to create account");
+      if (authError) {
+        setError(authError.message ?? "Failed to create account");
+        return;
+      }
+
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+      router.push(callbackUrl);
+    } catch {
+      setError("A network error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/");
   }
 
   return (
@@ -203,5 +211,13 @@ export default function SignupPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   );
 }

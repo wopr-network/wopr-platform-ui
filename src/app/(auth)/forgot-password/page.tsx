@@ -26,19 +26,23 @@ export default function ForgotPasswordPage() {
     setError(null);
     setLoading(true);
 
-    const { error: fetchError } = await authClient.$fetch("/forget-password", {
-      method: "POST",
-      body: { email, redirectTo: "/reset-password" },
-    });
+    try {
+      const { error: fetchError } = await authClient.$fetch("/forget-password", {
+        method: "POST",
+        body: { email, redirectTo: "/reset-password" },
+      });
 
-    if (fetchError) {
-      setError(fetchError.message ?? "Failed to send reset email");
+      if (fetchError) {
+        setError(fetchError.message ?? "Failed to send reset email");
+        return;
+      }
+
+      setSent(true);
+    } catch {
+      setError("A network error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setSent(true);
-    setLoading(false);
   }
 
   if (sent) {

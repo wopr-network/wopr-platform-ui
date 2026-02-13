@@ -56,18 +56,23 @@ function ResetPasswordForm() {
 
     setLoading(true);
 
-    const { error: fetchError } = await authClient.$fetch("/reset-password", {
-      method: "POST",
-      body: { newPassword: password, token: token as string },
-    });
+    try {
+      const { error: fetchError } = await authClient.$fetch("/reset-password", {
+        method: "POST",
+        body: { newPassword: password, token: token as string },
+      });
 
-    if (fetchError) {
-      setError(fetchError.message ?? "Failed to reset password");
+      if (fetchError) {
+        setError(fetchError.message ?? "Failed to reset password");
+        return;
+      }
+
+      router.push("/login");
+    } catch {
+      setError("A network error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/login");
   }
 
   return (

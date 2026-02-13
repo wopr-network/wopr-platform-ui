@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     request.cookies.get("better-auth.session_token") ??
     request.cookies.get("__Secure-better-auth.session_token");
 
-  if (!sessionToken) {
+  if (!sessionToken || !sessionToken.value.trim()) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);

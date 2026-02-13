@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, Suspense, useState } from "react";
 import { OAuthButtons } from "@/components/oauth-buttons";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,30 +18,38 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { signIn } from "@/lib/auth-client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const searchParams = useSearchParams();
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error: authError } = await signIn.email({
-      email,
-      password,
-    });
+    try {
+      const { error: authError } = await signIn.email({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(authError.message ?? "Invalid credentials");
+      if (authError) {
+        setError(authError.message ?? "Invalid credentials");
+        return;
+      }
+
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+      router.push(callbackUrl);
+    } catch {
+      setError("A network error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/");
   }
 
   return (
@@ -108,5 +116,13 @@ export default function LoginPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
