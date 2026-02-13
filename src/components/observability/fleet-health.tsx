@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
 import type { FleetInstance, HealthStatus } from "@/lib/api";
 import { getFleetHealth } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -124,7 +125,7 @@ export function FleetHealth() {
       {/* Instance Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {sorted.map((inst) => (
-          <a key={inst.id} href={`/instances/${inst.id}`} className="block">
+          <Link key={inst.id} href={`/instances/${inst.id}`} className="block">
             <Card className="transition-colors hover:border-foreground/25">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
@@ -156,7 +157,7 @@ export function FleetHealth() {
                 </div>
               </CardContent>
             </Card>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

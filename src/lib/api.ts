@@ -513,12 +513,24 @@ export async function getInstanceHealth(id: string): Promise<InstanceHealth> {
 
 export async function getInstanceLogs(
   id: string,
-  _params?: { level?: LogLevel; source?: string; search?: string },
+  params?: { level?: LogLevel; source?: string; search?: string },
 ): Promise<LogEntry[]> {
   try {
-    return await apiFetch<LogEntry[]>(`/instances/${id}/logs`);
+    const qs = new URLSearchParams();
+    if (params?.level) qs.set("level", params.level);
+    if (params?.source) qs.set("source", params.source);
+    if (params?.search) qs.set("search", params.search);
+    const query = qs.toString();
+    return await apiFetch<LogEntry[]>(`/instances/${id}/logs${query ? `?${query}` : ""}`);
   } catch {
-    return generateLogs(50);
+    let logs = generateLogs(50);
+    if (params?.level) logs = logs.filter((l) => l.level === params.level);
+    if (params?.source) logs = logs.filter((l) => l.source === params.source);
+    if (params?.search) {
+      const term = params.search.toLowerCase();
+      logs = logs.filter((l) => l.message.toLowerCase().includes(term));
+    }
+    return logs;
   }
 }
 
