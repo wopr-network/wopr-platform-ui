@@ -36,9 +36,14 @@ export default function PlansPage() {
 
   async function handleChangePlan(tier: PlanTier) {
     setChangingTo(tier);
-    await changePlan(tier);
-    setCurrentTier(tier);
-    setChangingTo(null);
+    try {
+      await changePlan(tier);
+      setCurrentTier(tier);
+    } catch {
+      // revert UI on failure
+    } finally {
+      setChangingTo(null);
+    }
   }
 
   if (loading) {

@@ -48,9 +48,14 @@ export default function PaymentPage() {
     e.preventDefault();
     setSaving(true);
     setSaveMsg(null);
-    await updateBillingEmail(billingEmail);
-    setSaveMsg("Billing email updated.");
-    setSaving(false);
+    try {
+      await updateBillingEmail(billingEmail);
+      setSaveMsg("Billing email updated.");
+    } catch {
+      setSaveMsg("Failed to update billing email.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleRemovePayment(id: string) {

@@ -171,7 +171,7 @@ function UsageMeter({
   unit: string;
   decimals?: number;
 }) {
-  const pct = Math.min((current / cap) * 100, 100);
+  const pct = cap === 0 ? (current > 0 ? 100 : 0) : Math.min((current / cap) * 100, 100);
   const formatted = decimals > 0 ? current.toFixed(decimals) : String(current);
   const capFormatted = decimals > 0 ? cap.toFixed(decimals) : String(cap);
 
