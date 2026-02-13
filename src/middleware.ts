@@ -10,8 +10,52 @@ const publicPaths = [
   "/onboarding",
 ];
 
+const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+/**
+ * Validate that a state-changing request originates from this application.
+ * Checks the Origin header (preferred) with Referer as fallback.
+ * Returns true if the request is safe, false if it should be blocked.
+ */
+export function validateCsrfOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const host = request.headers.get("host");
+
+  if (!host) return false;
+
+  // Build the set of allowed origins from the request host
+  const allowedOrigins = new Set([`https://${host}`, `http://${host}`]);
+
+  // Check Origin header first (most reliable)
+  if (origin) {
+    return allowedOrigins.has(origin);
+  }
+
+  // Fall back to Referer header
+  if (referer) {
+    try {
+      const refererOrigin = new URL(referer).origin;
+      return allowedOrigins.has(refererOrigin);
+    } catch {
+      return false;
+    }
+  }
+
+  // No Origin or Referer on a mutation request is suspicious — block it.
+  // Legitimate browser form submissions and fetch() calls include Origin.
+  return false;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // CSRF protection: validate Origin/Referer on state-changing API requests
+  if (pathname.startsWith("/api") && MUTATION_METHODS.has(request.method)) {
+    if (!validateCsrfOrigin(request)) {
+      return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 });
+    }
+  }
 
   // Allow public paths
   if (publicPaths.some((p) => pathname.startsWith(p))) {
