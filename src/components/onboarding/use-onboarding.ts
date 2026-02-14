@@ -1,14 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  type ByokAiProvider,
-  channelPlugins,
-  getAiKeyField,
-  type OnboardingConfigField,
-  superpowers,
-  validateField,
-} from "@/lib/onboarding-data";
+import { type OnboardingConfigField, usePluginRegistry } from "@/hooks/use-plugin-registry";
+import { type ByokAiProvider, getAiKeyField, superpowers } from "@/lib/onboarding-data";
 
 export type WizardMode = "onboarding" | "fleet-add";
 
@@ -126,6 +120,7 @@ export interface OnboardingActions {
 export function useOnboarding(
   mode: WizardMode = "onboarding",
 ): [OnboardingState, OnboardingActions] {
+  const registry = usePluginRegistry();
   const isFleetAdd = mode === "fleet-add";
 
   // Pre-check superpowers from existing bots in fleet-add mode
@@ -174,12 +169,12 @@ export function useOnboarding(
     const needsPowerSource =
       selectedSuperpowers.length > 0 &&
       selectedSuperpowers.some((id) => {
-        const sp = superpowers.find((s) => s.id === id);
+        const sp = registry.superpowers.find((s) => s.id === id);
         return sp?.requiresKey;
       });
     if (needsPowerSource) return STEP_ORDER;
     return STEP_ORDER.filter((s) => s !== "power-source");
-  }, [selectedSuperpowers]);
+  }, [selectedSuperpowers, registry.superpowers]);
 
   const stepIndex = effectiveStepOrder.indexOf(step);
   const totalSteps = effectiveStepOrder.length;
@@ -190,7 +185,7 @@ export function useOnboarding(
     const fields: OnboardingConfigField[] = [];
     const seen = new Set<string>();
     for (const id of selectedChannels) {
-      const plugin = channelPlugins.find((c) => c.id === id);
+      const plugin = registry.channels.find((c) => c.id === id);
       if (!plugin) continue;
       for (const field of plugin.configFields) {
         if (!seen.has(field.key)) {
@@ -200,7 +195,7 @@ export function useOnboarding(
       }
     }
     return fields;
-  }, [selectedChannels]);
+  }, [selectedChannels, registry.channels]);
 
   // Collect config fields for BYOK superpowers
   // AI-key superpowers share a single key field that depends on byokAiProvider
@@ -209,7 +204,7 @@ export function useOnboarding(
     const seen = new Set<string>();
     let needsAiKey = false;
     for (const id of selectedSuperpowers) {
-      const sp = superpowers.find((s) => s.id === id);
+      const sp = registry.superpowers.find((s) => s.id === id);
       if (!sp?.requiresKey) continue;
       if (sp.usesAiKey) {
         needsAiKey = true;
@@ -230,7 +225,7 @@ export function useOnboarding(
       }
     }
     return fields;
-  }, [selectedSuperpowers, byokAiProvider]);
+  }, [selectedSuperpowers, byokAiProvider, registry.superpowers]);
 
   // --- Actions ---
 
@@ -260,10 +255,10 @@ export function useOnboarding(
       const field = channelConfigFields.find((f) => f.key === key);
       if (!field) return;
       const value = channelKeyValues[key] || "";
-      const error = validateField(field, value);
+      const error = registry.validateField(field, value);
       setChannelKeyErrors((prev) => ({ ...prev, [key]: error }));
     },
-    [channelConfigFields, channelKeyValues],
+    [channelConfigFields, channelKeyValues, registry],
   );
 
   const toggleSuperpower = useCallback((id: string) => {
@@ -307,10 +302,10 @@ export function useOnboarding(
       const field = byokConfigFields.find((f) => f.key === key);
       if (!field) return;
       const value = byokKeyValues[key] || "";
-      const error = validateField(field, value);
+      const error = registry.validateField(field, value);
       setByokKeyErrors((prev) => ({ ...prev, [key]: error }));
     },
-    [byokConfigFields, byokKeyValues],
+    [byokConfigFields, byokKeyValues, registry],
   );
 
   const canAdvance = useCallback((): boolean => {
@@ -322,7 +317,7 @@ export function useOnboarding(
       case "connect":
         return channelConfigFields.every((f) => {
           const value = channelKeyValues[f.key] || "";
-          return validateField(f, value) === null;
+          return registry.validateField(f, value) === null;
         });
       case "superpowers":
         return true; // superpowers are optional
@@ -331,7 +326,7 @@ export function useOnboarding(
         // BYOK: all key fields must be valid
         return byokConfigFields.every((f) => {
           const value = byokKeyValues[f.key] || "";
-          return validateField(f, value) === null;
+          return registry.validateField(f, value) === null;
         });
       case "launch":
         return deployStatus === "done";
@@ -346,6 +341,7 @@ export function useOnboarding(
     byokConfigFields,
     byokKeyValues,
     deployStatus,
+    registry,
   ]);
 
   const next = useCallback(() => {
@@ -357,7 +353,7 @@ export function useOnboarding(
         let valid = true;
         for (const field of channelConfigFields) {
           const value = channelKeyValues[field.key] || "";
-          const error = validateField(field, value);
+          const error = registry.validateField(field, value);
           errors[field.key] = error;
           if (error) valid = false;
         }
@@ -370,7 +366,7 @@ export function useOnboarding(
         let valid = true;
         for (const field of byokConfigFields) {
           const value = byokKeyValues[field.key] || "";
-          const error = validateField(field, value);
+          const error = registry.validateField(field, value);
           errors[field.key] = error;
           if (error) valid = false;
         }
@@ -387,6 +383,7 @@ export function useOnboarding(
     providerMode,
     byokConfigFields,
     byokKeyValues,
+    registry,
   ]);
 
   const back = useCallback(() => {
