@@ -152,7 +152,7 @@ function PricingCard({ tier }: { tier: (typeof tiers)[number] }) {
     <div
       className={`flex flex-col rounded-sm border p-8 ${
         tier.highlighted
-          ? "border-terminal bg-terminal/5 shadow-[0_0_24px_rgba(0,255,65,0.1)]"
+          ? "border-terminal bg-terminal/5 shadow-[0_0_24px_color-mix(in_srgb,var(--terminal)_10%,transparent)]"
           : "border-border bg-card"
       }`}
     >
