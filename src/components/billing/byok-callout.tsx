@@ -14,6 +14,18 @@ export function ByokCallout({ compact }: { compact?: boolean }) {
       .catch(() => setMode("byok"));
   }, []);
 
+  if (mode === null) {
+    return compact ? (
+      <p className="text-xs text-muted-foreground">&nbsp;</p>
+    ) : (
+      <Card className="border-transparent bg-muted/30">
+        <CardContent className="py-4">
+          <div className="h-5" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (mode === "hosted") {
     return <HostedCallout compact={compact} />;
   }

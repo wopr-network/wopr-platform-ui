@@ -345,18 +345,19 @@ export default function UsagePage() {
                           placeholder="Alert at $/mo"
                           aria-label={`${label} alert limit`}
                           value={spendingLimits.perCapability[cap]?.alertAt ?? ""}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const existing = spendingLimits.perCapability[cap] ?? { alertAt: null, hardCap: null };
                             setSpendingLimits({
                               ...spendingLimits,
                               perCapability: {
                                 ...spendingLimits.perCapability,
                                 [cap]: {
-                                  ...spendingLimits.perCapability[cap],
+                                  ...existing,
                                   alertAt: e.target.value ? Number(e.target.value) : null,
                                 },
                               },
-                            })
-                          }
+                            });
+                          }}
                         />
                         <Input
                           type="number"
@@ -365,18 +366,19 @@ export default function UsagePage() {
                           placeholder="Hard cap $/mo"
                           aria-label={`${label} hard cap`}
                           value={spendingLimits.perCapability[cap]?.hardCap ?? ""}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const existing = spendingLimits.perCapability[cap] ?? { alertAt: null, hardCap: null };
                             setSpendingLimits({
                               ...spendingLimits,
                               perCapability: {
                                 ...spendingLimits.perCapability,
                                 [cap]: {
-                                  ...spendingLimits.perCapability[cap],
+                                  ...existing,
                                   hardCap: e.target.value ? Number(e.target.value) : null,
                                 },
                               },
-                            })
-                          }
+                            });
+                          }}
                         />
                       </div>
                     </div>
