@@ -1,11 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type {
-  Organization,
-  PlatformApiKey,
-  ProviderKey,
-  UserProfile,
-} from "@/lib/api";
+import type { Organization, PlatformApiKey, ProviderKey, UserProfile } from "@/lib/api";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
