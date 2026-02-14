@@ -266,7 +266,9 @@ export default function ProvidersPage() {
                   <div className="flex gap-2">
                     <Input
                       type="password"
-                      placeholder={cap?.maskedKey ? "Enter new key to replace" : "Enter your API key"}
+                      placeholder={
+                        cap?.maskedKey ? "Enter new key to replace" : "Enter your API key"
+                      }
                       value={byokKey}
                       onChange={(e) =>
                         setByokKeys((prev) => ({ ...prev, [capName]: e.target.value }))

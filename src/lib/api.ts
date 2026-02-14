@@ -510,9 +510,7 @@ export async function updateCapability(
   });
 }
 
-export async function testCapabilityKey(
-  capability: CapabilityName,
-): Promise<{ valid: boolean }> {
+export async function testCapabilityKey(capability: CapabilityName): Promise<{ valid: boolean }> {
   return apiFetch<{ valid: boolean }>(`/settings/capabilities/${capability}/test`, {
     method: "POST",
   });
