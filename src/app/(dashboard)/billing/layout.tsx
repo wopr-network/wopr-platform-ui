@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { InferenceMode } from "@/lib/api";
+import { getInferenceMode } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-const billingNav = [
+const baseBillingNav = [
   { label: "Plans", href: "/billing/plans" },
   { label: "Credits", href: "/billing/credits" },
   { label: "Usage", href: "/billing/usage" },
   { label: "Payment", href: "/billing/payment" },
 ];
+
+const hostedNav = { label: "Hosted Usage", href: "/billing/usage/hosted" };
 
 export default function BillingLayout({
   children,
@@ -17,6 +22,18 @@ export default function BillingLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const [mode, setMode] = useState<InferenceMode | null>(null);
+
+  useEffect(() => {
+    getInferenceMode()
+      .then(setMode)
+      .catch(() => setMode("byok"));
+  }, []);
+
+  const billingNav =
+    mode === "hosted"
+      ? [...baseBillingNav.slice(0, 2), hostedNav, ...baseBillingNav.slice(2)]
+      : baseBillingNav;
 
   return (
     <div className="flex h-full">
