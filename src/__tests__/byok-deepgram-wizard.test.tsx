@@ -21,10 +21,7 @@ describe("ByokDeepgramWizard", () => {
     render(<ByokDeepgramWizard onComplete={vi.fn()} />);
     const link = screen.getByText("Open Deepgram Console");
     expect(link).toBeInTheDocument();
-    expect(link.closest("a")).toHaveAttribute(
-      "href",
-      "https://console.deepgram.com/api-keys",
-    );
+    expect(link.closest("a")).toHaveAttribute("href", "https://console.deepgram.com/api-keys");
   });
 
   it("shows step indicators", () => {
@@ -72,9 +69,7 @@ describe("ByokDeepgramWizard", () => {
     fireEvent.click(screen.getByText("Validate Key"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Invalid API key. Please check and try again."),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Invalid API key. Please check and try again.")).toBeInTheDocument();
     });
   });
 
@@ -111,17 +106,18 @@ describe("ByokDeepgramWizard", () => {
 
     fireEvent.click(screen.getByText("Continue"));
 
-    expect(onComplete).toHaveBeenCalledWith("my-key");
     expect(screen.getByText("Voice (STT) is ready")).toBeInTheDocument();
     expect(screen.getByText("Deepgram STT")).toBeInTheDocument();
     expect(screen.getByText("Connected")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(onComplete).toHaveBeenCalledWith("my-key");
+    });
   });
 
   it("shows Switch to Hosted escape hatch when callback provided", () => {
     const onSwitch = vi.fn();
-    render(
-      <ByokDeepgramWizard onComplete={vi.fn()} onSwitchToHosted={onSwitch} />,
-    );
+    render(<ByokDeepgramWizard onComplete={vi.fn()} onSwitchToHosted={onSwitch} />);
     const switchBtn = screen.getByText("Switch to Hosted");
     expect(switchBtn).toBeInTheDocument();
 
@@ -136,9 +132,7 @@ describe("ByokDeepgramWizard", () => {
 
   it("shows Back button when onCancel provided", () => {
     const onCancel = vi.fn();
-    render(
-      <ByokDeepgramWizard onComplete={vi.fn()} onCancel={onCancel} />,
-    );
+    render(<ByokDeepgramWizard onComplete={vi.fn()} onCancel={onCancel} />);
     const backBtn = screen.getByText("Back");
     fireEvent.click(backBtn);
     expect(onCancel).toHaveBeenCalledOnce();
@@ -146,9 +140,7 @@ describe("ByokDeepgramWizard", () => {
 
   it("mentions encryption at rest", () => {
     render(<ByokDeepgramWizard onComplete={vi.fn()} />);
-    expect(
-      screen.getByText(/encrypted at rest/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/encrypted at rest/)).toBeInTheDocument();
   });
 
   it("disables Validate Key button when input is empty", () => {

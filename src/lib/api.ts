@@ -563,9 +563,13 @@ export async function updateCapability(
   });
 }
 
-export async function testCapabilityKey(capability: CapabilityName): Promise<{ valid: boolean }> {
+export async function testCapabilityKey(
+  capability: CapabilityName,
+  key?: string,
+): Promise<{ valid: boolean }> {
   return apiFetch<{ valid: boolean }>(`/settings/capabilities/${capability}/test`, {
     method: "POST",
+    ...(key ? { body: JSON.stringify({ key }) } : {}),
   });
 }
 
@@ -685,18 +689,11 @@ export interface KeyValidationResult {
 
 export async function validateDeepgramKey(key: string): Promise<KeyValidationResult> {
   try {
-    const res = await fetch("https://api.deepgram.com/v1/projects", {
-      method: "GET",
-      headers: { Authorization: `Token ${key}` },
-    });
-    if (res.ok) {
-      return { valid: true };
-    }
-    if (res.status === 401 || res.status === 403) {
-      return { valid: false, message: "Invalid API key. Please check and try again." };
-    }
-    return { valid: false, message: `Unexpected response (${res.status}). Please try again.` };
+    const result = await testCapabilityKey("transcription", key);
+    return result.valid
+      ? { valid: true }
+      : { valid: false, message: "Invalid API key. Please check and try again." };
   } catch {
-    return { valid: false, message: "Could not reach Deepgram. Check your connection." };
+    return { valid: false, message: "Could not validate key. Please try again." };
   }
 }

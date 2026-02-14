@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { validateDeepgramKey } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 type WizardStep = "enter-key" | "confirmed";
 
@@ -44,6 +44,7 @@ export function ByokDeepgramWizard({
   );
 
   const handleValidate = useCallback(async () => {
+    if (validating) return;
     const trimmed = apiKey.trim();
     if (!trimmed) {
       setError("API key is required");
@@ -68,12 +69,13 @@ export function ByokDeepgramWizard({
     } finally {
       setValidating(false);
     }
-  }, [apiKey]);
+  }, [apiKey, validating]);
 
   const handleContinue = useCallback(() => {
     if (validated) {
+      const trimmed = apiKey.trim();
       setStep("confirmed");
-      onComplete(apiKey.trim());
+      setTimeout(() => onComplete(trimmed), 0);
     }
   }, [validated, apiKey, onComplete]);
 
@@ -153,9 +155,7 @@ export function ByokDeepgramWizard({
                         <CheckIcon /> Valid
                       </span>
                     )}
-                    {error && !validating && (
-                      <span className="text-amber-500">{error}</span>
-                    )}
+                    {error && !validating && <span className="text-amber-500">{error}</span>}
                   </div>
                 </div>
                 <Input
@@ -166,7 +166,7 @@ export function ByokDeepgramWizard({
                   value={apiKey}
                   onChange={(e) => handleKeyChange(e.target.value)}
                   onBlur={() => {
-                    if (apiKey.trim()) handleValidate();
+                    if (apiKey.trim() && !validating) handleValidate();
                   }}
                   onKeyDown={handleKeyDown}
                   className={cn(
@@ -191,11 +191,7 @@ export function ByokDeepgramWizard({
                 >
                   {validating ? "Checking..." : "Validate Key"}
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={handleContinue}
-                  disabled={!validated || validating}
-                >
+                <Button size="sm" onClick={handleContinue} disabled={!validated || validating}>
                   Continue
                 </Button>
               </div>
@@ -210,8 +206,7 @@ export function ByokDeepgramWizard({
                 onClick={onSwitchToHosted}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                Prefer zero setup?{" "}
-                <span className="underline">Switch to Hosted</span>
+                Prefer zero setup? <span className="underline">Switch to Hosted</span>
               </button>
             </div>
           )}
