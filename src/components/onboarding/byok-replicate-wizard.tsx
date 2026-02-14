@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,48 +32,51 @@ export function ByokReplicateWizard({
   const [validationState, setValidationState] = useState<ValidationState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
+  const latestTokenRef = useRef("");
 
-  const validate = useCallback(
-    async (value: string) => {
-      if (!value.trim()) return;
+  const validate = useCallback(async (value: string) => {
+    if (!value.trim()) return;
 
-      // Client-side format check
-      if (!value.startsWith("r8_")) {
+    // Client-side format check
+    if (!value.startsWith("r8_")) {
+      setValidationState("invalid");
+      setErrorMessage("Token must start with r8_");
+      return;
+    }
+
+    latestTokenRef.current = value;
+    setValidationState("validating");
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("https://api.replicate.com/v1/account", {
+        headers: { Authorization: `Bearer ${value}` },
+      });
+
+      // Discard stale response if user changed token while fetch was in-flight
+      if (latestTokenRef.current !== value) return;
+
+      if (res.ok) {
+        const data = (await res.json()) as { username?: string };
+        setValidationState("valid");
+        setAccountUsername(data.username ?? null);
+        setErrorMessage(null);
+      } else if (res.status === 401) {
         setValidationState("invalid");
-        setErrorMessage("Token must start with r8_");
-        return;
-      }
-
-      setValidationState("validating");
-      setErrorMessage(null);
-
-      try {
-        const res = await fetch("https://api.replicate.com/v1/account", {
-          headers: { Authorization: `Bearer ${value}` },
-        });
-
-        if (res.ok) {
-          const data = (await res.json()) as { username?: string };
-          setValidationState("valid");
-          setAccountUsername(data.username ?? null);
-          setErrorMessage(null);
-        } else if (res.status === 401) {
-          setValidationState("invalid");
-          setErrorMessage("Invalid token -- check that you copied the full token.");
-          setAccountUsername(null);
-        } else {
-          setValidationState("invalid");
-          setErrorMessage(`Replicate returned ${res.status}. Try again in a moment.`);
-          setAccountUsername(null);
-        }
-      } catch {
+        setErrorMessage("Invalid token -- check that you copied the full token.");
+        setAccountUsername(null);
+      } else {
         setValidationState("invalid");
-        setErrorMessage("Could not reach Replicate. Check your connection.");
+        setErrorMessage(`Replicate returned ${res.status}. Try again in a moment.`);
         setAccountUsername(null);
       }
-    },
-    [],
-  );
+    } catch {
+      if (latestTokenRef.current !== value) return;
+      setValidationState("invalid");
+      setErrorMessage("Could not reach Replicate. Check your connection.");
+      setAccountUsername(null);
+    }
+  }, []);
 
   const handleBlur = useCallback(() => {
     if (token.trim()) {
@@ -122,7 +125,11 @@ export function ByokReplicateWizard({
             </div>
             <h2 className="text-2xl font-bold tracking-tight">Connect Replicate</h2>
             <p className="mt-2 text-muted-foreground">
-              One key powers {unlockedCapabilities.length === 2 ? "both ImageGen and VideoGen" : unlockedCapabilities.map((c) => CAPABILITY_LABELS[c].name).join(" and ")}.
+              One key powers{" "}
+              {unlockedCapabilities.length === 2
+                ? "both ImageGen and VideoGen"
+                : unlockedCapabilities.map((c) => CAPABILITY_LABELS[c].name).join(" and ")}
+              .
             </p>
           </div>
 
@@ -220,6 +227,7 @@ export function ByokReplicateWizard({
           <div className="space-y-3">
             {unlockedCapabilities.map((capId) => {
               const cap = CAPABILITY_LABELS[capId];
+              if (!cap) return null;
               return (
                 <Card key={capId}>
                   <CardContent className="flex items-center gap-3 py-4">
@@ -276,6 +284,7 @@ function LockIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={cn("h-5 w-5", className)}
+      aria-hidden="true"
     >
       <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -294,6 +303,7 @@ function CheckIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={cn("h-4 w-4", className)}
+      aria-hidden="true"
     >
       <path d="M20 6 9 17l-5-5" />
     </svg>
@@ -307,9 +317,14 @@ function Spinner() {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
     </svg>
   );
 }
