@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TypingEffectProps {
   text: string;
@@ -12,6 +12,8 @@ interface TypingEffectProps {
 export function TypingEffect({ text, speed = 50, className, onComplete }: TypingEffectProps) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     setDisplayed("");
@@ -23,11 +25,11 @@ export function TypingEffect({ text, speed = 50, className, onComplete }: Typing
       if (i >= text.length) {
         clearInterval(interval);
         setDone(true);
-        onComplete?.();
+        onCompleteRef.current?.();
       }
     }, speed);
     return () => clearInterval(interval);
-  }, [text, speed, onComplete]);
+  }, [text, speed]);
 
   return (
     <span className={className}>

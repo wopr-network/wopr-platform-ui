@@ -12,6 +12,7 @@ export function Hero() {
       </Badge>
 
       <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground max-w-4xl leading-[1.1]">
+        <span className="sr-only">What would you do with your own WOPR Bot?</span>
         <TypingEffect text="What would you do with your own WOPR Bot?" speed={40} />
       </h1>
 
