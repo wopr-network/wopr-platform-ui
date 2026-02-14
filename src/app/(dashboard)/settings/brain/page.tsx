@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ModelSelection } from "@/lib/api";
-import { getModelSelection, updateModelSelection } from "@/lib/api";
+import { getModelSelection, saveProviderKey, updateModelSelection } from "@/lib/api";
 import {
   additionalModels,
   allModels,
@@ -31,9 +31,14 @@ export default function BrainSettingsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const sel = await getModelSelection();
-    setSelection(sel);
-    setLoading(false);
+    try {
+      const sel = await getModelSelection();
+      setSelection(sel);
+    } catch (err) {
+      console.error("Failed to load model selection:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -42,27 +47,39 @@ export default function BrainSettingsPage() {
 
   async function handleSelectModel(model: ModelOption) {
     setSaving(true);
-    const updated = await updateModelSelection({
-      modelId: model.id,
-      providerId: model.providerId,
-      mode: "hosted",
-    });
-    setSelection(updated);
-    setSaving(false);
+    try {
+      const updated = await updateModelSelection({
+        modelId: model.id,
+        providerId: model.providerId,
+        mode: "hosted",
+      });
+      setSelection(updated);
+    } catch (err) {
+      console.error("Failed to update model selection:", err);
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleSaveByokKey(providerId: string) {
     if (!byokKey) return;
     setSaving(true);
-    const updated = await updateModelSelection({
-      modelId: selection?.modelId ?? "anthropic/claude-sonnet-4-20250514",
-      providerId,
-      mode: "byok",
-    });
-    setSelection(updated);
-    setByokKey("");
-    setByokProvider(null);
-    setSaving(false);
+    try {
+      await saveProviderKey(providerId, byokKey);
+      const updated = await updateModelSelection({
+        modelId: selection?.modelId ?? "anthropic/claude-sonnet-4-20250514",
+        providerId,
+        mode: "byok",
+        byokKey,
+      });
+      setSelection(updated);
+      setByokKey("");
+      setByokProvider(null);
+    } catch (err) {
+      console.error("Failed to save BYOK key:", err);
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {

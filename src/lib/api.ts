@@ -661,6 +661,7 @@ export interface ModelSelection {
   modelId: string;
   providerId: string;
   mode: "hosted" | "byok";
+  byokKey?: string;
 }
 
 // --- Model selection API ---
