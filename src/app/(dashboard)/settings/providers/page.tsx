@@ -189,7 +189,7 @@ export default function ProvidersPage() {
           <Skeleton className="h-4 w-80" />
         </div>
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-sm border p-6 space-y-4">
+          <div key={`skeleton-${i}`} className="rounded-sm border p-6 space-y-4">
             <Skeleton className="h-5 w-32" />
             <div className="space-y-3">
               <Skeleton className="h-12 w-full" />

@@ -61,7 +61,7 @@ export default function PluginDetailPage() {
         </div>
         <div className="flex gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-5 w-20" />
+            <Skeleton key={`skeleton-${i}`} className="h-5 w-20" />
           ))}
         </div>
         <Skeleton className="h-64 w-full" />

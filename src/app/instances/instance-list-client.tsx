@@ -139,7 +139,7 @@ export function InstanceListClient() {
             </TableHeader>
             <TableBody>
               {Array.from({ length: 4 }).map((_, i) => (
-                <TableRow key={i}>
+                <TableRow key={`skeleton-${i}`}>
                   <TableCell>
                     <Skeleton className="h-4 w-28" />
                   </TableCell>

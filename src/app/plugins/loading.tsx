@@ -10,7 +10,7 @@ export default function PluginsLoading() {
       <Skeleton className="mb-6 h-9 w-48" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-sm border p-6 space-y-4">
+          <div key={`skeleton-${i}`} className="rounded-sm border p-6 space-y-4">
             <div className="flex items-start gap-3">
               <Skeleton className="h-10 w-10 rounded-lg" />
               <div className="flex-1 space-y-2">

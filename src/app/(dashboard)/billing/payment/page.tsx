@@ -84,7 +84,7 @@ export default function PaymentPage() {
         <div className="rounded-sm border p-6 space-y-4">
           <Skeleton className="h-5 w-36" />
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between rounded-md border p-3">
+            <div key={`skeleton-${i}`} className="flex items-center justify-between rounded-md border p-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="h-8 w-12" />
                 <div className="space-y-1">

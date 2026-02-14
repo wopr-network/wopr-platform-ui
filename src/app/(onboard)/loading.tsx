@@ -11,7 +11,7 @@ export default function OnboardLoading() {
           </div>
           <div className="rounded-sm border p-6 space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="space-y-2">
+              <div key={`skeleton-${i}`} className="space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-9 w-full" />
               </div>
