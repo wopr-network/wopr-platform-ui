@@ -346,7 +346,10 @@ export default function UsagePage() {
                           aria-label={`${label} alert limit`}
                           value={spendingLimits.perCapability[cap]?.alertAt ?? ""}
                           onChange={(e) => {
-                            const existing = spendingLimits.perCapability[cap] ?? { alertAt: null, hardCap: null };
+                            const existing = spendingLimits.perCapability[cap] ?? {
+                              alertAt: null,
+                              hardCap: null,
+                            };
                             setSpendingLimits({
                               ...spendingLimits,
                               perCapability: {
@@ -367,7 +370,10 @@ export default function UsagePage() {
                           aria-label={`${label} hard cap`}
                           value={spendingLimits.perCapability[cap]?.hardCap ?? ""}
                           onChange={(e) => {
-                            const existing = spendingLimits.perCapability[cap] ?? { alertAt: null, hardCap: null };
+                            const existing = spendingLimits.perCapability[cap] ?? {
+                              alertAt: null,
+                              hardCap: null,
+                            };
                             setSpendingLimits({
                               ...spendingLimits,
                               perCapability: {
