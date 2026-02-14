@@ -19,7 +19,9 @@ function OnboardingContent() {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background" />}>
+    <Suspense
+      fallback={<div className="flex min-h-screen items-center justify-center bg-background" />}
+    >
       <OnboardingContent />
     </Suspense>
   );
