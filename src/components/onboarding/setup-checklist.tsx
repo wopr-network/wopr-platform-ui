@@ -113,7 +113,7 @@ export function SetupChecklist() {
                   <Badge variant="terminal">Ready</Badge>
                 ) : (
                   <Button asChild variant="link" size="xs" className="h-auto p-0">
-                    <Link href={`/settings/channels/${ch.id}`}>Set up &rarr;</Link>
+                    <Link href="/settings/providers">Set up &rarr;</Link>
                   </Button>
                 )}
               </div>
