@@ -81,7 +81,7 @@ const tiers = [
     highlighted: false,
   },
   {
-    name: "Standard",
+    name: "Pro",
     price: "$5",
     period: "/mo",
     tagline: "Where most people live.",
@@ -96,7 +96,7 @@ const tiers = [
     highlighted: true,
   },
   {
-    name: "Pay as you go",
+    name: "Enterprise",
     price: "Credits",
     period: "",
     tagline: "No ceiling.",
@@ -222,6 +222,10 @@ export function LandingPage() {
         <h2 className="mb-4 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl">
           Your WOPR Bot talks everywhere. Thinks with anything.
         </h2>
+        <p className="mb-8 max-w-2xl text-muted-foreground">
+          WOPR is an AI agent platform with a plugin ecosystem. Bring your own API keys or use ours
+          &mdash; either way, you stay in control.
+        </p>
         <p className="mb-16 max-w-2xl text-muted-foreground">
           Pick a channel. Pick a brain. Your bot handles the rest.
         </p>
@@ -275,6 +279,9 @@ export function LandingPage() {
         </Link>
         <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
           Privacy
+        </Link>
+        <Link href="/docs" className="underline underline-offset-4 hover:text-foreground">
+          Docs
         </Link>
         <a
           href="https://github.com/wopr-network"
