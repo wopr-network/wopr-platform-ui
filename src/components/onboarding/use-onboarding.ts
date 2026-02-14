@@ -169,6 +169,7 @@ export function useOnboarding(): [OnboardingState, OnboardingActions] {
       setSelectedChannels(preset.channels);
       setSelectedProviders(preset.providers);
       setSelectedPlugins(preset.plugins);
+      setProviderModeState("byok");
       setStep("keys");
     }
   }, []);

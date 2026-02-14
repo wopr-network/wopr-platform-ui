@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { providerPlugins } from "@/lib/onboarding-data";
@@ -28,6 +28,10 @@ export function StepProviders({
   onProviderModeChange,
 }: StepProvidersProps) {
   const [byokExpanded, setByokExpanded] = useState(providerMode === "byok");
+
+  useEffect(() => {
+    setByokExpanded(providerMode === "byok");
+  }, [providerMode]);
 
   function selectHosted() {
     onProviderModeChange("hosted");
