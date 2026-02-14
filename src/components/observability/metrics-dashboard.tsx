@@ -45,8 +45,8 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
     return (
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={`skeleton-${i}`} className="rounded-sm border p-4 space-y-2">
+          {Array.from({ length: 4 }, (_, n) => `sk-${n}`).map((skId) => (
+            <div key={skId} className="rounded-sm border p-4 space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-32 w-full" />
             </div>

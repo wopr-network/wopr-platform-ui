@@ -74,8 +74,8 @@ export function TransactionHistory() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={`skeleton-${i}`} className="flex items-center justify-between">
+            {Array.from({ length: 4 }, (_, n) => `sk-${n}`).map((skId) => (
+              <div key={skId} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Skeleton className="size-8 rounded-full" />
                   <div className="space-y-1">

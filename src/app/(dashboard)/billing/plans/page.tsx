@@ -68,13 +68,13 @@ export default function PlansPage() {
           <Skeleton className="h-4 w-64" />
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={`skeleton-${i}`} className="flex flex-col rounded-sm border p-6 space-y-4">
+          {Array.from({ length: 4 }, (_, n) => `sk-${n}`).map((skId) => (
+            <div key={skId} className="flex flex-col rounded-sm border p-6 space-y-4">
               <Skeleton className="h-6 w-20" />
               <Skeleton className="h-5 w-24" />
               <div className="flex-1 space-y-2">
-                {Array.from({ length: 4 }).map((_, j) => (
-                  <Skeleton key={`skeleton-feature-${j}`} className="h-4 w-full" />
+                {Array.from({ length: 4 }, (_, n) => `skf-${n}`).map((fId) => (
+                  <Skeleton key={fId} className="h-4 w-full" />
                 ))}
               </div>
               <Skeleton className="h-9 w-full" />

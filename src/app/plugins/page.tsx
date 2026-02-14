@@ -109,8 +109,8 @@ export default function PluginsPage() {
         </div>
         <Skeleton className="mb-6 h-9 w-48" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={`skeleton-${i}`}>
+          {Array.from({ length: 6 }, (_, n) => `sk-${n}`).map((skId, i) => (
+            <Card key={skId}>
               <CardHeader>
                 <div className="flex items-start gap-3">
                   <Skeleton className="h-10 w-10 rounded-lg" />

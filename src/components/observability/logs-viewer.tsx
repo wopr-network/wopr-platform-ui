@@ -127,9 +127,9 @@ export function LogsViewer({ instanceId }: { instanceId: string }) {
         <CardContent>
           {loading && logs.length === 0 ? (
             <div className="h-[400px] space-y-2 rounded-md bg-zinc-950 p-4">
-              {Array.from({ length: 12 }).map((_, i) => (
+              {Array.from({ length: 12 }, (_, n) => `sk-${n}`).map((skId, i) => (
                 <Skeleton
-                  key={`skeleton-${i}`}
+                  key={skId}
                   className="h-4 bg-zinc-800"
                   style={{ width: `${60 + ((i * 17) % 40)}%` }}
                 />

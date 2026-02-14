@@ -75,8 +75,8 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
         <Skeleton className="h-px w-full" />
         <Skeleton className="h-9 w-96" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={`skeleton-${i}`} className="rounded-sm border p-4 space-y-2">
+          {Array.from({ length: 8 }, (_, n) => `sk-${n}`).map((skId) => (
+            <div key={skId} className="rounded-sm border p-4 space-y-2">
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-5 w-20" />
             </div>

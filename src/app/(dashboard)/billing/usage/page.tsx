@@ -103,8 +103,8 @@ export default function UsagePage() {
         </div>
         <div className="rounded-sm border p-6 space-y-4">
           <Skeleton className="h-5 w-32" />
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={`skeleton-${i}`} className="space-y-1.5">
+          {Array.from({ length: 3 }, (_, n) => `sk-${n}`).map((skId) => (
+            <div key={skId} className="space-y-1.5">
               <div className="flex justify-between">
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-4 w-24" />

@@ -114,8 +114,8 @@ export default function OrgPage() {
           <Skeleton className="h-4 w-20" />
         </div>
         <div className="rounded-md border">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={`skeleton-${i}`} className="flex items-center gap-4 border-b px-4 py-3 last:border-b-0">
+          {Array.from({ length: 3 }, (_, n) => `sk-${n}`).map((skId) => (
+            <div key={skId} className="flex items-center gap-4 border-b px-4 py-3 last:border-b-0">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-4 w-36" />
               <Skeleton className="h-5 w-14" />

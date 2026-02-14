@@ -127,8 +127,8 @@ export default function ApiKeysPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <TableRow key={`skeleton-${i}`}>
+              {Array.from({ length: 3 }, (_, n) => `sk-${n}`).map((skId) => (
+                <TableRow key={skId}>
                   <TableCell>
                     <Skeleton className="h-4 w-24" />
                   </TableCell>

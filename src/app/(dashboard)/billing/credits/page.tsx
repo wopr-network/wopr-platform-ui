@@ -45,8 +45,8 @@ export default function CreditsPage() {
         <div className="rounded-sm border p-6 space-y-3">
           <Skeleton className="h-5 w-28" />
           <div className="grid grid-cols-3 gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={`skeleton-${i}`} className="h-16 w-full" />
+            {Array.from({ length: 3 }, (_, n) => `sk-${n}`).map((skId) => (
+              <Skeleton key={skId} className="h-16 w-full" />
             ))}
           </div>
         </div>
