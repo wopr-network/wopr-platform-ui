@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  type ByokAiProvider,
   channelPlugins,
+  getAiKeyField,
   type OnboardingConfigField,
   superpowers,
   validateField,
@@ -83,6 +85,7 @@ export interface OnboardingState {
   selectedSuperpowers: string[];
   // Step 5: Power source
   providerMode: ProviderMode;
+  byokAiProvider: ByokAiProvider;
   creditBalance: string;
   byokKeyValues: Record<string, string>;
   byokKeyErrors: Record<string, string | null>;
@@ -108,6 +111,7 @@ export interface OnboardingActions {
   toggleSuperpower: (id: string) => void;
   // Step 5
   setProviderMode: (mode: ProviderMode) => void;
+  setByokAiProvider: (provider: ByokAiProvider) => void;
   setByokKeyValue: (key: string, value: string) => void;
   validateByokKey: (key: string) => void;
   // Navigation
@@ -151,6 +155,7 @@ export function useOnboarding(
   const [selectedSuperpowers, setSelectedSuperpowers] = useState<string[]>(fleetSuperpowers);
   // Step 5
   const [providerMode, setProviderModeState] = useState<ProviderMode>("hosted");
+  const [byokAiProvider, setByokAiProviderState] = useState<ByokAiProvider>("openrouter");
   const [byokKeyValues, setByokKeyValues] = useState<Record<string, string>>({});
   const [byokKeyErrors, setByokKeyErrors] = useState<Record<string, string | null>>({});
   // Step 6
@@ -198,12 +203,18 @@ export function useOnboarding(
   }, [selectedChannels]);
 
   // Collect config fields for BYOK superpowers
+  // AI-key superpowers share a single key field that depends on byokAiProvider
   const byokConfigFields = useMemo(() => {
     const fields: OnboardingConfigField[] = [];
     const seen = new Set<string>();
+    let needsAiKey = false;
     for (const id of selectedSuperpowers) {
       const sp = superpowers.find((s) => s.id === id);
       if (!sp?.requiresKey) continue;
+      if (sp.usesAiKey) {
+        needsAiKey = true;
+        continue;
+      }
       for (const field of sp.configFields) {
         if (!seen.has(field.key)) {
           seen.add(field.key);
@@ -211,8 +222,15 @@ export function useOnboarding(
         }
       }
     }
+    if (needsAiKey) {
+      const aiField = getAiKeyField(byokAiProvider);
+      if (!seen.has(aiField.key)) {
+        seen.add(aiField.key);
+        fields.unshift(aiField);
+      }
+    }
     return fields;
-  }, [selectedSuperpowers]);
+  }, [selectedSuperpowers, byokAiProvider]);
 
   // --- Actions ---
 
@@ -257,6 +275,27 @@ export function useOnboarding(
   const setProviderMode = useCallback((mode: ProviderMode) => {
     setProviderModeState(mode);
   }, []);
+
+  const setByokAiProvider = useCallback(
+    (provider: ByokAiProvider) => {
+      if (provider === byokAiProvider) return;
+      setByokAiProviderState(provider);
+      // Clear AI key values when switching providers (different key formats)
+      setByokKeyValues((prev) => {
+        const next = { ...prev };
+        delete next.openai_api_key;
+        delete next.openrouter_api_key;
+        return next;
+      });
+      setByokKeyErrors((prev) => {
+        const next = { ...prev };
+        delete next.openai_api_key;
+        delete next.openrouter_api_key;
+        return next;
+      });
+    },
+    [byokAiProvider],
+  );
 
   const setByokKeyValue = useCallback((key: string, value: string) => {
     setByokKeyValues((prev) => ({ ...prev, [key]: value }));
@@ -388,6 +427,7 @@ export function useOnboarding(
     setChannelKeyErrors({});
     setSelectedSuperpowers(isFleetAdd ? fleetSuperpowers : []);
     setProviderModeState("hosted");
+    setByokAiProviderState("openrouter");
     setByokKeyValues({});
     setByokKeyErrors({});
     setDeployStatus("idle");
@@ -407,6 +447,7 @@ export function useOnboarding(
     channelKeyErrors,
     selectedSuperpowers,
     providerMode,
+    byokAiProvider,
     creditBalance: "$5.00",
     byokKeyValues,
     byokKeyErrors,
@@ -425,6 +466,7 @@ export function useOnboarding(
     validateChannelKey,
     toggleSuperpower,
     setProviderMode,
+    setByokAiProvider,
     setByokKeyValue,
     validateByokKey,
     next,
