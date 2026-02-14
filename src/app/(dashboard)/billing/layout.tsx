@@ -37,10 +37,7 @@ export default function BillingLayout({
           {billingNav.map((item) => {
             if (item.hostedOnly && mode === "byok") return null;
             return (
-              <li
-                key={item.href}
-                className={cn(item.hostedOnly && mode === null && "invisible")}
-              >
+              <li key={item.href} className={cn(item.hostedOnly && mode === null && "invisible")}>
                 <Link
                   href={item.href}
                   className={cn(
