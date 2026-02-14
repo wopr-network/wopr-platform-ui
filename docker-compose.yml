@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://platform-api:3001
+        NEXT_PUBLIC_API_URL: http://localhost:3001
     ports:
       - "3000:3000"
     environment:
