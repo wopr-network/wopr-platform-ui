@@ -31,13 +31,20 @@ export function TransactionHistory() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadInitial = useCallback(async () => {
     setLoading(true);
-    const res = await getCreditHistory();
-    setTransactions(res.transactions);
-    setCursor(res.nextCursor);
-    setLoading(false);
+    setError(null);
+    try {
+      const res = await getCreditHistory();
+      setTransactions(res.transactions);
+      setCursor(res.nextCursor);
+    } catch {
+      setError("Failed to load transactions.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -47,10 +54,15 @@ export function TransactionHistory() {
   async function loadMore() {
     if (!cursor) return;
     setLoadingMore(true);
-    const res = await getCreditHistory(cursor);
-    setTransactions((prev) => [...prev, ...res.transactions]);
-    setCursor(res.nextCursor);
-    setLoadingMore(false);
+    try {
+      const res = await getCreditHistory(cursor);
+      setTransactions((prev) => [...prev, ...res.transactions]);
+      setCursor(res.nextCursor);
+    } catch {
+      setError("Failed to load more transactions.");
+    } finally {
+      setLoadingMore(false);
+    }
   }
 
   if (loading) {
@@ -62,6 +74,24 @@ export function TransactionHistory() {
         <CardContent>
           <div className="flex h-20 items-center justify-center text-muted-foreground">
             Loading transactions...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error && transactions.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Transaction History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-20 flex-col items-center justify-center gap-2 text-muted-foreground">
+            <p>{error}</p>
+            <button onClick={loadInitial} className="text-sm underline hover:text-foreground">
+              Retry
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -121,6 +151,9 @@ export function TransactionHistory() {
                 );
               })}
             </div>
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
             {cursor && (
               <div className="pt-2">
                 <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>

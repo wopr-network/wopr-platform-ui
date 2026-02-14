@@ -11,22 +11,40 @@ import { getCreditBalance } from "@/lib/api";
 export default function CreditsPage() {
   const [balance, setBalance] = useState<CreditBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const data = await getCreditBalance();
-    setBalance(data);
-    setLoading(false);
+    setError(null);
+    try {
+      const data = await getCreditBalance();
+      setBalance(data);
+    } catch {
+      setError("Failed to load credit balance.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  if (loading || !balance) {
+  if (loading) {
     return (
       <div className="flex h-40 items-center justify-center text-muted-foreground">
         Loading credits...
+      </div>
+    );
+  }
+
+  if (error || !balance) {
+    return (
+      <div className="flex h-40 flex-col items-center justify-center gap-2 text-muted-foreground">
+        <p>{error ?? "Unable to load credits."}</p>
+        <button onClick={load} className="text-sm underline hover:text-foreground">
+          Retry
+        </button>
       </div>
     );
   }

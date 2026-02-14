@@ -24,14 +24,17 @@ const TIERS: CreditTier[] = [
 export function BuyCreditsPanel() {
   const [selected, setSelected] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleCheckout() {
     if (selected === null) return;
     setLoading(true);
+    setError(null);
     try {
       const { checkoutUrl } = await createCreditCheckout(selected);
       window.location.href = checkoutUrl;
     } catch {
+      setError("Checkout failed. Please try again.");
       setLoading(false);
     }
   }
@@ -64,6 +67,7 @@ export function BuyCreditsPanel() {
             </button>
           ))}
         </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <Button
           onClick={handleCheckout}
           disabled={selected === null || loading}
