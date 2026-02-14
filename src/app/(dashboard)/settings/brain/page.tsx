@@ -28,14 +28,17 @@ export default function BrainSettingsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("models");
   const [byokKey, setByokKey] = useState("");
   const [byokProvider, setByokProvider] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const sel = await getModelSelection();
       setSelection(sel);
+      setError(null);
     } catch (err) {
       console.error("Failed to load model selection:", err);
+      setError("Failed to load model settings. Please try refreshing the page.");
     } finally {
       setLoading(false);
     }
@@ -47,6 +50,7 @@ export default function BrainSettingsPage() {
 
   async function handleSelectModel(model: ModelOption) {
     setSaving(true);
+    setError(null);
     try {
       const updated = await updateModelSelection({
         modelId: model.id,
@@ -56,6 +60,7 @@ export default function BrainSettingsPage() {
       setSelection(updated);
     } catch (err) {
       console.error("Failed to update model selection:", err);
+      setError("Failed to update model selection. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -64,19 +69,20 @@ export default function BrainSettingsPage() {
   async function handleSaveByokKey(providerId: string) {
     if (!byokKey) return;
     setSaving(true);
+    setError(null);
     try {
       await saveProviderKey(providerId, byokKey);
       const updated = await updateModelSelection({
         modelId: selection?.modelId ?? "anthropic/claude-sonnet-4-20250514",
         providerId,
         mode: "byok",
-        byokKey,
       });
       setSelection(updated);
       setByokKey("");
       setByokProvider(null);
     } catch (err) {
       console.error("Failed to save BYOK key:", err);
+      setError("Failed to save your API key. Please check the key and try again.");
     } finally {
       setSaving(false);
     }
@@ -100,6 +106,12 @@ export default function BrainSettingsPage() {
           Choose which AI model powers your WOPR. Changes take effect immediately.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Current selection */}
       {currentModel && (
