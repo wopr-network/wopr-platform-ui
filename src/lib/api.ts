@@ -675,3 +675,28 @@ export async function updateModelSelection(data: ModelSelection): Promise<ModelS
     body: JSON.stringify(data),
   });
 }
+
+// --- BYOK key validation ---
+
+export interface KeyValidationResult {
+  valid: boolean;
+  message?: string;
+}
+
+export async function validateDeepgramKey(key: string): Promise<KeyValidationResult> {
+  try {
+    const res = await fetch("https://api.deepgram.com/v1/projects", {
+      method: "GET",
+      headers: { Authorization: `Token ${key}` },
+    });
+    if (res.ok) {
+      return { valid: true };
+    }
+    if (res.status === 401 || res.status === 403) {
+      return { valid: false, message: "Invalid API key. Please check and try again." };
+    }
+    return { valid: false, message: `Unexpected response (${res.status}). Please try again.` };
+  } catch {
+    return { valid: false, message: "Could not reach Deepgram. Check your connection." };
+  }
+}
