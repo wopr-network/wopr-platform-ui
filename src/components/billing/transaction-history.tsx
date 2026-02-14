@@ -89,7 +89,7 @@ export function TransactionHistory() {
         <CardContent>
           <div className="flex h-20 flex-col items-center justify-center gap-2 text-muted-foreground">
             <p>{error}</p>
-            <button onClick={loadInitial} className="text-sm underline hover:text-foreground">
+            <button type="button" onClick={loadInitial} className="text-sm underline hover:text-foreground">
               Retry
             </button>
           </div>
@@ -151,9 +151,7 @@ export function TransactionHistory() {
                 );
               })}
             </div>
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
             {cursor && (
               <div className="pt-2">
                 <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>

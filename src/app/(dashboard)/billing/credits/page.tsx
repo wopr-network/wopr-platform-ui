@@ -42,7 +42,7 @@ export default function CreditsPage() {
     return (
       <div className="flex h-40 flex-col items-center justify-center gap-2 text-muted-foreground">
         <p>{error ?? "Unable to load credits."}</p>
-        <button onClick={load} className="text-sm underline hover:text-foreground">
+        <button type="button" onClick={load} className="text-sm underline hover:text-foreground">
           Retry
         </button>
       </div>
