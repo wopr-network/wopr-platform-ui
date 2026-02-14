@@ -281,7 +281,7 @@ export function CommandCenter() {
         </CardContent>
       </Card>
 
-      {/* Fleet Grid — bot cards + "Add another WOPR" CTA */}
+      {/* Fleet Grid — bot cards + "Add another WOPR Bot" CTA */}
       {!loading && instances.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {instances.map((inst) => (
@@ -302,7 +302,7 @@ export function CommandCenter() {
             </Link>
           ))}
 
-          {/* Add another WOPR CTA card */}
+          {/* Add another WOPR Bot CTA card */}
           <Link href="/onboarding?mode=fleet-add">
             <Card className="flex h-full cursor-pointer items-center justify-center border-dashed transition-all hover:shadow-md hover:border-primary/30">
               <CardContent className="p-6 text-center">
@@ -324,7 +324,7 @@ export function CommandCenter() {
                     <path d="M5 12h14" />
                   </svg>
                 </div>
-                <p className="font-semibold">Add another WOPR</p>
+                <p className="font-semibold">Add another WOPR Bot</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Name it. Teach it. Give it superpowers.
                 </p>
@@ -339,7 +339,7 @@ export function CommandCenter() {
         <Button asChild size="lg" className="h-auto py-4">
           <Link href="/onboarding?mode=fleet-add">
             <div className="text-center">
-              <p className="font-semibold">Add Another WOPR</p>
+              <p className="font-semibold">Add Another WOPR Bot</p>
               <p className="text-xs opacity-70">Grow your fleet</p>
             </div>
           </Link>
