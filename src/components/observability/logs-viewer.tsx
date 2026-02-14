@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { LogEntry, LogLevel } from "@/lib/api";
 import { getInstanceLogs } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -125,8 +126,14 @@ export function LogsViewer({ instanceId }: { instanceId: string }) {
         </CardHeader>
         <CardContent>
           {loading && logs.length === 0 ? (
-            <div className="flex h-[400px] items-center justify-center text-muted-foreground">
-              Loading logs...
+            <div className="h-[400px] space-y-2 rounded-md bg-zinc-950 p-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="h-4 bg-zinc-800"
+                  style={{ width: `${60 + Math.random() * 40}%` }}
+                />
+              ))}
             </div>
           ) : (
             <div
