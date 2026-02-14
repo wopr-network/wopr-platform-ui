@@ -10,6 +10,9 @@ const publicPaths = [
   "/onboarding",
 ];
 
+/** Paths that are public only when matched exactly (not as a prefix). */
+const publicExactPaths = new Set(["/"]);
+
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 /**
@@ -66,7 +69,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Allow public paths
-  if (publicPaths.some((p) => pathname.startsWith(p))) {
+  if (publicExactPaths.has(pathname) || publicPaths.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
