@@ -125,7 +125,7 @@ function computeFleetStats(instances: FleetInstance[]) {
     (i) => i.health === "degraded" || i.health === "unhealthy",
   ).length;
   // TODO: Replace with real resource usage from API
-  const totalCpu = instances.length > 0 ? Math.round(instances.length * 12.5) : 0;
+  const totalCpu = instances.length > 0 ? Math.min(100, Math.round(instances.length * 12.5)) : 0;
   const totalMemory = instances.length > 0 ? instances.length * 256 : 0;
 
   return { running, stopped, degraded, totalCpu, totalMemory };
@@ -134,12 +134,16 @@ function computeFleetStats(instances: FleetInstance[]) {
 export function CommandCenter() {
   const [instances, setInstances] = useState<FleetInstance[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getFleetHealth();
       setInstances(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load fleet health");
     } finally {
       setLoading(false);
     }
@@ -161,6 +165,19 @@ export function CommandCenter() {
         <h1 className="text-2xl font-bold tracking-tight">Command Center</h1>
         <p className="text-sm text-muted-foreground">Fleet overview and quick actions</p>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-center justify-between rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+        >
+          <span>{error}</span>
+          <Button variant="ghost" size="sm" onClick={load}>
+            Retry
+          </Button>
+        </div>
+      )}
 
       {/* Fleet Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
