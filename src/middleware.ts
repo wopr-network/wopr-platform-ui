@@ -11,7 +11,7 @@ const publicPaths = [
 ];
 
 /** Paths that are public only when matched exactly (not as a prefix). */
-const publicExactPaths = new Set(["/"]);
+const publicExactPaths = new Set(["/", "/og"]);
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -65,6 +65,16 @@ export function middleware(request: NextRequest) {
   ) {
     if (!validateCsrfOrigin(request)) {
       return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 });
+    }
+  }
+
+  // Redirect authenticated users from "/" to "/marketplace" so they see the dashboard
+  if (pathname === "/") {
+    const sessionToken =
+      request.cookies.get("better-auth.session_token") ??
+      request.cookies.get("__Secure-better-auth.session_token");
+    if (sessionToken?.value.trim()) {
+      return NextResponse.redirect(new URL("/marketplace", request.url));
     }
   }
 

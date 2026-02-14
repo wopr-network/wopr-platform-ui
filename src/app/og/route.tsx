@@ -30,7 +30,6 @@ export async function GET() {
             fontSize: "56px",
             fontWeight: 700,
             color: "#00FF41",
-            fontFamily: "monospace",
             textAlign: "center",
             lineHeight: 1.2,
           }}
@@ -41,7 +40,6 @@ export async function GET() {
           style={{
             fontSize: "32px",
             color: "#A0A0A0",
-            fontFamily: "monospace",
           }}
         >
           $5/month. wopr.bot
