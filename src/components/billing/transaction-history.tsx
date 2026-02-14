@@ -89,7 +89,11 @@ export function TransactionHistory() {
         <CardContent>
           <div className="flex h-20 flex-col items-center justify-center gap-2 text-muted-foreground">
             <p>{error}</p>
-            <button type="button" onClick={loadInitial} className="text-sm underline hover:text-foreground">
+            <button
+              type="button"
+              onClick={loadInitial}
+              className="text-sm underline hover:text-foreground"
+            >
               Retry
             </button>
           </div>
