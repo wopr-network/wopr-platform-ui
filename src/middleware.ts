@@ -24,19 +24,21 @@ export function validateCsrfOrigin(request: NextRequest): boolean {
 
   if (!host) return false;
 
-  // Build the set of allowed origins from the request host
-  const allowedOrigins = new Set([`https://${host}`, `http://${host}`]);
+  // Build the allowed origin using the request's actual protocol only,
+  // preventing protocol downgrade attacks (e.g. HTTP origin to HTTPS endpoint)
+  const protocol = request.nextUrl.protocol; // "https:" or "http:"
+  const allowedOrigin = `${protocol}//${host}`;
 
   // Check Origin header first (most reliable)
   if (origin) {
-    return allowedOrigins.has(origin);
+    return origin === allowedOrigin;
   }
 
   // Fall back to Referer header
   if (referer) {
     try {
       const refererOrigin = new URL(referer).origin;
-      return allowedOrigins.has(refererOrigin);
+      return refererOrigin === allowedOrigin;
     } catch {
       return false;
     }
@@ -50,8 +52,14 @@ export function validateCsrfOrigin(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // CSRF protection: validate Origin/Referer on state-changing API requests
-  if (pathname.startsWith("/api") && MUTATION_METHODS.has(request.method)) {
+  // CSRF protection: validate Origin/Referer on state-changing API requests.
+  // Exempt /api/auth routes — Better Auth handles its own CSRF protection
+  // and applying ours breaks OAuth callback flows.
+  if (
+    pathname.startsWith("/api") &&
+    !pathname.startsWith("/api/auth") &&
+    MUTATION_METHODS.has(request.method)
+  ) {
     if (!validateCsrfOrigin(request)) {
       return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 });
     }

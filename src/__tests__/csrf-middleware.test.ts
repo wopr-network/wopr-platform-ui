@@ -102,9 +102,8 @@ describe("CSRF Origin validation", () => {
         origin: "http://app.wopr.dev",
       },
     });
-    // http:// origin against https:// host is allowed because we check both protocols
-    // This is intentional — the host header alone doesn't indicate protocol,
-    // and mixed-content scenarios should be handled at the transport layer
-    expect(validateCsrfOrigin(req)).toBe(true);
+    // http:// origin against https:// host must be blocked to prevent
+    // protocol downgrade attacks (CSRF from HTTP origin to HTTPS endpoint)
+    expect(validateCsrfOrigin(req)).toBe(false);
   });
 });
