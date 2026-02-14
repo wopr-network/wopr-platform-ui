@@ -115,22 +115,24 @@ export function StepPowerSource({
       {providerMode === "byok" && keySuperpowers.length > 0 && (
         <div className="space-y-4">
           <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-            <p className="text-sm text-blue-200">
+            <p className="text-sm text-muted-foreground">
               Your keys connect directly to providers. We never proxy or store them.
             </p>
           </div>
-          {keySuperpowers.flatMap((sp) =>
-            sp.configFields.map((field) => (
-              <ByokField
-                key={field.key}
-                field={field}
-                value={byokKeyValues[field.key] || ""}
-                error={byokKeyErrors[field.key] ?? null}
-                onChange={onByokKeyChange}
-                onValidate={onValidateByokKey}
-              />
-            )),
-          )}
+          {[
+            ...new Map(
+              keySuperpowers.flatMap((sp) => sp.configFields).map((f) => [f.key, f]),
+            ).values(),
+          ].map((field) => (
+            <ByokField
+              key={field.key}
+              field={field}
+              value={byokKeyValues[field.key] || ""}
+              error={byokKeyErrors[field.key] ?? null}
+              onChange={onByokKeyChange}
+              onValidate={onValidateByokKey}
+            />
+          ))}
         </div>
       )}
     </div>
