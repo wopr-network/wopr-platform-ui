@@ -22,12 +22,19 @@ export default function AccountPage() {
   const [changingPw, setChangingPw] = useState(false);
 
   const [portalLoading, setPortalLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const data = await getBillingUsage();
-    setUsage(data);
-    setLoading(false);
+    setLoadError(false);
+    try {
+      const data = await getBillingUsage();
+      setUsage(data);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -78,6 +85,17 @@ export default function AccountPage() {
     return (
       <div className="flex h-40 items-center justify-center text-muted-foreground">
         Loading account...
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex h-40 flex-col items-center justify-center gap-3 text-muted-foreground">
+        <p className="text-sm text-destructive">Failed to load account data.</p>
+        <Button variant="outline" size="sm" onClick={load}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -145,6 +163,7 @@ export default function AccountPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
+                minLength={8}
               />
             </div>
             <div className="flex flex-col gap-2">
