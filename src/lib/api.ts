@@ -249,7 +249,7 @@ export async function getInstanceMetrics(id: string): Promise<InstanceMetrics> {
 }
 
 export async function getFleetHealth(): Promise<FleetInstance[]> {
-  return apiFetch<FleetInstance[]>("/fleet/health");
+  return apiFetch<FleetInstance[]>("/fleet/bots/health");
 }
 
 // --- Settings types ---
