@@ -1,6 +1,6 @@
 export const pricingData = {
-  botPrice: { amount: 5, period: "month" },
-  signupCredit: 5,
+  bot_price: { amount: 5, period: "month" },
+  signup_credit: 5,
   capabilities: [
     {
       category: "Text Generation",
@@ -10,7 +10,7 @@ export const pricingData = {
         { name: "Claude Opus 4", unit: "1M input tokens", price: 15.0 },
         { name: "Gemini 2.5 Pro", unit: "1M input tokens", price: 1.25 },
         { name: "GPT-4o", unit: "1M input tokens", price: 2.5 },
-        { name: "DeepSeek R1", unit: "1M input tokens", price: 0.55 },
+        { name: "Kimi K3", unit: "1M input tokens", price: 0.8 },
       ],
     },
     {
@@ -28,6 +28,11 @@ export const pricingData = {
         { name: "SDXL", unit: "image", price: 0.03 },
         { name: "Flux", unit: "image", price: 0.05 },
       ],
+    },
+    {
+      category: "Messaging",
+      icon: "smartphone" as const,
+      models: [{ name: "SMS", unit: "message", price: 0.01 }],
     },
   ],
 } as const;

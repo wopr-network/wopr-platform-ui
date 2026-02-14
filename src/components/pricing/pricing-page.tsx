@@ -1,4 +1,4 @@
-import { BotIcon, ImageIcon, MicIcon } from "lucide-react";
+import { BotIcon, ImageIcon, MicIcon, SmartphoneIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ const iconMap = {
   bot: BotIcon,
   mic: MicIcon,
   image: ImageIcon,
+  smartphone: SmartphoneIcon,
 } as const;
 
 function formatPrice(price: number): string {
@@ -33,7 +34,7 @@ export function PricingPage() {
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
           No tiers. No gotchas. Your bot is{" "}
           <span className="text-terminal font-semibold">
-            ${pricingData.botPrice.amount}/{pricingData.botPrice.period}
+            ${pricingData.bot_price.amount}/{pricingData.bot_price.period}
           </span>
           . Usage is billed at cost.
         </p>
@@ -49,9 +50,9 @@ export function PricingPage() {
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             <p className="text-5xl font-bold text-terminal sm:text-6xl" data-testid="bot-price">
-              ${pricingData.botPrice.amount}
+              ${pricingData.bot_price.amount}
               <span className="text-xl font-normal text-muted-foreground">
-                /{pricingData.botPrice.period}
+                /{pricingData.bot_price.period}
               </span>
             </p>
             <p className="text-muted-foreground">That&apos;s it for the bot. Usage below.</p>
@@ -99,8 +100,8 @@ export function PricingPage() {
       {/* ─── Credits Explainer ─── */}
       <section className="flex flex-col items-center justify-center gap-6 px-6 pb-24 text-center">
         <p className="max-w-lg text-lg text-muted-foreground">
-          Your bot is ${pricingData.botPrice.amount}/mo. Usage is billed from credits. Free tier
-          includes ${pricingData.signupCredit} signup credit.
+          Your bot is ${pricingData.bot_price.amount}/mo. Usage is billed from credits. Free tier
+          includes ${pricingData.signup_credit} signup credit.
         </p>
         <p className="text-sm text-muted-foreground">
           Credits in, credits out. You&apos;re always in control.
