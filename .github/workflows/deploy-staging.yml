@@ -10,8 +10,13 @@ concurrency:
 
 jobs:
   deploy:
+    # Using ubuntu-latest because this org does not have self-hosted runners configured.
+    # Docker build/push operations run on GitHub-hosted infrastructure.
     runs-on: ubuntu-latest
     environment: staging
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
