@@ -1,8 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
-import { motion } from "framer-motion";
 import { AuthError } from "@/components/auth/auth-error";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
@@ -62,8 +62,7 @@ export default function ForgotPasswordPage() {
                 Transmission sent
               </CardTitle>
               <CardDescription>
-                We sent a password reset link to{" "}
-                <code className="text-terminal">{email}</code>
+                We sent a password reset link to <code className="text-terminal">{email}</code>
               </CardDescription>
             </motion.div>
           </CardHeader>
@@ -96,11 +95,7 @@ export default function ForgotPasswordPage() {
           <CardDescription>Enter operator email for recovery code</CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            id="forgot-password-form"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" id="forgot-password-form">
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">Email</Label>
               <Input

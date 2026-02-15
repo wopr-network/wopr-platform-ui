@@ -36,9 +36,7 @@ function ResetPasswordForm() {
             <CardTitle className="text-sm font-medium uppercase tracking-widest text-destructive">
               Access denied
             </CardTitle>
-            <CardDescription>
-              This password reset link is invalid or has expired.
-            </CardDescription>
+            <CardDescription>This password reset link is invalid or has expired.</CardDescription>
           </CardHeader>
           <CardFooter className="justify-center">
             <Link
@@ -93,11 +91,7 @@ function ResetPasswordForm() {
           <CardDescription>Enter new access credentials</CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            id="reset-password-form"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" id="reset-password-form">
             <div className="flex flex-col gap-2">
               <Label htmlFor="password">New password</Label>
               <Input

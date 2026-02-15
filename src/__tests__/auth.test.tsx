@@ -28,7 +28,9 @@ vi.mock("better-auth/react", () => ({
 // Mock framer-motion to prevent animation issues in JSDOM
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+      <div {...props}>{children}</div>
+    ),
   },
 }));
 

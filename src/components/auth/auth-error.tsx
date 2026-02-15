@@ -1,7 +1,7 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
 
 interface AuthErrorProps {
   message: string;
