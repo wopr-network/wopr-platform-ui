@@ -14,5 +14,6 @@ class MockIntersectionObserver {
 }
 
 if (typeof globalThis.IntersectionObserver === "undefined") {
-  globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  globalThis.IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
