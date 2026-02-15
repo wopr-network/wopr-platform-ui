@@ -210,8 +210,7 @@ export function OnboardingWizard({ mode = "onboarding" }: OnboardingWizardProps)
             onClick={actions.next}
             disabled={!actions.canAdvance()}
             className={cn(
-              actions.canAdvance() &&
-                "animate-[terminal-pulse_2s_ease-in-out_infinite]",
+              actions.canAdvance() && "animate-[terminal-pulse_2s_ease-in-out_infinite]",
             )}
           >
             Continue
