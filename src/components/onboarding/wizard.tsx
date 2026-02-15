@@ -211,7 +211,7 @@ export function OnboardingWizard({ mode = "onboarding" }: OnboardingWizardProps)
             disabled={!actions.canAdvance()}
             className={cn(
               actions.canAdvance() &&
-                "animate-[terminal-pulse_2s_ease-in-out_infinite] animate-terminal-pulse",
+                "animate-[terminal-pulse_2s_ease-in-out_infinite]",
             )}
           >
             Continue
