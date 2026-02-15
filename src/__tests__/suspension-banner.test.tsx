@@ -87,4 +87,21 @@ describe("SuspensionBanner", () => {
       expect(screen.getByText(/Credits critically low/)).toBeInTheDocument();
     });
   });
+
+  it("does not show critical banner when balance === $1.00 (boundary)", async () => {
+    const { getCreditBalance } = await import("@/lib/api");
+    vi.mocked(getCreditBalance).mockResolvedValueOnce({
+      balance: 1.0,
+      dailyBurn: 0.5,
+      runway: 2,
+    });
+
+    const { SuspensionBanner } = await import("@/components/billing/suspension-banner");
+    const { container } = render(<SuspensionBanner />);
+
+    await waitFor(() => {
+      // At $1.00 with global=true, no banner is shown (only critical < $1, or warning $1-$2 non-global)
+      expect(container.innerHTML).toBe("");
+    });
+  });
 });

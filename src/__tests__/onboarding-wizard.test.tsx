@@ -773,4 +773,19 @@ describe("OnboardingWizard integration", () => {
       expect(screen.getByText("Name your WOPR Bot")).toBeInTheDocument();
     });
   });
+
+  it("handles getCreditBalance API error gracefully", async () => {
+    const { getCreditBalance } = await import("@/lib/api");
+    vi.mocked(getCreditBalance).mockRejectedValueOnce(new Error("API failure"));
+
+    const { OnboardingWizard } = await import("@/components/onboarding/wizard");
+    render(<OnboardingWizard />);
+
+    // Wizard should still render despite API error
+    await waitFor(() => {
+      expect(screen.getByText("MISSION BRIEFING")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Name your WOPR Bot")).toBeInTheDocument();
+  });
 });

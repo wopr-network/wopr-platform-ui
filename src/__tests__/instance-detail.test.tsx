@@ -31,9 +31,11 @@ vi.mock("@/lib/api", () => ({
     resourceUsage: { memoryMb: 256, cpuPercent: 12.5 },
   }),
   controlInstance: vi.fn().mockResolvedValue(undefined),
-  getInstanceLogs: vi.fn().mockResolvedValue([
-    { id: "log-1", level: "info", message: "Bot started", timestamp: "2026-02-14T10:00:00Z" },
-  ]),
+  getInstanceLogs: vi
+    .fn()
+    .mockResolvedValue([
+      { id: "log-1", level: "info", message: "Bot started", timestamp: "2026-02-14T10:00:00Z" },
+    ]),
 }));
 
 describe("InstanceDetailClient", () => {
@@ -113,6 +115,15 @@ describe("InstanceDetailClient", () => {
     // Click Config tab and verify it becomes selected
     await user.click(configTab);
     expect(configTab).toHaveAttribute("aria-selected", "true");
+
+    // Click Sessions tab and verify it becomes selected
+    await user.click(sessionsTab);
+    expect(sessionsTab).toHaveAttribute("aria-selected", "true");
+
+    // Click Logs tab and verify it becomes selected
+    await user.click(logsTab);
+    expect(logsTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Bot started")).toBeInTheDocument();
   });
 
   it("clicking Stop button calls controlInstance with correct args", async () => {
