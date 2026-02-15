@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { Activity, CreditCard, Plus, Puzzle } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Activity, CreditCard, Plus, Puzzle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,8 +129,10 @@ function computeFleetStats(instances: FleetInstance[]) {
   // TODO: Replace with real resource usage from API
   const totalCpu = instances.length > 0 ? Math.min(100, Math.round(instances.length * 12.5)) : 0;
   const totalMemory = instances.length > 0 ? instances.length * 256 : 0;
+  // Memory capacity assumption: 2048 MB total available fleet capacity for percentage calculation
+  const memoryCapacity = 2048;
 
-  return { running, stopped, degraded, totalCpu, totalMemory };
+  return { running, stopped, degraded, totalCpu, totalMemory, memoryCapacity };
 }
 
 // ---------------------------------------------------------------------------
@@ -154,13 +156,7 @@ function BlinkingCursor() {
   );
 }
 
-function CountUp({
-  value,
-  suffix = "",
-}: {
-  value: number;
-  suffix?: string;
-}) {
+function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const motionValue = useMotionValue(0);
   const rounded = useTransform(motionValue, (v) => Math.round(v));
   const [display, setDisplay] = useState(0);
@@ -398,7 +394,9 @@ export function CommandCenter() {
                       className="h-full rounded-full bg-primary"
                       initial={{ width: "0%" }}
                       animate={{
-                        width: loading ? "0%" : `${Math.min(100, (stats.totalMemory / 2048) * 100)}%`,
+                        width: loading
+                          ? "0%"
+                          : `${Math.min(100, (stats.totalMemory / stats.memoryCapacity) * 100)}%`,
                       }}
                       transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
                     />
@@ -482,9 +480,9 @@ export function CommandCenter() {
               className="h-full rounded-sm border border-dashed border-terminal/20"
               animate={{
                 borderColor: [
-                  "rgba(0,255,65,0.2)",
-                  "rgba(0,255,65,0.5)",
-                  "rgba(0,255,65,0.2)",
+                  "hsl(var(--terminal) / 0.2)",
+                  "hsl(var(--terminal) / 0.5)",
+                  "hsl(var(--terminal) / 0.2)",
                 ],
               }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
