@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { HealthOverview } from "@/components/observability/health-overview";
 import { LogsViewer } from "@/components/observability/logs-viewer";
 import { MetricsDashboard } from "@/components/observability/metrics-dashboard";
@@ -116,10 +116,12 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
             {instance.name}
             <span
               className={cn("size-2 rounded-full", {
-                "bg-emerald-500 animate-[pulse-dot_2s_ease-in-out_infinite]": instance.status === "running",
+                "bg-emerald-500 animate-[pulse-dot_2s_ease-in-out_infinite]":
+                  instance.status === "running",
                 "bg-zinc-400": instance.status === "stopped",
                 "bg-yellow-500": instance.status === "degraded",
-                "bg-red-500 animate-[pulse-dot_0.8s_ease-in-out_infinite]": instance.status === "error",
+                "bg-red-500 animate-[pulse-dot_0.8s_ease-in-out_infinite]":
+                  instance.status === "error",
               })}
             />
           </h1>
@@ -162,17 +164,24 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
       {/* Tabs */}
       <Tabs defaultValue="overview">
         <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-0">
-          {["overview", "health", "metrics", "logs", "plugins", "channels", "sessions", "config"].map(
-            (tab) => (
-              <TabsTrigger
-                key={tab}
-                value={tab}
-                className="rounded-none border-b-2 border-transparent px-4 py-2 text-sm capitalize text-muted-foreground data-[state=active]:border-b-terminal data-[state=active]:text-terminal data-[state=active]:shadow-none data-[state=active]:bg-transparent"
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </TabsTrigger>
-            ),
-          )}
+          {[
+            "overview",
+            "health",
+            "metrics",
+            "logs",
+            "plugins",
+            "channels",
+            "sessions",
+            "config",
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab}
+              value={tab}
+              className="rounded-none border-b-2 border-transparent px-4 py-2 text-sm capitalize text-muted-foreground data-[state=active]:border-b-terminal data-[state=active]:text-terminal data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Overview Tab */}
@@ -228,7 +237,10 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
                 </TableHeader>
                 <TableBody>
                   {instance.plugins.map((plugin) => (
-                    <TableRow key={plugin.id} className="transition-colors hover:bg-muted/50 even:bg-muted/20">
+                    <TableRow
+                      key={plugin.id}
+                      className="transition-colors hover:bg-muted/50 even:bg-muted/20"
+                    >
                       <TableCell className="font-medium">{plugin.name}</TableCell>
                       <TableCell className="text-muted-foreground">{plugin.version}</TableCell>
                       <TableCell>
@@ -262,7 +274,10 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
                 </TableHeader>
                 <TableBody>
                   {instance.channelDetails.map((ch) => (
-                    <TableRow key={ch.id} className="transition-colors hover:bg-muted/50 even:bg-muted/20">
+                    <TableRow
+                      key={ch.id}
+                      className="transition-colors hover:bg-muted/50 even:bg-muted/20"
+                    >
                       <TableCell className="font-medium">{ch.name}</TableCell>
                       <TableCell className="text-muted-foreground">{ch.type}</TableCell>
                       <TableCell>
@@ -294,7 +309,10 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
                 </TableHeader>
                 <TableBody>
                   {instance.sessions.map((sess) => (
-                    <TableRow key={sess.id} className="transition-colors hover:bg-muted/50 even:bg-muted/20">
+                    <TableRow
+                      key={sess.id}
+                      className="transition-colors hover:bg-muted/50 even:bg-muted/20"
+                    >
                       <TableCell className="font-mono text-sm">{sess.id}</TableCell>
                       <TableCell>{sess.userId}</TableCell>
                       <TableCell>{sess.messageCount}</TableCell>

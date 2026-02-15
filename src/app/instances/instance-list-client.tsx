@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -205,11 +205,12 @@ export function InstanceListClient() {
                     "border-l-2 border-transparent transition-colors",
                     "hover:bg-muted/50",
                     {
-                      "border-l-emerald-500/30 hover:border-l-emerald-500": inst.status === "running",
+                      "border-l-emerald-500/30 hover:border-l-emerald-500":
+                        inst.status === "running",
                       "hover:border-l-zinc-500": inst.status === "stopped",
                       "hover:border-l-yellow-500": inst.status === "degraded",
                       "hover:border-l-red-500": inst.status === "error",
-                    }
+                    },
                   )}
                 >
                   <TableCell>

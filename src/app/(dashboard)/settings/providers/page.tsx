@@ -405,12 +405,12 @@ export default function ProvidersPage() {
 // --- Billing gate dialog ---
 
 function BillingGateDialog({
-  capability,
+  _capability,
   meta,
   onConfirm,
   onCancel,
 }: {
-  capability: CapabilityName;
+  _capability: CapabilityName;
   meta: CapabilityMeta;
   onConfirm: () => void;
   onCancel: () => void;
