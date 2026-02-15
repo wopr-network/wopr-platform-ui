@@ -196,7 +196,10 @@ export default function UsagePage() {
           <CardContent className="space-y-4">
             {hostedUsage.capabilities.length > 0 && (
               <div className="w-full">
-                <ResponsiveContainer width="100%" height={hostedUsage.capabilities.length * 40 + 20}>
+                <ResponsiveContainer
+                  width="100%"
+                  height={hostedUsage.capabilities.length * 40 + 20}
+                >
                   <BarChart
                     data={hostedUsage.capabilities.map((cap) => ({
                       label: CAPABILITY_LABELS[cap.capability] ?? cap.label,

@@ -406,12 +406,12 @@ export default function ProvidersPage() {
 
 // biome-ignore lint/correctness/noUnusedFunctionParameters: capability reserved for future use
 function BillingGateDialog({
-  capability,
+  _capability,
   meta,
   onConfirm,
   onCancel,
 }: {
-  capability: CapabilityName;
+  _capability: CapabilityName;
   meta: CapabilityMeta;
   onConfirm: () => void;
   onCancel: () => void;

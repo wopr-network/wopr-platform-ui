@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CreditBalance as CreditBalanceData } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ function useCountUp(target: number, duration = 1200) {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
       // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       setValue(eased * target);
       if (progress < 1) raf = requestAnimationFrame(tick);
     }
@@ -53,10 +53,7 @@ export function CreditBalance({ data }: { data: CreditBalanceData }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div
-            className={cn(
-              "text-4xl font-bold font-mono",
-              balanceColor(data.balance, data.runway),
-            )}
+            className={cn("text-4xl font-bold font-mono", balanceColor(data.balance, data.runway))}
           >
             ${animatedBalance.toFixed(2)}
           </div>
@@ -65,14 +62,10 @@ export function CreditBalance({ data }: { data: CreditBalanceData }) {
               <span className="block text-xs uppercase tracking-wider text-primary/60">
                 Daily burn
               </span>
-              <span className="font-medium text-foreground">
-                ${data.dailyBurn.toFixed(2)}/day
-              </span>
+              <span className="font-medium text-foreground">${data.dailyBurn.toFixed(2)}/day</span>
             </div>
             <div>
-              <span className="block text-xs uppercase tracking-wider text-primary/60">
-                Runway
-              </span>
+              <span className="block text-xs uppercase tracking-wider text-primary/60">Runway</span>
               <span className="font-medium text-foreground">{runwayText}</span>
             </div>
           </div>

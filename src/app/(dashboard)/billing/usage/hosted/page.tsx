@@ -1,8 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -141,8 +141,8 @@ export default function HostedUsageDetailPage() {
               <Skeleton className="h-9 w-24" />
             </div>
           </div>
-          {Array.from({ length: 5 }, (_, n) => (
-            <div key={`sk-${n}`} className="flex justify-between py-2">
+          {["sk-a", "sk-b", "sk-c", "sk-d", "sk-e"].map((skId) => (
+            <div key={skId} className="flex justify-between py-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-5 w-20" />
               <Skeleton className="h-4 w-28" />

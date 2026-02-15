@@ -1,8 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { CreditCardIcon, LockIcon, ShieldCheckIcon } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ByokCallout } from "@/components/billing/byok-callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
