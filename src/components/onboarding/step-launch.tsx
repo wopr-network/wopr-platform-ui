@@ -84,8 +84,11 @@ export function StepLaunch({
         {/* Pre-deploy / deploying header */}
         {!isDone && (
           <div className="text-center space-y-2">
-            <div className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase" aria-hidden="true">
-              STEP {stepNumber} // {stepCode}
+            <div
+              className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase"
+              aria-hidden="true"
+            >
+              STEP {stepNumber} {"//"} {stepCode}
             </div>
             <h2 className="text-2xl font-bold tracking-tight">
               {deployStatus === "idle"

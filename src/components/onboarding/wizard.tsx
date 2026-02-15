@@ -63,12 +63,8 @@ export function OnboardingWizard({ mode = "onboarding" }: OnboardingWizardProps)
       <div className="mb-8 space-y-3">
         {/* Terminal progress header */}
         <div className="flex items-center justify-between font-mono text-xs">
-          <span className="text-terminal tracking-wider uppercase">
-            MISSION BRIEFING
-          </span>
-          <span className="text-terminal tabular-nums">
-            [{Math.round(state.progress)}%]
-          </span>
+          <span className="text-terminal tracking-wider uppercase">MISSION BRIEFING</span>
+          <span className="text-terminal tabular-nums">[{Math.round(state.progress)}%]</span>
         </div>
 
         {/* Terminal progress bar */}
@@ -86,14 +82,18 @@ export function OnboardingWizard({ mode = "onboarding" }: OnboardingWizardProps)
             const isActive = i <= state.stepIndex;
             return (
               <div key={key} className="flex flex-col items-center">
-                <div className={cn(
-                  "h-1.5 w-1.5 rounded-full mb-1",
-                  isActive ? "bg-terminal" : "bg-terminal/20"
-                )} />
-                <span className={cn(
-                  "text-[10px] font-mono tracking-wider hidden sm:block",
-                  isActive ? "text-terminal/80" : "text-muted-foreground/40"
-                )}>
+                <div
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full mb-1",
+                    isActive ? "bg-terminal" : "bg-terminal/20",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-[10px] font-mono tracking-wider hidden sm:block",
+                    isActive ? "text-terminal/80" : "text-muted-foreground/40",
+                  )}
+                >
                   {label.split(" ")[0].toUpperCase()}
                 </span>
               </div>
@@ -210,7 +210,8 @@ export function OnboardingWizard({ mode = "onboarding" }: OnboardingWizardProps)
             onClick={actions.next}
             disabled={!actions.canAdvance()}
             className={cn(
-              actions.canAdvance() && "animate-[terminal-pulse_2s_ease-in-out_infinite] animate-terminal-pulse"
+              actions.canAdvance() &&
+                "animate-[terminal-pulse_2s_ease-in-out_infinite] animate-terminal-pulse",
             )}
           >
             Continue

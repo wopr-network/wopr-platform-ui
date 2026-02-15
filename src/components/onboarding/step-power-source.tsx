@@ -13,7 +13,6 @@ import {
   type ByokAiProvider,
   getAiKeyField,
   getAiKeySuperpowers,
-  superpowers,
 } from "@/lib/onboarding-data";
 import { cn } from "@/lib/utils";
 import type { ProviderMode, WizardMode } from "./use-onboarding";
@@ -86,8 +85,11 @@ export function StepPowerSource({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase" aria-hidden="true">
-          STEP {stepNumber} // {stepCode}
+        <div
+          className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase"
+          aria-hidden="true"
+        >
+          STEP {stepNumber} {"//"} {stepCode}
         </div>
         <h2 className="text-2xl font-bold tracking-tight">How do you want to power them?</h2>
         <p className="mt-2 text-muted-foreground">

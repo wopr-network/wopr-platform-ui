@@ -44,8 +44,11 @@ export function StepSuperpowers({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase" aria-hidden="true">
-          STEP {stepNumber} // {stepCode}
+        <div
+          className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase"
+          aria-hidden="true"
+        >
+          STEP {stepNumber} {"//"} {stepCode}
         </div>
         <h2 className="text-2xl font-bold tracking-tight">Give your WOPR Bot superpowers</h2>
         <p className="mt-2 text-muted-foreground">
@@ -67,7 +70,7 @@ export function StepSuperpowers({
                 "py-3 transition-all",
                 isSelected
                   ? "border-terminal/60 bg-terminal/5 shadow-[0_0_8px_rgba(0,255,65,0.1)]"
-                  : "border-border/50 hover:border-terminal/30"
+                  : "border-border/50 hover:border-terminal/30",
               )}
             >
               <CardContent className="flex items-center justify-between gap-4 py-0">

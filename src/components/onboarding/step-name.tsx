@@ -49,8 +49,11 @@ export function StepName({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase" aria-hidden="true">
-          STEP {stepNumber} // {stepCode}
+        <div
+          className="inline-block font-mono text-xs tracking-[0.3em] text-terminal uppercase"
+          aria-hidden="true"
+        >
+          STEP {stepNumber} {"//"} {stepCode}
         </div>
         <h2 className="text-2xl font-bold tracking-tight">
           {isFleetAdd ? "Name your new WOPR" : "Name your WOPR Bot"}
@@ -126,8 +129,19 @@ export function StepName({
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 500, damping: 25 }}
                     >
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-terminal/20 text-terminal" aria-hidden="true">
-                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <div
+                        className="flex h-5 w-5 items-center justify-center rounded-full bg-terminal/20 text-terminal"
+                        aria-hidden="true"
+                      >
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                          role="img"
+                          aria-label="Selected"
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
