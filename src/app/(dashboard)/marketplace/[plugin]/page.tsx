@@ -48,6 +48,9 @@ function TerminalLog({ plugin, onDone }: { plugin: PluginManifest; onDone: () =>
       if (i < logLines.length) {
         setLines((prev) => [...prev, logLines[i]]);
         i++;
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
       } else {
         clearInterval(interval);
         setTimeout(() => onDoneRef.current(), 800);
@@ -55,12 +58,6 @@ function TerminalLog({ plugin, onDone }: { plugin: PluginManifest; onDone: () =>
     }, 300);
     return () => clearInterval(interval);
   }, [logLines]);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [lines.length]);
 
   return (
     <motion.div
@@ -136,11 +133,11 @@ export default function PluginDetailPage() {
     if (!plugin) return;
     setInstalling(false);
     setInstallError(null);
-    setShowTerminalLog(true);
     try {
       await installPlugin(plugin.id, config);
+      setShowTerminalLog(true);
+      load();
     } catch (err) {
-      setShowTerminalLog(false);
       setInstallError(err instanceof Error ? err.message : "Installation failed");
     }
   }
