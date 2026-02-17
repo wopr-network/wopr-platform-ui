@@ -48,9 +48,6 @@ function TerminalLog({ plugin, onDone }: { plugin: PluginManifest; onDone: () =>
       if (i < logLines.length) {
         setLines((prev) => [...prev, logLines[i]]);
         i++;
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
       } else {
         clearInterval(interval);
         setTimeout(() => onDoneRef.current(), 800);
@@ -58,6 +55,12 @@ function TerminalLog({ plugin, onDone }: { plugin: PluginManifest; onDone: () =>
     }, 300);
     return () => clearInterval(interval);
   }, [logLines]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [lines.length]);
 
   return (
     <motion.div
@@ -127,11 +130,19 @@ export default function PluginDetailPage() {
     load();
   }, [load]);
 
+  const [installError, setInstallError] = useState<string | null>(null);
+
   async function handleInstallComplete(config: Record<string, unknown>) {
     if (!plugin) return;
     setInstalling(false);
+    setInstallError(null);
     setShowTerminalLog(true);
-    await installPlugin(plugin.id, config);
+    try {
+      await installPlugin(plugin.id, config);
+    } catch (err) {
+      setShowTerminalLog(false);
+      setInstallError(err instanceof Error ? err.message : "Installation failed");
+    }
   }
 
   function handleTerminalDone() {
@@ -253,6 +264,11 @@ export default function PluginDetailPage() {
       <AnimatePresence>
         {showTerminalLog && <TerminalLog plugin={plugin} onDone={handleTerminalDone} />}
       </AnimatePresence>
+      {installError && (
+        <p className="text-sm text-red-500 rounded-sm border border-red-500/30 bg-red-500/10 px-3 py-2">
+          {installError}
+        </p>
+      )}
 
       {/* Capability badges with colors */}
       <motion.div
@@ -275,7 +291,7 @@ export default function PluginDetailPage() {
         })}
         {hostedAvailable && (
           <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/25">
-            WOPR Hosted Available
+            WOPR Hosted
           </Badge>
         )}
       </motion.div>

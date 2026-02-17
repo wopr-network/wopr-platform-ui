@@ -48,7 +48,7 @@ export function TerminalSearch({
         />
         {focused && value === "" && (
           <motion.span
-            className="absolute right-0 top-0 text-primary"
+            className="absolute left-0 top-0 text-primary pointer-events-none"
             animate={{ opacity: [1, 1, 0, 0] }}
             transition={{
               duration: 1.06,
