@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckIcon } from "lucide-react";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +27,13 @@ export default function AccountPage() {
 
   const [portalLoading, setPortalLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const pwSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pwSuccessTimer.current) clearTimeout(pwSuccessTimer.current);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -62,7 +69,7 @@ export default function AccountPage() {
       setPwMsg("Password changed successfully.");
       setPwError(false);
       setPwSuccess(true);
-      setTimeout(() => setPwSuccess(false), 2000);
+      pwSuccessTimer.current = setTimeout(() => setPwSuccess(false), 2000);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

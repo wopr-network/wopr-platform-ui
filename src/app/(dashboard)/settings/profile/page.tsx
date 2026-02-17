@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckIcon } from "lucide-react";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -48,6 +48,15 @@ export default function ProfilePage() {
   const [changingPw, setChangingPw] = useState(false);
 
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const saveSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pwSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (saveSuccessTimer.current) clearTimeout(saveSuccessTimer.current);
+      if (pwSuccessTimer.current) clearTimeout(pwSuccessTimer.current);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,7 +80,7 @@ export default function ProfilePage() {
     setSaveMsg("Profile updated.");
     setSaving(false);
     setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2000);
+    saveSuccessTimer.current = setTimeout(() => setSaveSuccess(false), 2000);
   }
 
   async function handleChangePassword(e: FormEvent) {
@@ -89,7 +98,7 @@ export default function ProfilePage() {
       setPwMsg("Password changed.");
       setPwError(false);
       setPwSuccess(true);
-      setTimeout(() => setPwSuccess(false), 2000);
+      pwSuccessTimer.current = setTimeout(() => setPwSuccess(false), 2000);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

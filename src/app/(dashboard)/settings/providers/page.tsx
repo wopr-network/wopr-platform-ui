@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,6 +120,17 @@ export default function ProvidersPage() {
   );
   const [byokKeys, setByokKeys] = useState<Partial<Record<CapabilityName, string>>>({});
   const [billingGate, setBillingGate] = useState<CapabilityName | null>(null);
+  const saveCapSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const testCapResultTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const testResultTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (saveCapSuccessTimer.current) clearTimeout(saveCapSuccessTimer.current);
+      if (testCapResultTimer.current) clearTimeout(testCapResultTimer.current);
+      if (testResultTimer.current) clearTimeout(testResultTimer.current);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -161,7 +172,7 @@ export default function ProvidersPage() {
     setByokKeys((prev) => ({ ...prev, [capability]: "" }));
     setSavingCap(null);
     setSaveCapSuccess((prev) => ({ ...prev, [capability]: true }));
-    setTimeout(() => setSaveCapSuccess((prev) => ({ ...prev, [capability]: false })), 2000);
+    saveCapSuccessTimer.current = setTimeout(() => setSaveCapSuccess((prev) => ({ ...prev, [capability]: false })), 2000);
   }
 
   async function handleTestCapability(capability: CapabilityName) {
@@ -180,7 +191,7 @@ export default function ProvidersPage() {
       setTestCapResult((prev) => ({ ...prev, [capability]: "fail" }));
     }
     setTestingCap(null);
-    setTimeout(() => setTestCapResult((prev) => ({ ...prev, [capability]: null })), 2000);
+    testCapResultTimer.current = setTimeout(() => setTestCapResult((prev) => ({ ...prev, [capability]: null })), 2000);
   }
 
   async function handleTest(id: string) {
@@ -198,7 +209,7 @@ export default function ProvidersPage() {
     const provs = await listProviderKeys();
     setProviders(provs);
     setTesting(null);
-    setTimeout(() => setTestResult((prev) => ({ ...prev, [id]: null })), 2000);
+    testResultTimer.current = setTimeout(() => setTestResult((prev) => ({ ...prev, [id]: null })), 2000);
   }
 
   async function handleRemove(id: string) {

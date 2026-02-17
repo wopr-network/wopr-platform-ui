@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,6 +45,13 @@ export default function BrainSettingsPage() {
   const [byokKey, setByokKey] = useState("");
   const [byokProvider, setByokProvider] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const saveSuccessTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (saveSuccessTimer.current) clearTimeout(saveSuccessTimer.current);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -97,7 +104,7 @@ export default function BrainSettingsPage() {
       setByokKey("");
       setByokProvider(null);
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+      saveSuccessTimer.current = setTimeout(() => setSaveSuccess(false), 2000);
     } catch (err) {
       console.error("Failed to save BYOK key:", err);
       setError("Failed to save your API key. Please check the key and try again.");
