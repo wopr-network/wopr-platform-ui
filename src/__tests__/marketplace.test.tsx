@@ -258,7 +258,7 @@ describe("PluginDetailPage", () => {
     render(<PluginDetailPage />);
 
     await screen.findByText("Semantic Memory");
-    expect(screen.getByText("WOPR Hosted Available")).toBeInTheDocument();
+    expect(screen.getByText("WOPR Hosted")).toBeInTheDocument();
     expect(screen.getByText("WOPR Hosted Options")).toBeInTheDocument();
     expect(screen.getByText("WOPR Hosted Embeddings")).toBeInTheDocument();
   });

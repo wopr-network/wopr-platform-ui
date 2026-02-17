@@ -54,7 +54,7 @@ export function PluginCard({ plugin, index = 0 }: PluginCardProps) {
           style={{
             rotateX: springRotateX,
             rotateY: springRotateY,
-            transformPerspective: 800,
+            perspective: 800,
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
