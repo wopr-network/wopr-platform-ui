@@ -172,7 +172,10 @@ export default function ProvidersPage() {
     setByokKeys((prev) => ({ ...prev, [capability]: "" }));
     setSavingCap(null);
     setSaveCapSuccess((prev) => ({ ...prev, [capability]: true }));
-    saveCapSuccessTimer.current = setTimeout(() => setSaveCapSuccess((prev) => ({ ...prev, [capability]: false })), 2000);
+    saveCapSuccessTimer.current = setTimeout(
+      () => setSaveCapSuccess((prev) => ({ ...prev, [capability]: false })),
+      2000,
+    );
   }
 
   async function handleTestCapability(capability: CapabilityName) {
@@ -191,7 +194,10 @@ export default function ProvidersPage() {
       setTestCapResult((prev) => ({ ...prev, [capability]: "fail" }));
     }
     setTestingCap(null);
-    testCapResultTimer.current = setTimeout(() => setTestCapResult((prev) => ({ ...prev, [capability]: null })), 2000);
+    testCapResultTimer.current = setTimeout(
+      () => setTestCapResult((prev) => ({ ...prev, [capability]: null })),
+      2000,
+    );
   }
 
   async function handleTest(id: string) {
@@ -209,7 +215,10 @@ export default function ProvidersPage() {
     const provs = await listProviderKeys();
     setProviders(provs);
     setTesting(null);
-    testResultTimer.current = setTimeout(() => setTestResult((prev) => ({ ...prev, [id]: null })), 2000);
+    testResultTimer.current = setTimeout(
+      () => setTestResult((prev) => ({ ...prev, [id]: null })),
+      2000,
+    );
   }
 
   async function handleRemove(id: string) {
