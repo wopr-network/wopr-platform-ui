@@ -29,7 +29,12 @@ export function PrelaunchPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeLeft(getTimeLeft());
+      const next = getTimeLeft();
+      setTimeLeft(next);
+      if (next === null) {
+        clearInterval(interval);
+        setTimeout(() => window.location.reload(), 1000);
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, []);

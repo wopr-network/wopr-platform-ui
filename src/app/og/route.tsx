@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 const LAUNCH_DATE = new Date(
   process.env.NEXT_PUBLIC_LAUNCH_DATE ?? "2026-04-01T00:00:00Z"
