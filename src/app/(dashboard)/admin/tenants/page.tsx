@@ -6,7 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { AdminUserSummary } from "@/lib/admin-api";
 import { getUsersList } from "@/lib/admin-api";
 
@@ -118,9 +125,7 @@ export default function AdminTenantsPage() {
                       >
                         {user.name ?? user.email}
                       </Link>
-                      {user.name && (
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                      )}
+                      {user.name && <p className="text-xs text-muted-foreground">{user.email}</p>}
                     </TableCell>
                     <TableCell>
                       <code className="text-xs text-muted-foreground">{user.tenant_id}</code>
@@ -132,7 +137,9 @@ export default function AdminTenantsPage() {
                       <span className="text-sm">{user.role}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="font-mono text-sm">{formatBalance(user.credit_balance_cents)}</span>
+                      <span className="font-mono text-sm">
+                        {formatBalance(user.credit_balance_cents)}
+                      </span>
                     </TableCell>
                     <TableCell>{user.agent_count}</TableCell>
                     <TableCell>{formatDate(user.last_seen)}</TableCell>

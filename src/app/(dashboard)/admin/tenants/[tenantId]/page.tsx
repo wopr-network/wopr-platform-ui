@@ -3,22 +3,41 @@
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type {
@@ -89,7 +108,6 @@ function statusBadgeClass(status: string): string {
       return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
     case "banned":
       return "bg-red-200 text-red-900 dark:bg-red-900/50 dark:text-red-200";
-    case "dormant":
     default:
       return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
   }
@@ -106,7 +124,9 @@ function roleBadgeClass(role: string): string {
   }
 }
 
-function billingStateBadgeVariant(state: string): "default" | "destructive" | "outline" | "secondary" {
+function billingStateBadgeVariant(
+  state: string,
+): "default" | "destructive" | "outline" | "secondary" {
   switch (state) {
     case "active":
       return "default";
@@ -155,11 +175,10 @@ function TenantHeader({
                 {user?.role ?? "user"}
               </span>
             </div>
-            {user?.name && (
-              <p className="text-muted-foreground">{user.email}</p>
-            )}
+            {user?.name && <p className="text-muted-foreground">{user.email}</p>}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <button
+                type="button"
                 onClick={copyTenantId}
                 className="font-mono hover:text-foreground transition-colors cursor-pointer"
                 title="Click to copy"
@@ -261,7 +280,9 @@ function CreditsSection({
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Runway</p>
-            <p className="text-lg font-semibold">{runwayDays != null ? `~${runwayDays} days` : "N/A"}</p>
+            <p className="text-lg font-semibold">
+              {runwayDays != null ? `~${runwayDays} days` : "N/A"}
+            </p>
           </div>
         </div>
         <div className="mt-4 flex gap-2 flex-wrap">
@@ -371,11 +392,15 @@ function AgentsSection({ agents }: { agents: BotInstance[] }) {
                     <code className="text-xs text-muted-foreground">{agent.id}</code>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={billingStateBadgeVariant(agent.billingState)}>{agent.billingState}</Badge>
+                    <Badge variant={billingStateBadgeVariant(agent.billingState)}>
+                      {agent.billingState}
+                    </Badge>
                   </TableCell>
                   <TableCell>{agent.nodeId ?? "—"}</TableCell>
                   <TableCell>{new Date(agent.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>{agent.suspendedAt ? new Date(agent.suspendedAt).toLocaleDateString() : "—"}</TableCell>
+                  <TableCell>
+                    {agent.suspendedAt ? new Date(agent.suspendedAt).toLocaleDateString() : "—"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -457,7 +482,11 @@ function UsageSection({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v.toFixed(2)}`} />
-                <Tooltip formatter={(value) => (typeof value === "number" ? `$${value.toFixed(4)}` : String(value))} />
+                <Tooltip
+                  formatter={(value) =>
+                    typeof value === "number" ? `$${value.toFixed(4)}` : String(value)
+                  }
+                />
                 <Area
                   type="monotone"
                   dataKey="charge"
@@ -494,7 +523,8 @@ function UsageSection({
             </TableHeader>
             <TableBody>
               {Array.from(byCapability.entries()).map(([cap, data]) => {
-                const margin = data.charge > 0 ? ((data.charge - data.cost) / data.charge) * 100 : 0;
+                const margin =
+                  data.charge > 0 ? ((data.charge - data.cost) / data.charge) * 100 : 0;
                 return (
                   <TableRow key={cap}>
                     <TableCell className="font-medium">{cap}</TableCell>
@@ -610,11 +640,17 @@ function TransactionsSection({
           <TableBody>
             {entries.map((tx) => (
               <TableRow key={tx.id}>
-                <TableCell className="text-sm text-muted-foreground">{formatTimestamp(tx.created_at)}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">
+                  {formatTimestamp(tx.created_at)}
+                </TableCell>
                 <TableCell>
                   <Badge
                     variant={
-                      tx.type === "grant" ? "default" : tx.type === "refund" ? "secondary" : "outline"
+                      tx.type === "grant"
+                        ? "default"
+                        : tx.type === "refund"
+                          ? "secondary"
+                          : "outline"
                     }
                   >
                     {tx.type}
@@ -753,7 +789,11 @@ function AdminActionsSection({
                       onChange={(e) => setSuspendReason(e.target.value)}
                     />
                   </div>
-                  <Button variant="destructive" onClick={handleSuspend} disabled={!suspendReason.trim()}>
+                  <Button
+                    variant="destructive"
+                    onClick={handleSuspend}
+                    disabled={!suspendReason.trim()}
+                  >
                     Confirm Suspend
                   </Button>
                 </div>
@@ -807,7 +847,9 @@ function AdminActionsSection({
                   <Button
                     variant="destructive"
                     onClick={handleBan}
-                    disabled={banConfirm !== `BAN ${tenantId}` || !banReason.trim() || !banTosRef.trim()}
+                    disabled={
+                      banConfirm !== `BAN ${tenantId}` || !banReason.trim() || !banTosRef.trim()
+                    }
                   >
                     Confirm Ban
                   </Button>

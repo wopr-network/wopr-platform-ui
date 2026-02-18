@@ -95,23 +95,23 @@ export interface BotInstance {
 
 export async function getTenantDetail(tenantId: string): Promise<TenantDetailResponse> {
   const params = new URLSearchParams({ input: JSON.stringify({ tenantId }) });
-  return adminFetch<{ result: { data: TenantDetailResponse } }>(`/trpc/admin.tenantDetail?${params}`).then(
-    (r) => r.result.data,
-  );
+  return adminFetch<{ result: { data: TenantDetailResponse } }>(
+    `/trpc/admin.tenantDetail?${params}`,
+  ).then((r) => r.result.data);
 }
 
 export async function getTenantAgents(tenantId: string): Promise<BotInstance[]> {
   const params = new URLSearchParams({ input: JSON.stringify({ tenantId }) });
-  return adminFetch<{ result: { data: { agents: BotInstance[] } } }>(`/trpc/admin.tenantAgents?${params}`).then(
-    (r) => r.result.data.agents,
-  );
+  return adminFetch<{ result: { data: { agents: BotInstance[] } } }>(
+    `/trpc/admin.tenantAgents?${params}`,
+  ).then((r) => r.result.data.agents);
 }
 
 export async function getTenantNotes(tenantId: string): Promise<AdminNote[]> {
   const params = new URLSearchParams({ input: JSON.stringify({ tenantId }) });
-  return adminFetch<{ result: { data: { notes: AdminNote[] } } }>(`/trpc/admin.tenantNotes?${params}`).then(
-    (r) => r.result.data.notes,
-  );
+  return adminFetch<{ result: { data: { notes: AdminNote[] } } }>(
+    `/trpc/admin.tenantNotes?${params}`,
+  ).then((r) => r.result.data.notes);
 }
 
 export async function addTenantNote(tenantId: string, content: string): Promise<AdminNote> {
@@ -135,14 +135,22 @@ export async function reactivateTenant(tenantId: string): Promise<void> {
   });
 }
 
-export async function grantCredits(tenantId: string, amount_cents: number, reason: string): Promise<void> {
+export async function grantCredits(
+  tenantId: string,
+  amount_cents: number,
+  reason: string,
+): Promise<void> {
   await adminFetch("/trpc/admin.creditsGrant", {
     method: "POST",
     body: JSON.stringify({ tenantId, amount_cents, reason }),
   });
 }
 
-export async function refundCredits(tenantId: string, amount_cents: number, reason: string): Promise<void> {
+export async function refundCredits(
+  tenantId: string,
+  amount_cents: number,
+  reason: string,
+): Promise<void> {
   await adminFetch("/trpc/admin.creditsRefund", {
     method: "POST",
     body: JSON.stringify({ tenantId, amount_cents, reason }),
@@ -170,9 +178,9 @@ export async function banTenant(
 
 export async function getTransactionsCsv(tenantId: string): Promise<string> {
   const params = new URLSearchParams({ input: JSON.stringify({ tenantId }) });
-  return adminFetch<{ result: { data: { csv: string } } }>(`/trpc/admin.creditsTransactionsExport?${params}`).then(
-    (r) => r.result.data.csv,
-  );
+  return adminFetch<{ result: { data: { csv: string } } }>(
+    `/trpc/admin.creditsTransactionsExport?${params}`,
+  ).then((r) => r.result.data.csv);
 }
 
 export async function getTransactions(
@@ -193,7 +201,10 @@ export async function getTransactions(
   ).then((r) => r.result.data);
 }
 
-export async function getTenantUsageByCapability(tenantId: string, days = 30): Promise<UsageSummary[]> {
+export async function getTenantUsageByCapability(
+  tenantId: string,
+  days = 30,
+): Promise<UsageSummary[]> {
   const params = new URLSearchParams({ input: JSON.stringify({ tenantId, days }) });
   return adminFetch<{ result: { data: { usage: UsageSummary[] } } }>(
     `/trpc/admin.tenantUsageByCapability?${params}`,
