@@ -210,26 +210,28 @@ export default function UsagePage() {
                   >
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 11, fill: "#888" }}
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       tickFormatter={(v: number) => `$${v}`}
                     />
                     <YAxis
                       dataKey="label"
                       type="category"
                       width={120}
-                      tick={{ fontSize: 11, fill: "#888" }}
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "#0a0a0a",
-                        border: "1px solid #00ff4133",
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "var(--radius)",
                         fontFamily: "JetBrains Mono",
                         fontSize: 12,
                       }}
-                      labelStyle={{ color: "#a0a0a0" }}
+                      labelStyle={{ color: "hsl(var(--foreground))" }}
+                      itemStyle={{ color: "hsl(var(--muted-foreground))" }}
                       formatter={(value) => [`$${Number(value).toFixed(2)}`, "Cost"]}
                     />
-                    <Bar dataKey="cost" fill="#00ff41" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="cost" fill="hsl(var(--terminal))" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -533,28 +535,30 @@ function UsageChart({ data }: { data: UsageDataPoint[] }) {
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={data}>
         <defs>
-          <linearGradient id="greenGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#00ff41" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="#00ff41" stopOpacity={0.05} />
+          <linearGradient id="terminalGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--terminal))" stopOpacity={0.3} />
+            <stop offset="100%" stopColor="hsl(var(--terminal))" stopOpacity={0.05} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-        <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#888" }} />
-        <YAxis tick={{ fontSize: 11, fill: "#888" }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+        <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#0a0a0a",
-            border: "1px solid #00ff4133",
+            backgroundColor: "hsl(var(--card))",
+            border: "1px solid hsl(var(--terminal) / 0.2)",
+            borderRadius: "var(--radius)",
             fontFamily: "JetBrains Mono",
             fontSize: 12,
           }}
-          labelStyle={{ color: "#a0a0a0" }}
+          labelStyle={{ color: "hsl(var(--foreground))" }}
+          itemStyle={{ color: "hsl(var(--muted-foreground))" }}
         />
         <Area
           type="monotone"
           dataKey="apiCalls"
-          stroke="#00ff41"
-          fill="url(#greenGradient)"
+          stroke="hsl(var(--terminal))"
+          fill="url(#terminalGradient)"
           strokeWidth={2}
         />
       </AreaChart>

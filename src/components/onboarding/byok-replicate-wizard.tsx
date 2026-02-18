@@ -152,7 +152,7 @@ export function ByokReplicateWizard({
                   </span>
                 )}
                 {validationState === "valid" && (
-                  <span className="text-green-500">
+                  <span className="text-emerald-500">
                     <CheckIcon /> valid
                     {accountUsername && <> -- {accountUsername}</>}
                   </span>
@@ -177,7 +177,7 @@ export function ByokReplicateWizard({
               onBlur={handleBlur}
               className={cn(
                 validationState === "invalid" && "border-amber-500",
-                validationState === "valid" && "border-green-500",
+                validationState === "valid" && "border-emerald-500",
               )}
               aria-invalid={validationState === "invalid"}
             />
@@ -212,8 +212,8 @@ export function ByokReplicateWizard({
       {step === 2 && (
         <div className="space-y-6">
           <div className="text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-              <CheckIcon className="h-6 w-6 text-green-500" />
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
+              <CheckIcon className="h-6 w-6 text-emerald-500" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">Replicate connected</h2>
             <p className="mt-2 text-muted-foreground">
@@ -231,8 +231,8 @@ export function ByokReplicateWizard({
               return (
                 <Card key={capId}>
                   <CardContent className="flex items-center gap-3 py-4">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                      <CheckIcon className="h-4 w-4 text-green-500" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
+                      <CheckIcon className="h-4 w-4 text-emerald-500" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{cap.name}</p>
@@ -250,8 +250,8 @@ export function ByokReplicateWizard({
           {/* Encryption callout */}
           <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
             <div className="flex items-center gap-2">
-              <LockIcon className="h-4 w-4 text-green-500" />
-              <p className="text-sm text-green-200">Token encrypted at rest</p>
+              <LockIcon className="h-4 w-4 text-emerald-500" />
+              <p className="text-sm text-emerald-400">Token encrypted at rest</p>
             </div>
           </div>
 

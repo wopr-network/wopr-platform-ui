@@ -273,7 +273,7 @@ export function StepPowerSource({
               {/* Capability unlock confirmation */}
               {aiKeyValid && (
                 <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
-                  <p className="mb-3 text-sm font-medium text-green-500">
+                  <p className="mb-3 text-sm font-medium text-emerald-500">
                     Key validated -- capabilities unlocked:
                   </p>
                   <ul className="space-y-2">
@@ -368,7 +368,7 @@ function ByokField({
       <div className="flex items-center justify-between">
         <Label htmlFor={`byok-${field.key}`}>{field.label}</Label>
         <div className="flex items-center gap-2 text-xs">
-          {isValid && <span className="text-green-500">valid</span>}
+          {isValid && <span className="text-emerald-500">valid</span>}
           {error && (
             <motion.span
               className="text-destructive"
