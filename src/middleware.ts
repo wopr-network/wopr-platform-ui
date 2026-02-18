@@ -54,6 +54,7 @@ export function validateCsrfOrigin(request: NextRequest): boolean {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") || "";
 
   // CSRF protection: validate Origin/Referer on state-changing API requests.
   // Exempt /api/auth routes — Better Auth handles its own CSRF protection
@@ -68,12 +69,19 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users from "/" to "/marketplace" so they see the dashboard
+  // Redirect authenticated users from "/" to the app subdomain if on the marketing domain.
+  // On app.wopr.bot, redirect to /marketplace. On wopr.bot, redirect to app.wopr.bot/marketplace.
   if (pathname === "/") {
     const sessionToken =
       request.cookies.get("better-auth.session_token") ??
       request.cookies.get("__Secure-better-auth.session_token");
     if (sessionToken?.value.trim()) {
+      const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN;
+      if (appDomain && !host.startsWith("app.")) {
+        // On marketing domain — redirect to the app subdomain
+        return NextResponse.redirect(new URL(`https://${appDomain}/marketplace`));
+      }
+      // On app subdomain (or no configured app domain) — redirect to /marketplace
       return NextResponse.redirect(new URL("/marketplace", request.url));
     }
   }
