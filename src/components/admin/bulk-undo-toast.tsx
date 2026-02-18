@@ -2,11 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const UNDO_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 interface BulkUndoToastProps {
   visible: boolean;
@@ -17,6 +15,8 @@ interface BulkUndoToastProps {
   onUndo: (operationId: string) => void;
   onDismiss: () => void;
   isUndoing?: boolean;
+  /** Total undo window in ms. Defaults to 5 minutes. */
+  windowMs?: number;
 }
 
 function BulkUndoToast({
@@ -28,8 +28,11 @@ function BulkUndoToast({
   onUndo,
   onDismiss,
   isUndoing,
+  windowMs = 5 * 60 * 1000,
 }: BulkUndoToastProps) {
   const [remainingMs, setRemainingMs] = useState(() => Math.max(0, undoDeadline - Date.now()));
+  const onDismissRef = useRef(onDismiss);
+  onDismissRef.current = onDismiss;
 
   useEffect(() => {
     if (!visible) return;
@@ -40,12 +43,12 @@ function BulkUndoToast({
       setRemainingMs(ms);
       if (ms <= 0) {
         clearInterval(interval);
-        onDismiss();
+        onDismissRef.current();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [visible, undoDeadline, onDismiss]);
+  }, [visible, undoDeadline]);
 
   const formatCountdown = useCallback((ms: number) => {
     const totalSeconds = Math.ceil(ms / 1000);
@@ -54,7 +57,7 @@ function BulkUndoToast({
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
   }, []);
 
-  const progressPercent = (remainingMs / UNDO_WINDOW_MS) * 100;
+  const progressPercent = (remainingMs / windowMs) * 100;
 
   const barColor =
     remainingMs > 180_000 ? "bg-terminal" : remainingMs > 60_000 ? "bg-amber-500" : "bg-red-500";
