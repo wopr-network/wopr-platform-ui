@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const LAUNCH_DATE = new Date(
-  process.env.NEXT_PUBLIC_LAUNCH_DATE ?? "2026-04-01T00:00:00Z"
-);
+const LAUNCH_DATE = new Date(process.env.NEXT_PUBLIC_LAUNCH_DATE ?? "2026-04-01T00:00:00Z");
 
 interface TimeLeft {
   days: number;
@@ -43,6 +41,7 @@ export function PrelaunchPage() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-black">
       {/* Blinking cursor -- the only visible element */}
       <span
+        role="img"
         className="inline-block h-8 w-4 animate-pulse bg-terminal"
         aria-label="Coming soon"
       />
