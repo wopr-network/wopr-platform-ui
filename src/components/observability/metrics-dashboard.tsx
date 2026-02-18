@@ -101,7 +101,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
               <Line
                 type="monotone"
                 dataKey="requestCount"
-                stroke="hsl(var(--terminal))"
+                stroke="var(--terminal)"
                 strokeWidth={2}
                 dot={false}
                 name="Requests"
@@ -129,7 +129,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
               <Line
                 type="monotone"
                 dataKey="latencyP50"
-                stroke="hsl(var(--terminal))"
+                stroke="var(--terminal)"
                 strokeWidth={2}
                 dot={false}
                 name="p50"
@@ -137,7 +137,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
               <Line
                 type="monotone"
                 dataKey="latencyP95"
-                stroke="hsl(var(--terminal) / 0.65)"
+                stroke="color-mix(in srgb, var(--terminal) 65%, transparent)"
                 strokeWidth={2}
                 dot={false}
                 name="p95"
@@ -145,7 +145,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
               <Line
                 type="monotone"
                 dataKey="latencyP99"
-                stroke="hsl(var(--destructive))"
+                stroke="var(--destructive)"
                 strokeWidth={2}
                 dot={false}
                 name="p99"
@@ -171,8 +171,12 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
                   contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333" }}
                   labelStyle={{ color: "#888" }}
                 />
-                <Bar dataKey="input" fill="hsl(var(--terminal))" name="Input Tokens" />
-                <Bar dataKey="output" fill="hsl(var(--terminal) / 0.45)" name="Output Tokens" />
+                <Bar dataKey="input" fill="var(--terminal)" name="Input Tokens" />
+                <Bar
+                  dataKey="output"
+                  fill="color-mix(in srgb, var(--terminal) 45%, transparent)"
+                  name="Output Tokens"
+                />
               </BarChart>
             </ResponsiveContainer>
             <div className="mt-3 space-y-1">
@@ -204,7 +208,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
                   contentStyle={{ backgroundColor: "#1a1a1a", border: "1px solid #333" }}
                   labelStyle={{ color: "#888" }}
                 />
-                <Bar dataKey="events" fill="hsl(var(--terminal))" name="Events" />
+                <Bar dataKey="events" fill="var(--terminal)" name="Events" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -230,7 +234,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
                 <Line
                   type="monotone"
                   dataKey="activeSessions"
-                  stroke="hsl(var(--terminal))"
+                  stroke="var(--terminal)"
                   strokeWidth={2}
                   dot={false}
                   name="Sessions"
@@ -258,7 +262,7 @@ export function MetricsDashboard({ instanceId }: { instanceId: string }) {
                 <Line
                   type="monotone"
                   dataKey="memoryMb"
-                  stroke="hsl(var(--terminal))"
+                  stroke="var(--terminal)"
                   strokeWidth={2}
                   dot={false}
                   name="Memory"
