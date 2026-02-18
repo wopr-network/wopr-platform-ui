@@ -28,6 +28,7 @@ const navItems = [
   { label: "Credits", href: "/billing/credits" },
   { label: "Billing", href: "/billing/plans" },
   { label: "Settings", href: "/settings/profile" },
+  { label: "Admin", href: "/admin/tenants" },
 ];
 
 function isNavActive(href: string, pathname: string): boolean {
@@ -37,6 +38,7 @@ function isNavActive(href: string, pathname: string): boolean {
   if (href === "/billing/plans")
     return pathname.startsWith("/billing") && !pathname.startsWith("/billing/credits");
   if (href === "/billing/credits") return pathname.startsWith("/billing/credits");
+  if (href === "/admin/tenants") return pathname.startsWith("/admin");
   return pathname.startsWith(href);
 }
 
