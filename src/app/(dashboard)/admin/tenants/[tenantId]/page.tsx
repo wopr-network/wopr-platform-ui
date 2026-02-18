@@ -228,8 +228,10 @@ function CreditsSection({
   const [msg, setMsg] = useState<string | null>(null);
 
   async function handleGrant() {
-    const cents = Math.round(parseFloat(grantAmount) * 100);
-    if (!cents || cents <= 0 || !grantReason.trim()) return;
+    const parsed = parseFloat(grantAmount);
+    if (Number.isNaN(parsed) || parsed <= 0) return;
+    const cents = Math.round(parsed * 100);
+    if (!cents || !grantReason.trim()) return;
     try {
       await grantCredits(tenantId, cents, grantReason);
       setMsg(`Granted ${formatCents(cents)}`);
@@ -243,8 +245,10 @@ function CreditsSection({
   }
 
   async function handleRefund() {
-    const cents = Math.round(parseFloat(refundAmount) * 100);
-    if (!cents || cents <= 0 || !refundReason.trim()) return;
+    const parsed = parseFloat(refundAmount);
+    if (Number.isNaN(parsed) || parsed <= 0) return;
+    const cents = Math.round(parsed * 100);
+    if (!cents || !refundReason.trim()) return;
     try {
       await refundCredits(tenantId, cents, refundReason);
       setMsg(`Refunded ${formatCents(cents)}`);
@@ -554,6 +558,7 @@ function TransactionsSection({
   tenantId: string;
 }) {
   const [entries, setEntries] = useState(transactions.entries);
+  const [filteredTotal, setFilteredTotal] = useState(transactions.total);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -561,7 +566,8 @@ function TransactionsSection({
 
   useEffect(() => {
     setEntries(transactions.entries);
-  }, [transactions.entries]);
+    setFilteredTotal(transactions.total);
+  }, [transactions.entries, transactions.total]);
 
   const PAGE_SIZE = 50;
 
@@ -575,6 +581,7 @@ function TransactionsSection({
         offset: 0,
       });
       setEntries(result.entries);
+      setFilteredTotal(result.total);
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Failed to load transactions");
     }
@@ -680,7 +687,7 @@ function TransactionsSection({
             )}
           </TableBody>
         </Table>
-        {entries.length < transactions.total && (
+        {entries.length < filteredTotal && (
           <div className="mt-4 text-center">
             <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
               {loadingMore ? "Loading..." : "Load more"}
@@ -740,7 +747,7 @@ function AdminActionsSection({
   }
 
   async function handleBan() {
-    if (!banReason.trim() || !banTosRef.trim() || !banConfirm.trim()) return;
+    if (!banReason.trim() || !banTosRef.trim() || banConfirm !== `BAN ${tenantId}`) return;
     try {
       await banTenant(tenantId, banReason, banTosRef, banConfirm);
       setMsg("Tenant banned");
@@ -883,7 +890,6 @@ function AdminActionsSection({
                     <SelectContent>
                       <SelectItem value="user">user</SelectItem>
                       <SelectItem value="tenant_admin">tenant_admin</SelectItem>
-                      <SelectItem value="platform_admin">platform_admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
