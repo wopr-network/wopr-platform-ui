@@ -66,6 +66,7 @@ import {
 // ---- Helpers ----
 
 function formatCents(cents: number): string {
+  if (cents < 0) return `-$${(Math.abs(cents) / 100).toFixed(2)}`;
   return `$${(cents / 100).toFixed(2)}`;
 }
 
@@ -557,6 +558,10 @@ function TransactionsSection({
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    setEntries(transactions.entries);
+  }, [transactions.entries]);
 
   const PAGE_SIZE = 50;
 
