@@ -43,16 +43,9 @@ describe("isWebMCPAvailable", () => {
     expect(isWebMCPAvailable()).toBe(true);
   });
 
-  it("returns false in SSR environment (typeof window === undefined)", () => {
-    // Simulate SSR by temporarily making window undefined via a workaround:
-    // We test by calling the function with a mocked module where window is undefined.
-    // Since we can't actually undefine window in jsdom, we verify the logic via
-    // the source code check. Instead we test the navigator.modelContext path is guarded.
-    // The SSR guard is: typeof window !== "undefined"
-    // We can test the negative by checking when modelContext is absent (which covers the
-    // navigator guard as well). The full SSR path is validated by the unit tests above.
+  it("returns false when modelContext exists but registerTool is not a function", () => {
     Object.defineProperty(navigator, "modelContext", {
-      value: undefined,
+      value: { registerTool: null },
       writable: true,
       configurable: true,
     });

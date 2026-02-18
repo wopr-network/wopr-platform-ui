@@ -256,6 +256,34 @@ describe("getWebMCPTools", () => {
     });
   });
 
+  describe("wopr_get_instance_health handler", () => {
+    it("calls getInstanceHealth and returns { health }", async () => {
+      const mockHealth = {
+        instanceId: "inst-001",
+        uptime: 3600,
+        sessionCount: 42,
+        plugins: [{ id: "discord-channel", status: "ok" }],
+        provider: { name: "anthropic", status: "ok" },
+      };
+      mockGetInstanceHealth.mockResolvedValue(mockHealth);
+      const tool = getTool("wopr_get_instance_health");
+
+      const result = await tool.handler({ instanceId: "inst-001" });
+
+      expect(mockGetInstanceHealth).toHaveBeenCalledWith("inst-001");
+      expect(result).toEqual({ health: mockHealth });
+    });
+
+    it("returns { error } when getInstanceHealth throws", async () => {
+      mockGetInstanceHealth.mockRejectedValue(new Error("Health check failed"));
+      const tool = getTool("wopr_get_instance_health");
+
+      const result = (await tool.handler({ instanceId: "inst-001" })) as { error: string };
+
+      expect(result.error).toBe("Health check failed");
+    });
+  });
+
   describe("wopr_view_logs handler", () => {
     const MOCK_LOGS = Array.from({ length: 100 }, (_, i) => ({
       id: `log-${i}`,

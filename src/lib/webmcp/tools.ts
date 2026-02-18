@@ -27,8 +27,12 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         properties: {},
       },
       handler: async () => {
-        const instances = await listInstances();
-        return { instances };
+        try {
+          const instances = await listInstances();
+          return { instances };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
+        }
       },
     },
     {
@@ -60,14 +64,18 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         required: ["name", "template", "provider"],
       },
       handler: async (params) => {
-        const instance = await createInstance({
-          name: params.name as string,
-          template: params.template as string,
-          provider: params.provider as string,
-          channels: (params.channels as string[]) ?? [],
-          plugins: (params.plugins as string[]) ?? [],
-        });
-        return { instance };
+        try {
+          const instance = await createInstance({
+            name: params.name as string,
+            template: params.template as string,
+            provider: params.provider as string,
+            channels: (params.channels as string[]) ?? [],
+            plugins: (params.plugins as string[]) ?? [],
+          });
+          return { instance };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
+        }
       },
     },
     {
@@ -87,20 +95,24 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         required: ["instanceId", "action"],
       },
       handler: async (params) => {
-        const action = params.action as "start" | "stop" | "restart" | "destroy";
-        const instanceId = params.instanceId as string;
+        try {
+          const action = params.action as "start" | "stop" | "restart" | "destroy";
+          const instanceId = params.instanceId as string;
 
-        if (DESTRUCTIVE_ACTIONS.has(action)) {
-          const confirmed = await confirm(
-            `Are you sure you want to ${action} instance ${instanceId}? This action cannot be undone.`,
-          );
-          if (!confirmed) {
-            return { error: "Action cancelled by user", cancelled: true };
+          if (DESTRUCTIVE_ACTIONS.has(action)) {
+            const confirmed = await confirm(
+              `Are you sure you want to ${action} instance ${instanceId}? This action cannot be undone.`,
+            );
+            if (!confirmed) {
+              return { error: "Action cancelled by user", cancelled: true };
+            }
           }
-        }
 
-        await controlInstance(instanceId, action);
-        return { ok: true, instanceId, action };
+          await controlInstance(instanceId, action);
+          return { ok: true, instanceId, action };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
+        }
       },
     },
     {
@@ -118,19 +130,23 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         required: ["instanceId", "pluginName"],
       },
       handler: async (params) => {
-        // The current UI uses mock install flow (install-wizard.tsx).
-        // The real install endpoint will be POST /fleet/bots/:id/plugins
-        // For now, return the plugin manifest as acknowledgment.
-        const allPlugins = await listMarketplacePlugins();
-        const plugin = allPlugins.find((p) => p.id === (params.pluginName as string));
-        if (!plugin) {
-          return { error: `Plugin '${params.pluginName}' not found in marketplace` };
+        try {
+          // The current UI uses mock install flow (install-wizard.tsx).
+          // The real install endpoint will be POST /fleet/bots/:id/plugins
+          // For now, return the plugin manifest as acknowledgment.
+          const allPlugins = await listMarketplacePlugins();
+          const plugin = allPlugins.find((p) => p.id === (params.pluginName as string));
+          if (!plugin) {
+            return { error: `Plugin '${params.pluginName}' not found in marketplace` };
+          }
+          return {
+            status: "pending",
+            message: `Plugin '${plugin.name}' queued for installation on instance ${params.instanceId}. Full install API coming in a future release.`,
+            plugin: { id: plugin.id, name: plugin.name, version: plugin.version },
+          };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
         }
-        return {
-          status: "pending",
-          message: `Plugin '${plugin.name}' queued for installation on instance ${params.instanceId}. Full install API coming in a future release.`,
-          plugin: { id: plugin.id, name: plugin.name, version: plugin.version },
-        };
       },
     },
     {
@@ -148,21 +164,25 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         },
       },
       handler: async (params) => {
-        let plugins = await listMarketplacePlugins();
-        if (params.category) {
-          plugins = plugins.filter((p) => p.category === params.category);
+        try {
+          let plugins = await listMarketplacePlugins();
+          if (params.category) {
+            plugins = plugins.filter((p) => p.category === params.category);
+          }
+          return {
+            plugins: plugins.map((p) => ({
+              id: p.id,
+              name: p.name,
+              description: p.description,
+              version: p.version,
+              category: p.category,
+              capabilities: p.capabilities,
+              author: p.author,
+            })),
+          };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
         }
-        return {
-          plugins: plugins.map((p) => ({
-            id: p.id,
-            name: p.name,
-            description: p.description,
-            version: p.version,
-            category: p.category,
-            capabilities: p.capabilities,
-            author: p.author,
-          })),
-        };
       },
     },
     {
@@ -177,8 +197,12 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         required: ["instanceId"],
       },
       handler: async (params) => {
-        const health = await getInstanceHealth(params.instanceId as string);
-        return { health };
+        try {
+          const health = await getInstanceHealth(params.instanceId as string);
+          return { health };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
+        }
       },
     },
     {
@@ -201,11 +225,15 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
         required: ["instanceId"],
       },
       handler: async (params) => {
-        const logs = await getInstanceLogs(params.instanceId as string, {
-          level: params.level as "debug" | "info" | "warn" | "error" | undefined,
-        });
-        const limit = (params.limit as number) ?? 50;
-        return { logs: logs.slice(0, limit) };
+        try {
+          const logs = await getInstanceLogs(params.instanceId as string, {
+            level: params.level as "debug" | "info" | "warn" | "error" | undefined,
+          });
+          const limit = (params.limit as number) ?? 50;
+          return { logs: logs.slice(0, limit) };
+        } catch (err) {
+          return { error: err instanceof Error ? err.message : String(err) };
+        }
       },
     },
   ];

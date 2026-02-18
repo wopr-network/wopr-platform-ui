@@ -21,9 +21,14 @@ export function useWebMCP(): void {
   );
 
   useEffect(() => {
+    const isAuthenticated = session?.user != null;
+
+    if (!isAuthenticated) {
+      registeredRef.current = false;
+    }
+
     if (registeredRef.current) return;
 
-    const isAuthenticated = session?.user != null;
     const registered = registerWebMCPTools(isAuthenticated, confirm);
 
     if (registered) {
