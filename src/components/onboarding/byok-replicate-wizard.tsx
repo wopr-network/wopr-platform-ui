@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -134,12 +135,10 @@ export function ByokReplicateWizard({
           </div>
 
           {/* Trust callout */}
-          <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-            <p className="text-sm text-blue-200">
-              Your token connects directly to Replicate. WOPR never proxies, stores centrally, or
-              has access to your token outside your instance.
-            </p>
-          </div>
+          <Banner variant="info">
+            Your token connects directly to Replicate. WOPR never proxies, stores centrally, or has
+            access to your token outside your instance.
+          </Banner>
 
           {/* Token input */}
           <div className="space-y-1.5">
@@ -248,7 +247,7 @@ export function ByokReplicateWizard({
           </div>
 
           {/* Encryption callout */}
-          <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
             <div className="flex items-center gap-2">
               <LockIcon className="h-4 w-4 text-emerald-500" />
               <p className="text-sm text-emerald-400">Token encrypted at rest</p>

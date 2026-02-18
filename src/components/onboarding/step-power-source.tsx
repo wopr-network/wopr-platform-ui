@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -186,11 +187,9 @@ export function StepPowerSource({
       {/* BYOK key entry */}
       {providerMode === "byok" && keySuperpowers.length > 0 && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-            <p className="text-sm text-muted-foreground">
-              Your keys connect directly to providers. We never proxy or store them.
-            </p>
-          </div>
+          <Banner variant="info">
+            Your keys connect directly to providers. We never proxy or store them.
+          </Banner>
 
           {/* AI Provider toggle (OpenAI vs OpenRouter) */}
           {hasAiKeySuperpowers && (
@@ -272,7 +271,7 @@ export function StepPowerSource({
 
               {/* Capability unlock confirmation */}
               {aiKeyValid && (
-                <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
                   <p className="mb-3 text-sm font-medium text-emerald-500">
                     Key validated -- capabilities unlocked:
                   </p>
