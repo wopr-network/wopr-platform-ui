@@ -15,25 +15,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Format check
-        run: npx @biomejs/biome format src/
+        run: pnpm exec @biomejs/biome format src/
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       - name: Test
-        run: npm test
-
+        run: pnpm test
