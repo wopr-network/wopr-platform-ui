@@ -390,28 +390,8 @@ export async function transferOwnership(memberId: string): Promise<void> {
 
 // --- Billing types ---
 
-export type PlanTier = "free" | "pro" | "team" | "enterprise";
-
-export interface PlanFeatures {
-  instanceCap: number | null;
-  channels: string;
-  plugins: string;
-  support: string;
-  extras: string[];
-}
-
-export interface Plan {
-  id: string;
-  tier: PlanTier;
-  name: string;
-  price: number | null;
-  priceLabel: string;
-  features: PlanFeatures;
-  recommended?: boolean;
-}
-
 export interface BillingUsage {
-  plan: PlanTier;
+  plan: string;
   planName: string;
   billingPeriodStart: string;
   billingPeriodEnd: string;
@@ -508,22 +488,6 @@ export interface BillingInfo {
 }
 
 // --- Billing API ---
-
-export async function getPlans(): Promise<Plan[]> {
-  return apiFetch<Plan[]>("/billing/plans");
-}
-
-export async function getCurrentPlan(): Promise<PlanTier> {
-  const res = await apiFetch<{ tier: PlanTier }>("/billing/current-plan");
-  return res.tier;
-}
-
-export async function changePlan(tier: PlanTier): Promise<void> {
-  await apiFetch("/billing/change-plan", {
-    method: "POST",
-    body: JSON.stringify({ tier }),
-  });
-}
 
 export async function getBillingUsage(): Promise<BillingUsage> {
   return apiFetch<BillingUsage>("/billing/usage");
