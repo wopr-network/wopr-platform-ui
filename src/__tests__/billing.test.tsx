@@ -196,6 +196,7 @@ describe("Plans page", () => {
     const { default: PlansPage } = await import("../app/(dashboard)/billing/plans/page");
     render(<PlansPage />);
 
+    expect(screen.getAllByText(/\$5/).length).toBeGreaterThan(0);
     expect(screen.getByText("per bot")).toBeInTheDocument();
     expect(screen.getByText(/\/month/)).toBeInTheDocument();
   });
