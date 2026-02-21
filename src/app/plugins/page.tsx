@@ -104,13 +104,22 @@ export default function PluginsPage() {
 
   // Load installed plugins when bot changes
   useEffect(() => {
+    setToggleError(null);
     if (!selectedBotId) {
       setInstalled([]);
       return;
     }
+    let stale = false;
     listInstalledPlugins(selectedBotId)
-      .then(setInstalled)
-      .catch(() => setInstalled([]));
+      .then((data) => {
+        if (!stale) setInstalled(data);
+      })
+      .catch(() => {
+        if (!stale) setInstalled([]);
+      });
+    return () => {
+      stale = true;
+    };
   }, [selectedBotId]);
 
   async function togglePlugin(pluginId: string) {
