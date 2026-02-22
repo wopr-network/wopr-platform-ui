@@ -21,7 +21,8 @@ export default function OnboardWelcomePage() {
             <div>
               <p className="font-medium">Bring your own API keys</p>
               <p className="text-muted-foreground">
-                Connect your AI provider keys directly. We never proxy or store them centrally.
+                Connect your AI provider keys directly. They are encrypted and stored securely on
+                the server.
               </p>
             </div>
           </div>
