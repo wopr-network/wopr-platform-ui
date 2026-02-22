@@ -347,7 +347,11 @@ export function CommandCenter() {
                   className="mt-2 text-3xl font-bold tabular-nums text-terminal"
                   data-testid="dividend-amount"
                 >
-                  {loading ? "--" : `$${(dividendStats.perUserCents / 100).toFixed(2)}`}
+                  {loading
+                    ? "--"
+                    : dividendStats.userEligible
+                      ? `$${(dividendStats.perUserCents / 100).toFixed(2)}`
+                      : "--"}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {dividendStats.userEligible ? "your daily share" : "join the pool to earn"}

@@ -34,6 +34,8 @@ export default function CreditsPage() {
         setDividendStats(statsData);
         if (statsData.userEligible && statsData.perUserCents > 0) {
           setTodayDividendCents(statsData.perUserCents);
+        } else {
+          setTodayDividendCents(0);
         }
       }
     } catch {

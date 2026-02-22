@@ -68,7 +68,7 @@ export function FirstDividendDialog({ todayAmountCents }: FirstDividendDialogPro
               : {}
           }
           transition={{ duration: 1.5, times: [0, 0.5, 1] }}
-          className="contents"
+          className="flex flex-col items-center gap-4"
         >
           <DialogHeader className="items-center">
             <motion.div
