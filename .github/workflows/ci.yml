@@ -54,6 +54,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Copy static assets for standalone server
+        run: |
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
