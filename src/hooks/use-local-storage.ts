@@ -20,7 +20,9 @@ export function useLocalStorage<T>(
     (value: T | ((prev: T) => T)) => {
       setStoredValue((prev) => {
         const next = value instanceof Function ? value(prev) : value;
-        localStorage.setItem(key, JSON.stringify(next));
+        if (typeof window !== "undefined") {
+          localStorage.setItem(key, JSON.stringify(next));
+        }
         return next;
       });
     },
@@ -28,7 +30,9 @@ export function useLocalStorage<T>(
   );
 
   const removeValue = useCallback(() => {
-    localStorage.removeItem(key);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(key);
+    }
     setStoredValue(initialValue);
   }, [key, initialValue]);
 
