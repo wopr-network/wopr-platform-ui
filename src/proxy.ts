@@ -17,7 +17,7 @@ function buildCsp(nonce: string): string {
     // style-src: 'unsafe-inline' is required for Tailwind CSS v4 inline styles
     // and framer-motion animation styles. Risk is mitigated by nonce-based
     // script-src with 'strict-dynamic', which prevents JS injection.
-    // TODO: migrate to nonce-based style injection when Tailwind CSS adds support
+    // Migrate to nonce-based style injection when Tailwind CSS adds support
     // (track https://github.com/tailwindlabs/tailwindcss/issues/5394).
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
@@ -125,6 +125,68 @@ async function getSessionRole(request: NextRequest): Promise<string | null> {
   }
 }
 
+/** Returns true if the request is for a public path (no auth required). */
+function isPublicPath(pathname: string): boolean {
+  return publicExactPaths.has(pathname) || publicPaths.some((p) => pathname.startsWith(p));
+}
+
+/** Returns true if the request is for a static asset. */
+function isStaticAsset(pathname: string): boolean {
+  return pathname.startsWith("/_next") || (pathname.includes(".") && !pathname.startsWith("/api"));
+}
+
+/** Get the session token cookie from the request. */
+function getSessionToken(request: NextRequest) {
+  return (
+    request.cookies.get("better-auth.session_token") ??
+    request.cookies.get("__Secure-better-auth.session_token")
+  );
+}
+
+/**
+ * Handle root path redirect for authenticated users.
+ * Returns a redirect response or null if no redirect needed.
+ */
+function handleRootRedirect(
+  request: NextRequest,
+  host: string,
+  withCsp: (r: NextResponse) => NextResponse,
+): NextResponse | null {
+  const sessionToken = getSessionToken(request);
+  if (!sessionToken?.value.trim()) return null;
+
+  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN;
+  if (appDomain && !host.startsWith("app.")) {
+    return withCsp(NextResponse.redirect(new URL(`https://${appDomain}/marketplace`)));
+  }
+  return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
+}
+
+/**
+ * Handle admin route authorization.
+ * Returns a response (redirect or next) or null to fall through to session check.
+ */
+async function handleAdminRoute(
+  request: NextRequest,
+  withCsp: (r: NextResponse) => NextResponse,
+): Promise<NextResponse | null> {
+  const sessionCookie = getSessionToken(request);
+  if (!sessionCookie?.value.trim()) return null;
+
+  const role = await getSessionRole(request);
+  if (role !== "platform_admin") {
+    return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
+  }
+
+  // Admin confirmed — serve page with anti-cache headers so revocation
+  // is detected on the very next navigation (browser must revalidate).
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  return withCsp(response);
+}
+
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
@@ -159,50 +221,26 @@ export default async function middleware(request: NextRequest) {
   // domain=".wopr.bot" so it is visible on both app.wopr.bot and wopr.bot.
   // See: wopr-platform/src/auth/better-auth.ts advanced.cookies.session_token.attributes.domain
   if (pathname === "/") {
-    const sessionToken =
-      request.cookies.get("better-auth.session_token") ??
-      request.cookies.get("__Secure-better-auth.session_token");
-    if (sessionToken?.value.trim()) {
-      const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN;
-      if (appDomain && !host.startsWith("app.")) {
-        // On marketing domain — redirect to the app subdomain
-        return withCsp(NextResponse.redirect(new URL(`https://${appDomain}/marketplace`)));
-      }
-      // On app subdomain (or no configured app domain) — redirect to /marketplace
-      return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
-    }
+    const redirect = handleRootRedirect(request, host, withCsp);
+    if (redirect) return redirect;
   }
 
-  // --- Admin route authorization (server-side) ---
+  // Admin route authorization (server-side).
   // Non-admins are redirected before any page JS loads.
   // Unauthenticated users fall through to the session check below (→ /login).
   if (pathname.startsWith("/admin")) {
-    const sessionCookie =
-      request.cookies.get("better-auth.session_token") ??
-      request.cookies.get("__Secure-better-auth.session_token");
-    if (sessionCookie?.value.trim()) {
-      const role = await getSessionRole(request);
-      if (role !== "platform_admin") {
-        return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
-      }
-      // Admin confirmed — serve page with anti-cache headers so revocation
-      // is detected on the very next navigation (browser must revalidate).
-      const response = NextResponse.next();
-      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      return withCsp(response);
-    }
+    const adminResponse = await handleAdminRoute(request, withCsp);
+    if (adminResponse) return adminResponse;
     // No session cookie → fall through to the session check below which redirects to /login
   }
 
   // Allow public paths
-  if (publicExactPaths.has(pathname) || publicPaths.some((p) => pathname.startsWith(p))) {
+  if (isPublicPath(pathname)) {
     return withCsp(NextResponse.next());
   }
 
   // Allow static files (but not API paths with dots, e.g. /api/config.json)
-  if (pathname.startsWith("/_next") || (pathname.includes(".") && !pathname.startsWith("/api"))) {
+  if (isStaticAsset(pathname)) {
     return withCsp(NextResponse.next());
   }
 
@@ -211,9 +249,7 @@ export default async function middleware(request: NextRequest) {
   // here. This is a browser-facing UI application; all API consumers are the Next.js
   // front-end itself (cookie-based). Automation/SDK/CLI clients should use the platform
   // API directly (wopr-platform), which issues and validates Bearer tokens independently.
-  const sessionToken =
-    request.cookies.get("better-auth.session_token") ??
-    request.cookies.get("__Secure-better-auth.session_token");
+  const sessionToken = getSessionToken(request);
 
   if (!sessionToken || !sessionToken.value.trim()) {
     const loginUrl = new URL("/login", request.url);
