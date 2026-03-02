@@ -43,7 +43,7 @@ describe("fetchPublicPricing", () => {
     expect(result).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
       "http://test-api/api/v1/pricing",
-      expect.objectContaining({ cache: "no-store" }),
+      expect.objectContaining({ next: { revalidate: 60 } }),
     );
   });
 
