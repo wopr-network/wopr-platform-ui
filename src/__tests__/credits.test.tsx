@@ -115,7 +115,7 @@ vi.mock("@/lib/trpc", async (importOriginal) => {
   return {
     ...actual,
     trpc: {
-      ...((actual as { trpc?: unknown }).trpc ?? {}),
+      ...(actual as { trpc?: Record<string, unknown> }).trpc,
       billing: {
         creditsBalance: {
           useQuery: vi.fn().mockReturnValue({
