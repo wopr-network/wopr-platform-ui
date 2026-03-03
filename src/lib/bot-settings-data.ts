@@ -1,4 +1,5 @@
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchRaw } from "./api";
+import { ApiError } from "./errors";
 import { logger } from "./logger";
 
 const log = logger("bot-settings");
@@ -267,9 +268,14 @@ export async function installPlugin(botId: string, pluginId: string): Promise<vo
 
 /** Uninstall a plugin from a bot */
 export async function uninstallPlugin(botId: string, pluginId: string): Promise<void> {
-  await apiFetch(`/fleet/bots/${botId}/plugins/${pluginId}`, {
+  const res = await apiFetchRaw(`/fleet/bots/${botId}/plugins/${pluginId}`, {
     method: "DELETE",
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, res.statusText, (body as { error?: string }).error ?? undefined);
+  }
+  // 204 No Content or 200 — success, skip json parsing
 }
 
 /** Fetch channel configuration */

@@ -691,9 +691,7 @@ function ChannelsTab({
               <Button
                 key={ch.type}
                 variant="outline"
-                onClick={() =>
-                  router.push(`/onboarding/channels?bot=${botId}&channel=${ch.type.toLowerCase()}`)
-                }
+                onClick={() => router.push(`/channels/setup/${ch.type.toLowerCase()}?bot=${botId}`)}
               >
                 + Add {ch.label}
               </Button>
@@ -1118,8 +1116,8 @@ function PluginsTab({
     try {
       await uninstallPlugin(botId, pluginId);
       onUpdate();
-    } catch {
-      setPluginError("Failed to uninstall plugin -- please try again.");
+    } catch (err) {
+      setPluginError(toUserMessage(err, "Failed to uninstall plugin -- please try again."));
     } finally {
       setUninstallingPlugin(null);
       setConfirmUninstall(null);
@@ -1373,7 +1371,13 @@ function InstalledPluginCard({
           <Button variant="outline" size="sm" onClick={onConfigure}>
             Configure
           </Button>
-          <Button variant="ghost" size="icon" onClick={onUninstall} title="Uninstall plugin">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onUninstall}
+            title="Uninstall plugin"
+            aria-label="Uninstall plugin"
+          >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
           <Button
