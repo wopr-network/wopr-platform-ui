@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatMessage } from "@/components/chat/chat-message";
@@ -53,32 +53,20 @@ export function SetupChatPanel({
       <SheetContent side="right" className="flex w-full flex-col p-0 sm:w-[440px]">
         {/* Header */}
         <SheetHeader className="border-b border-border bg-card px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  isConnected ? "animate-pulse bg-terminal" : "bg-muted-foreground"
-                }`}
-              />
-              <div>
-                <SheetTitle className="text-sm font-mono uppercase tracking-[0.15em]">
-                  {pluginName ?? "Plugin"} Setup
-                </SheetTitle>
-                <SheetDescription className="text-xs font-mono text-muted-foreground">
-                  {isComplete ? "Configuration complete" : "Configure via conversation"}
-                </SheetDescription>
-              </div>
+          <div className="flex items-center gap-2.5">
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                isConnected ? "animate-pulse bg-terminal" : "bg-muted-foreground"
+              }`}
+            />
+            <div>
+              <SheetTitle className="text-sm font-mono uppercase tracking-[0.15em]">
+                {pluginName ?? "Plugin"} Setup
+              </SheetTitle>
+              <SheetDescription className="text-xs font-mono text-muted-foreground">
+                {isComplete ? "Configuration complete" : "Configure via conversation"}
+              </SheetDescription>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              aria-label="Close setup"
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-3.5 w-3.5" />
-            </Button>
           </div>
         </SheetHeader>
 

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SetupChatPanel } from "@/components/plugin-setup";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,24 +75,23 @@ export default function PluginsPage() {
   const [search, setSearch] = useState("");
   const [bots, setBots] = useState<BotSummary[]>([]);
   const [selectedBotId, setSelectedBotId] = useState<string | null>(null);
+  const selectedBotIdRef = useRef<string | null>(null);
   const [botsLoading, setBotsLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [toggleError, setToggleError] = useState<string | null>(null);
   const [installedPage, setInstalledPage] = useState(1);
   const [catalogPage, setCatalogPage] = useState(1);
 
-  const handleSetupComplete = useCallback(
-    (_pluginId: string) => {
-      if (selectedBotId) {
-        listInstalledPlugins(selectedBotId)
-          .then(setInstalled)
-          .catch(() => {
-            // Refresh failure is silent — installed state retains last known value
-          });
-      }
-    },
-    [selectedBotId],
-  );
+  const handleSetupComplete = useCallback((_pluginId: string) => {
+    const botId = selectedBotIdRef.current;
+    if (botId) {
+      listInstalledPlugins(botId)
+        .then(setInstalled)
+        .catch(() => {
+          // Refresh failure is silent — installed state retains last known value
+        });
+    }
+  }, []);
 
   const setupChat = usePluginSetupChat(handleSetupComplete);
 
@@ -103,6 +102,7 @@ export default function PluginsPage() {
         setBots(data);
         if (data.length > 0) {
           setSelectedBotId(data[0].id);
+          selectedBotIdRef.current = data[0].id;
         }
         setBotsLoading(false);
       })
@@ -259,7 +259,13 @@ export default function PluginsPage() {
           <label htmlFor="bot-select" className="text-sm font-medium text-muted-foreground">
             Bot:
           </label>
-          <Select value={selectedBotId ?? undefined} onValueChange={setSelectedBotId}>
+          <Select
+            value={selectedBotId ?? undefined}
+            onValueChange={(v) => {
+              setSelectedBotId(v);
+              selectedBotIdRef.current = v;
+            }}
+          >
             <SelectTrigger id="bot-select" className="w-64 bg-black/50 border-terminal/30">
               <SelectValue placeholder="Select a bot" />
             </SelectTrigger>

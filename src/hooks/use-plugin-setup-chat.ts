@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { apiFetch, apiFetchRaw } from "@/lib/api";
 import type { ChatMessage } from "@/lib/chat/types";
 
 interface PluginSetupState {
@@ -41,6 +42,14 @@ export function usePluginSetupChat(
   const [state, setState] = useState<PluginSetupState>(initialState);
   const abortRef = useRef<AbortController | null>(null);
   const botIdRef = useRef<string | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+
+  // Abort on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const openSetup = useCallback(
     (pluginId: string, pluginName: string, botId: string) => {
@@ -61,14 +70,13 @@ export function usePluginSetupChat(
       abortRef.current = controller;
 
       const sessionId = crypto.randomUUID();
-      const url = new URL("/api/chat/setup", window.location.origin);
-      url.searchParams.set("pluginId", pluginId);
-      url.searchParams.set("botId", botId);
-      url.searchParams.set("sessionId", sessionId);
+      sessionIdRef.current = sessionId;
 
-      fetch(url.toString(), { signal: controller.signal })
+      const params = new URLSearchParams({ pluginId, botId, sessionId });
+
+      apiFetchRaw(`/chat/setup?${params.toString()}`, { signal: controller.signal })
         .then(async (res) => {
-          if (!res.ok || !res.body) {
+          if (!res.body) {
             setState((s) => ({ ...s, isConnected: false }));
             return;
           }
@@ -79,14 +87,17 @@ export function usePluginSetupChat(
 
           while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
+            if (done) {
+              setState((s) => ({ ...s, isTyping: false }));
+              break;
+            }
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() ?? "";
 
             for (const line of lines) {
-              if (!line.startsWith("data: ")) continue;
-              const raw = line.slice(6).trim();
+              if (!line.startsWith("data:")) continue;
+              const raw = line.slice(5).trimStart();
               if (!raw || raw === "[DONE]") continue;
 
               try {
@@ -146,6 +157,7 @@ export function usePluginSetupChat(
         })
         .catch(() => {
           // AbortError is expected on close — ignore
+          setState((s) => ({ ...s, isTyping: false }));
         });
     },
     [onComplete],
@@ -177,12 +189,12 @@ export function usePluginSetupChat(
         ],
       }));
 
-      fetch("/api/chat/setup/message", {
+      apiFetch<void>("/chat/setup/message", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           pluginId: currentPluginId,
           botId: currentBotId,
+          sessionId: sessionIdRef.current,
           text,
         }),
       }).catch(() => {
