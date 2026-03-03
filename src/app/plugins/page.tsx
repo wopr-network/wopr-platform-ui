@@ -361,12 +361,10 @@ export default function PluginsPage() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-7 px-2 text-xs font-mono uppercase tracking-wider text-terminal hover:bg-terminal/10"
+                                disabled={!selectedBotId}
                                 onClick={() =>
-                                  setupChat.openSetup(
-                                    item.pluginId,
-                                    manifest.name,
-                                    selectedBotId ?? "",
-                                  )
+                                  selectedBotId &&
+                                  setupChat.openSetup(item.pluginId, manifest.name, selectedBotId)
                                 }
                               >
                                 <Settings className="mr-1 h-3 w-3" />

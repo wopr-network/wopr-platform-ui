@@ -33,8 +33,7 @@ const initialState: PluginSetupState = {
 type SseEvent =
   | { type: "text"; delta: string }
   | { type: "tool_call"; tool: string; args: Record<string, unknown> }
-  | { type: "typing" }
-  | { type: "done" };
+  | { type: "typing" };
 
 export function usePluginSetupChat(
   onComplete?: (pluginId: string) => void,
