@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { AppRouter } from "@/lib/trpc-types";
 
 /**
+ * Compile-time assertion: causes a TypeScript error if T is not `true`.
+ * This makes type-level tests actually fail at type-check time (tsc --noEmit)
+ * when a namespace or procedure is removed from the AppRouter stub.
+ */
+type Assert<T extends true> = T;
+
+/**
  * Type-level tests for the AppRouter stub.
  *
  * These verify that the type contract declared in trpc-types.ts
@@ -12,69 +19,72 @@ import type { AppRouter } from "@/lib/trpc-types";
 describe("trpc-types AppRouter contract", () => {
   it("declares all expected router namespaces", () => {
     type Router = AppRouter["_def"]["record"];
-    type _PageContext = Router["pageContext"];
-    type _Admin = Router["admin"];
-    type _Billing = Router["billing"];
-    type _Fleet = Router["fleet"];
-    type _Promotions = Router["promotions"];
-    type _RateOverrides = Router["rateOverrides"];
-    type _Settings = Router["settings"];
-    type _Capabilities = Router["capabilities"];
-    type _AuthSocial = Router["authSocial"];
-    // If we get here, the type compiles — all namespaces exist
+    type _CheckPageContext = Assert<"pageContext" extends keyof Router ? true : false>;
+    type _CheckAdmin = Assert<"admin" extends keyof Router ? true : false>;
+    type _CheckBilling = Assert<"billing" extends keyof Router ? true : false>;
+    type _CheckFleet = Assert<"fleet" extends keyof Router ? true : false>;
+    type _CheckPromotions = Assert<"promotions" extends keyof Router ? true : false>;
+    type _CheckRateOverrides = Assert<"rateOverrides" extends keyof Router ? true : false>;
+    type _CheckSettings = Assert<"settings" extends keyof Router ? true : false>;
+    type _CheckCapabilities = Assert<"capabilities" extends keyof Router ? true : false>;
+    type _CheckAuthSocial = Assert<"authSocial" extends keyof Router ? true : false>;
     expect(true).toBe(true);
   });
 
   it("billing namespace has critical procedures", () => {
     type Billing = AppRouter["_def"]["record"]["billing"];
-    type _CurrentPlan = Billing["currentPlan"];
-    type _CreditsBalance = Billing["creditsBalance"];
-    type _CreditsCheckout = Billing["creditsCheckout"];
-    type _ApplyCoupon = Billing["applyCoupon"];
-    type _PortalSession = Billing["portalSession"];
-    type _AutoTopupSettings = Billing["autoTopupSettings"];
-    type _AccountStatus = Billing["accountStatus"];
+    type _CheckCurrentPlan = Assert<"currentPlan" extends keyof Billing ? true : false>;
+    type _CheckCreditsBalance = Assert<"creditsBalance" extends keyof Billing ? true : false>;
+    type _CheckCreditsCheckout = Assert<"creditsCheckout" extends keyof Billing ? true : false>;
+    type _CheckApplyCoupon = Assert<"applyCoupon" extends keyof Billing ? true : false>;
+    type _CheckPortalSession = Assert<"portalSession" extends keyof Billing ? true : false>;
+    type _CheckAutoTopupSettings = Assert<"autoTopupSettings" extends keyof Billing ? true : false>;
+    type _CheckAccountStatus = Assert<"accountStatus" extends keyof Billing ? true : false>;
     expect(true).toBe(true);
   });
 
   it("fleet namespace has instance management procedures", () => {
     type Fleet = AppRouter["_def"]["record"]["fleet"];
-    type _ListInstances = Fleet["listInstances"];
-    type _GetInstance = Fleet["getInstance"];
-    type _CreateInstance = Fleet["createInstance"];
-    type _ControlInstance = Fleet["controlInstance"];
-    type _GetInstanceHealth = Fleet["getInstanceHealth"];
-    type _GetInstanceLogs = Fleet["getInstanceLogs"];
-    type _GetInstanceMetrics = Fleet["getInstanceMetrics"];
-    type _ListTemplates = Fleet["listTemplates"];
+    type _CheckListInstances = Assert<"listInstances" extends keyof Fleet ? true : false>;
+    type _CheckGetInstance = Assert<"getInstance" extends keyof Fleet ? true : false>;
+    type _CheckCreateInstance = Assert<"createInstance" extends keyof Fleet ? true : false>;
+    type _CheckControlInstance = Assert<"controlInstance" extends keyof Fleet ? true : false>;
+    type _CheckGetInstanceHealth = Assert<"getInstanceHealth" extends keyof Fleet ? true : false>;
+    type _CheckGetInstanceLogs = Assert<"getInstanceLogs" extends keyof Fleet ? true : false>;
+    type _CheckGetInstanceMetrics = Assert<"getInstanceMetrics" extends keyof Fleet ? true : false>;
+    type _CheckListTemplates = Assert<"listTemplates" extends keyof Fleet ? true : false>;
     expect(true).toBe(true);
   });
 
   it("promotions namespace has CRUD and coupon procedures", () => {
     type Promos = AppRouter["_def"]["record"]["promotions"];
-    type _List = Promos["list"];
-    type _Create = Promos["create"];
-    type _Update = Promos["update"];
-    type _Activate = Promos["activate"];
-    type _Pause = Promos["pause"];
-    type _Cancel = Promos["cancel"];
-    type _GenerateCouponBatch = Promos["generateCouponBatch"];
+    type _CheckList = Assert<"list" extends keyof Promos ? true : false>;
+    type _CheckCreate = Assert<"create" extends keyof Promos ? true : false>;
+    type _CheckUpdate = Assert<"update" extends keyof Promos ? true : false>;
+    type _CheckActivate = Assert<"activate" extends keyof Promos ? true : false>;
+    type _CheckPause = Assert<"pause" extends keyof Promos ? true : false>;
+    type _CheckCancel = Assert<"cancel" extends keyof Promos ? true : false>;
+    type _CheckGenerateCouponBatch = Assert<
+      "generateCouponBatch" extends keyof Promos ? true : false
+    >;
     expect(true).toBe(true);
   });
 
   it("capabilities namespace has key and settings procedures", () => {
     type Caps = AppRouter["_def"]["record"]["capabilities"];
-    type _StoreKey = Caps["storeKey"];
-    type _TestKey = Caps["testKey"];
-    type _ListCapabilitySettings = Caps["listCapabilitySettings"];
-    type _ListCapabilityMeta = Caps["listCapabilityMeta"];
+    type _CheckStoreKey = Assert<"storeKey" extends keyof Caps ? true : false>;
+    type _CheckTestKey = Assert<"testKey" extends keyof Caps ? true : false>;
+    type _CheckListCapabilitySettings = Assert<
+      "listCapabilitySettings" extends keyof Caps ? true : false
+    >;
+    type _CheckListCapabilityMeta = Assert<"listCapabilityMeta" extends keyof Caps ? true : false>;
     expect(true).toBe(true);
   });
 
   it("admin namespace has inference and billingHealth", () => {
     type Admin = AppRouter["_def"]["record"]["admin"];
-    type _Inference = Admin["inference"];
-    type _BillingHealth = Admin["billingHealth"];
+    type _CheckInference = Assert<"inference" extends keyof Admin ? true : false>;
+    type _CheckBillingHealth = Assert<"billingHealth" extends keyof Admin ? true : false>;
     expect(true).toBe(true);
   });
 });
