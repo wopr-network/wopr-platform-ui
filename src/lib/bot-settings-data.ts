@@ -265,6 +265,13 @@ export async function installPlugin(botId: string, pluginId: string): Promise<vo
   });
 }
 
+/** Uninstall a plugin from a bot */
+export async function uninstallPlugin(botId: string, pluginId: string): Promise<void> {
+  await apiFetch(`/fleet/bots/${botId}/plugins/${pluginId}`, {
+    method: "DELETE",
+  });
+}
+
 /** Fetch channel configuration */
 export async function getChannelConfig(
   botId: string,
