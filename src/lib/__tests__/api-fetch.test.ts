@@ -34,6 +34,7 @@ vi.mock("@/lib/trpc", () => ({
 
 describe("apiFetch", () => {
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
     vi.resetModules();
     mockGetActiveTenantId.mockReturnValue("");
@@ -130,8 +131,9 @@ describe("apiFetch", () => {
     const { apiFetch } = await import("@/lib/api");
     const { ApiError } = await import("@/lib/errors");
 
-    await expect(apiFetch("/v1/fail")).rejects.toBeInstanceOf(ApiError);
-    await expect(apiFetch("/v1/fail")).rejects.toMatchObject({
+    const promise = apiFetch("/v1/fail");
+    await expect(promise).rejects.toBeInstanceOf(ApiError);
+    await expect(promise).rejects.toMatchObject({
       status: 500,
       statusText: "Internal Server Error",
     });
