@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getChatWebMCPTools } from "@/lib/webmcp/tools";
 
-const dispatchSpy = vi.spyOn(window, "dispatchEvent");
+let dispatchSpy: ReturnType<typeof vi.spyOn>;
 
 function getTool(name: string): ModelContextTool {
   const tools = getChatWebMCPTools();
@@ -12,7 +12,11 @@ function getTool(name: string): ModelContextTool {
 
 describe("setup tool handlers", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    dispatchSpy = vi.spyOn(window, "dispatchEvent");
+  });
+
+  afterEach(() => {
+    dispatchSpy.mockRestore();
   });
 
   describe("setup.begin", () => {
@@ -54,6 +58,7 @@ describe("setup tool handlers", () => {
       const result = await tool.handler({ question: "Which region?" });
 
       expect(result).toEqual({ ok: true });
+      expect(dispatchSpy).toHaveBeenCalledOnce();
       const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
       expect(event.detail).toEqual({
         tool: "setup.ask",
