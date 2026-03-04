@@ -64,6 +64,7 @@ export default async function RootLayout({
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
+            nonce={nonce}
           >
             <TRPCProvider>
               {children}
