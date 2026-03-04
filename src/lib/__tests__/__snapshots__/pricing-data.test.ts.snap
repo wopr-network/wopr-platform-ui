@@ -25,60 +25,6 @@ exports[`pricing-data > capabilityMeta > matches snapshot 1`] = `
 }
 `;
 
-exports[`pricing-data > mergeApiRates > merges and orders known capabilities by category order 1`] = `
-[
-  {
-    "category": "Text Generation",
-    "icon": "bot",
-    "models": [
-      {
-        "name": "TestLLM",
-        "price": 1,
-        "unit": "1M tokens",
-      },
-    ],
-  },
-  {
-    "category": "Voice",
-    "icon": "mic",
-    "models": [
-      {
-        "name": "TestTTS",
-        "price": 0.1,
-        "unit": "1K chars",
-      },
-      {
-        "name": "TestSTT",
-        "price": 0.02,
-        "unit": "minute",
-      },
-    ],
-  },
-  {
-    "category": "Image Generation",
-    "icon": "image",
-    "models": [
-      {
-        "name": "TestImg",
-        "price": 0.03,
-        "unit": "image",
-      },
-    ],
-  },
-  {
-    "category": "Messaging",
-    "icon": "smartphone",
-    "models": [
-      {
-        "name": "TestSMS",
-        "price": 0.01,
-        "unit": "message",
-      },
-    ],
-  },
-]
-`;
-
 exports[`pricing-data > pricingData > matches snapshot 1`] = `
 {
   "bot_price": {
