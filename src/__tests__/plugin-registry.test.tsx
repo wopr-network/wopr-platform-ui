@@ -355,11 +355,11 @@ describe("usePluginRegistry", () => {
   });
 
   it("does not update state after unmount (cancelled flag)", async () => {
-    let resolvePlugins!: (value: typeof MOCK_MARKETPLACE_PLUGINS) => void;
+    const resolvers: Array<(value: typeof MOCK_MARKETPLACE_PLUGINS) => void> = [];
     mockListMarketplacePlugins.mockImplementation(
       () =>
         new Promise((resolve) => {
-          resolvePlugins = resolve;
+          resolvers.push(resolve);
         }),
     );
 
@@ -370,21 +370,21 @@ describe("usePluginRegistry", () => {
 
     unmount();
 
-    resolvePlugins(MOCK_MARKETPLACE_PLUGINS);
+    for (const r of resolvers) r(MOCK_MARKETPLACE_PLUGINS);
 
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(result.current.channelsLoaded).toBe(false);
-    expect(result.current.providersLoaded).toBe(false);
-    expect(result.current.categoriesLoaded).toBe(false);
+    await waitFor(() => {
+      expect(result.current.channelsLoaded).toBe(false);
+      expect(result.current.providersLoaded).toBe(false);
+      expect(result.current.categoriesLoaded).toBe(false);
+    });
   });
 
   it("does not update state on error after unmount (cancelled flag)", async () => {
-    let rejectPlugins!: (err: Error) => void;
+    const rejecters: Array<(err: Error) => void> = [];
     mockListMarketplacePlugins.mockImplementation(
       () =>
         new Promise((_, reject) => {
-          rejectPlugins = reject;
+          rejecters.push(reject);
         }),
     );
 
@@ -394,13 +394,13 @@ describe("usePluginRegistry", () => {
 
     unmount();
 
-    rejectPlugins(new Error("Network error"));
+    for (const r of rejecters) r(new Error("Network error"));
 
-    await new Promise((r) => setTimeout(r, 50));
-
-    expect(result.current.channelsLoaded).toBe(false);
-    expect(result.current.providersLoaded).toBe(false);
-    expect(result.current.categoriesLoaded).toBe(false);
+    await waitFor(() => {
+      expect(result.current.channelsLoaded).toBe(false);
+      expect(result.current.providersLoaded).toBe(false);
+      expect(result.current.categoriesLoaded).toBe(false);
+    });
   });
 
   it("getPluginById returns undefined for empty string", async () => {
@@ -427,8 +427,13 @@ describe("usePluginRegistry", () => {
     const { result } = renderHook(() => usePluginRegistry());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const fields = result.current.collectConfigFields(["discord"], [], []);
+    const fields = result.current.collectConfigFields(["signal"], [], []);
     expect(Array.isArray(fields)).toBe(true);
+    expect(fields.length).toBeGreaterThan(0);
+    for (const field of fields) {
+      expect(field).toHaveProperty("key");
+      expect(field).toHaveProperty("label");
+    }
   });
 
   it("collectConfigFields returns empty array for empty selections", () => {
