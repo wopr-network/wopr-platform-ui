@@ -258,7 +258,7 @@ export function OrgBillingPage({ orgId, orgName, isAdmin }: OrgBillingPageProps)
                         </Badge>
                       )}
                     </p>
-                    {/* TODO(WOP-1631): Wire to org.orgRemovePaymentMethod tRPC procedure when backend adds it
+                    {/* Wire to org.orgRemovePaymentMethod tRPC procedure when backend adds it
                     {isAdmin && (
                       <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive"
                         onClick={() => handleDeletePaymentMethod(pm.id)}>
@@ -269,7 +269,7 @@ export function OrgBillingPage({ orgId, orgName, isAdmin }: OrgBillingPageProps)
                 ))}
               </div>
             )}
-            {/* TODO(WOP-1631): Wire to org.orgSetupIntent + AddPaymentMethodDialog when backend adds org-scoped setup intent
+            {/* Wire to org.orgSetupIntent + AddPaymentMethodDialog when backend adds org-scoped setup intent
             {isAdmin && (
               <Button variant="outline" className="mt-4" onClick={handleAddPaymentMethod}>
                 Add payment method
