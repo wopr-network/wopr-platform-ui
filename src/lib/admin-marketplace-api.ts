@@ -39,34 +39,26 @@ export interface UpdatePluginRequest {
 
 // ---- API calls ----
 
-function toPlugin(raw: unknown): AdminPlugin {
-  return raw as AdminPlugin;
-}
-
-function toPlugins(raw: unknown): AdminPlugin[] {
-  return raw as AdminPlugin[];
-}
-
 export async function getDiscoveryQueue(): Promise<AdminPlugin[]> {
-  const all = toPlugins(await trpcVanilla.adminMarketplace.listPlugins.query(undefined));
+  const all: AdminPlugin[] = await trpcVanilla.adminMarketplace.listPlugins.query(undefined);
   return all.filter((p) => !p.reviewed);
 }
 
 export async function getEnabledPlugins(): Promise<AdminPlugin[]> {
-  const all = toPlugins(await trpcVanilla.adminMarketplace.listPlugins.query(undefined));
+  const all: AdminPlugin[] = await trpcVanilla.adminMarketplace.listPlugins.query(undefined);
   return all.filter((p) => p.enabled && p.reviewed).sort((a, b) => a.sort_order - b.sort_order);
 }
 
 export async function getAllPlugins(): Promise<AdminPlugin[]> {
-  return toPlugins(await trpcVanilla.adminMarketplace.listPlugins.query(undefined));
+  return trpcVanilla.adminMarketplace.listPlugins.query(undefined);
 }
 
 export async function updatePlugin(req: UpdatePluginRequest): Promise<AdminPlugin> {
-  return toPlugin(await trpcVanilla.adminMarketplace.updatePlugin.mutate(req));
+  return trpcVanilla.adminMarketplace.updatePlugin.mutate(req);
 }
 
 export async function addPluginByNpm(req: AddPluginRequest): Promise<AdminPlugin> {
-  return toPlugin(await trpcVanilla.adminMarketplace.addPlugin.mutate(req));
+  return trpcVanilla.adminMarketplace.addPlugin.mutate(req);
 }
 
 export async function reorderPlugins(orderedIds: string[]): Promise<void> {
