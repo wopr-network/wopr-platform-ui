@@ -11,8 +11,6 @@ const ChatMessageSchema = z.object({
   timestamp: z.number(),
 });
 
-const ChatHistorySchema = z.array(ChatMessageSchema);
-
 export function getSessionId(): string {
   if (typeof window === "undefined") return "";
   try {
@@ -32,9 +30,12 @@ export function loadChatHistory(): ChatMessage[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     if (!raw) return [];
-    const result = ChatHistorySchema.safeParse(JSON.parse(raw));
-    if (!result.success) return [];
-    return result.data;
+    const parsed = JSON.parse(raw);
+    const arr = Array.isArray(parsed) ? parsed : [];
+    return arr.flatMap((item) => {
+      const result = ChatMessageSchema.safeParse(item);
+      return result.success ? [result.data] : [];
+    });
   } catch {
     // ignore — malformed JSON
   }
