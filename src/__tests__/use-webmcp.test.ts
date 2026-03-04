@@ -1,6 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useWebMCP } from "@/hooks/use-webmcp";
+import { useSession } from "@/lib/auth-client";
 
 const mockRegisterWebMCPTools = vi.fn();
 const mockRouter = {
@@ -27,8 +28,11 @@ vi.mock("@/lib/webmcp/register", () => ({
 
 describe("useWebMCP", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mockRegisterWebMCPTools.mockReturnValue(true);
+    vi.mocked(useSession).mockReturnValue({ data: { user: mockSession.user } } as ReturnType<
+      typeof useSession
+    >);
   });
 
   it("registers tools when user is authenticated", () => {
