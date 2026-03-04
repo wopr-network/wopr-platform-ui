@@ -1,7 +1,17 @@
+import { z } from "zod";
 import type { ChatMessage } from "./types";
 
 const HISTORY_KEY = "wopr-chat-history";
 const SESSION_KEY = "wopr-chat-session";
+
+const ChatMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(["user", "bot", "event"]),
+  content: z.string(),
+  timestamp: z.number(),
+});
+
+const ChatHistorySchema = z.array(ChatMessageSchema);
 
 export function getSessionId(): string {
   if (typeof window === "undefined") return "";
@@ -21,9 +31,12 @@ export function loadChatHistory(): ChatMessage[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
-    if (raw) return JSON.parse(raw) as ChatMessage[];
+    if (!raw) return [];
+    const result = ChatHistorySchema.safeParse(JSON.parse(raw));
+    if (!result.success) return [];
+    return result.data;
   } catch {
-    // ignore
+    // ignore — malformed JSON
   }
   return [];
 }
