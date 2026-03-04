@@ -142,6 +142,8 @@ export function MarketplaceAdmin() {
       setAddPackage("");
       setAddOpen(false);
       await load();
+    } catch (err) {
+      toast.error(`Failed to add plugin: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setAddLoading(false);
     }
