@@ -12,17 +12,11 @@ const isSecureOrigin = apiOrigin.startsWith("https://");
 /**
  * Nonce-based style-src toggle.
  *
- * Set to `true` to switch style-src from 'unsafe-inline' to nonce-based.
- * Blocked on:
- *   - Tailwind CSS v4 nonce support: https://github.com/tailwindlabs/tailwindcss/issues/5394
- *   - framer-motion nonce support for runtime style injection
- *
- * When both dependencies ship nonce support, flip this to `true` and verify
- * that all styles render correctly (Tailwind utility classes + framer-motion
- * animations). No other code changes are needed — the nonce is already
- * generated per-request and forwarded via x-nonce header to server components.
+ * Enabled — style-src uses nonce-based policy instead of 'unsafe-inline'.
+ * Tailwind v4 compiles styles at build time (no runtime injection).
+ * framer-motion nonce support is provided via MotionConfig in the root layout.
  */
-const NONCE_STYLES_ENABLED = false;
+const NONCE_STYLES_ENABLED = true;
 
 /** Build the CSP header value with a per-request nonce. */
 function buildCsp(nonce: string): string {
