@@ -10,6 +10,12 @@ function getTool(name: string): ModelContextTool {
   return tool;
 }
 
+function getDispatchedCustomEvent(): CustomEvent {
+  const event = dispatchSpy.mock.calls[0][0];
+  if (!(event instanceof CustomEvent)) throw new Error("Expected a CustomEvent");
+  return event;
+}
+
 describe("setup tool handlers", () => {
   beforeEach(() => {
     dispatchSpy = vi.spyOn(window, "dispatchEvent");
@@ -27,7 +33,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.begin",
@@ -44,7 +50,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.ask",
@@ -59,7 +65,8 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
+      expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.ask",
         args: { question: "Which region?", fieldName: undefined },
@@ -75,7 +82,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.validateKey",
@@ -93,7 +100,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.saveConfig",
@@ -110,7 +117,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({ tool: "setup.complete", args: { pluginId: "discord" } });
     });
@@ -124,7 +131,7 @@ describe("setup tool handlers", () => {
 
       expect(result).toEqual({ ok: true });
       expect(dispatchSpy).toHaveBeenCalledOnce();
-      const event = dispatchSpy.mock.calls[0][0] as CustomEvent;
+      const event = getDispatchedCustomEvent();
       expect(event.type).toBe("wopr-chat-tool-call");
       expect(event.detail).toEqual({
         tool: "setup.rollback",
