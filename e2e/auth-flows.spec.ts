@@ -64,8 +64,17 @@ test.describe("Auth flows", () => {
 
 	test("OAuth button redirects to provider, callback page handles success", async ({ page }) => {
 		await mockAuthAPI(page);
+
+		// Stub external OAuth provider domain to prevent real navigation
+		await page.route("https://github.example.com/**", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "text/html",
+				body: "<html></html>",
+			});
+		});
+
 		await page.goto("/login");
-		await bypassOnboarding(page);
 
 		// 1. Verify OAuth buttons render (requires enabledSocialProviders mock)
 		await expect(page.getByText("or continue with")).toBeVisible();
@@ -77,11 +86,12 @@ test.describe("Auth flows", () => {
 			page.getByRole("button", { name: "Continue with GitHub" }).click(),
 		]);
 
-		// 3. Verify the redirect URL contains expected OAuth params
+		// 3. Verify the redirect URL contains expected OAuth params (redirect_uri is URL-encoded)
 		const redirectUrl = request.url();
 		expect(redirectUrl).toContain("client_id=test");
 		expect(redirectUrl).toContain("redirect_uri=");
-		expect(redirectUrl).toContain("/auth/callback/github");
+		// The redirect_uri is URL-encoded, so check for the encoded form
+		expect(redirectUrl).toContain("%2Fauth%2Fcallback%2Fgithub");
 
 		// 4. Simulate the OAuth callback return — inject session cookie
 		await page.context().addCookies([{
@@ -98,7 +108,7 @@ test.describe("Auth flows", () => {
 		// Navigate to the callback page (simulating provider redirect)
 		await page.goto("/auth/callback/github");
 
-		// 5. Verify the callback page shows spinner then redirects
+		// 5. Verify the callback page shows spinner then redirects to onboarding
 		await expect(page.getByText("Completing sign in with github")).toBeVisible();
 		await page.waitForURL("**/onboarding", { timeout: 5000 });
 		await expect(page).toHaveURL(/\/onboarding/);
