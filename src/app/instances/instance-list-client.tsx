@@ -448,7 +448,9 @@ export function InstanceRowActions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePull}>Continue</AlertDialogAction>
+            <AlertDialogAction disabled={pulling} onClick={handlePull}>
+              Continue
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -1038,7 +1038,9 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePullUpdate}>Continue</AlertDialogAction>
+            <AlertDialogAction disabled={pulling} onClick={handlePullUpdate}>
+              Continue
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
