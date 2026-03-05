@@ -1,28 +1,7 @@
 import type { NextConfig } from "next";
 
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL
-  ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
-  : "";
-
-// Only use upgrade-insecure-requests when the API origin itself is HTTPS.
-// This prevents Chrome from upgrading http://localhost → https://localhost
-// during e2e tests, which would break cookie injection.
-const isSecureOrigin = apiOrigin.startsWith("https://");
-
-const csp = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://js.stripe.com`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  `connect-src 'self' https://api.stripe.com${apiOrigin ? ` ${apiOrigin}` : ""}`,
-  "frame-src https://js.stripe.com",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  ...(isSecureOrigin ? ["upgrade-insecure-requests"] : []),
-].join("; ");
+const isSecureOrigin =
+  (process.env.NEXT_PUBLIC_API_URL ?? "").startsWith("https://");
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -57,10 +36,6 @@ const nextConfig: NextConfig = {
         {
           key: "Permissions-Policy",
           value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-        },
-        {
-          key: "Content-Security-Policy",
-          value: csp,
         },
       ],
     },
