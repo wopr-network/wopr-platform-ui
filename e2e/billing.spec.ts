@@ -298,7 +298,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText(/daily burn/i).first()).toBeVisible();
     await expect(page.getByText("$2.50/day").first()).toBeVisible();
     await expect(page.getByText(/runway/i).first()).toBeVisible();
-    await expect(page.getByText("~60 days")).toBeVisible();
+    await expect(page.getByText("~60 days").first()).toBeVisible();
   });
 
   test("transaction history shows recent purchase", async ({ authedPage: page }) => {
