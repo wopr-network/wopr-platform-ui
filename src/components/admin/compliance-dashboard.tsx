@@ -87,7 +87,7 @@ function relativeTime(iso: string): string {
 }
 
 function isSafeUrl(url: string): boolean {
-  return url.startsWith("https://") || url.startsWith("/");
+  return url.startsWith("https://") || (url.startsWith("/") && !url.startsWith("//"));
 }
 
 function statusBadgeClasses(status: string): string {
@@ -827,10 +827,6 @@ function DataExportsTab() {
                       ) : (
                         <span className="text-xs text-muted-foreground">Unavailable</span>
                       )
-                    ) : req.status === "pending" ? (
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        Cancel
-                      </Button>
                     ) : (
                       <span className="text-muted-foreground">{"\u2014"}</span>
                     )}
