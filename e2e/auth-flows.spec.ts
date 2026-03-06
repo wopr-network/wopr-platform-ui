@@ -114,10 +114,12 @@ test.describe("Auth flows", () => {
 		// Navigate to the callback page (simulating provider redirect).
 		await page.goto("/auth/callback/github");
 
-		// 5. Verify the callback page shows spinner then redirects to onboarding
+		// 5. Verify the callback page shows spinner then redirects to an authenticated page.
+		// After OAuth, the app redirects to /onboarding for new users or /marketplace for
+		// users whose onboarding is already complete (localStorage flag or org exists).
 		await expect(page.getByText("Completing sign in with github")).toBeVisible();
-		await page.waitForURL("**/onboarding", { timeout: 5000 });
-		await expect(page).toHaveURL(/\/onboarding/);
+		await page.waitForURL(/\/(onboarding|marketplace)/, { timeout: 5000 });
+		await expect(page).toHaveURL(/\/(onboarding|marketplace)/);
 	});
 
 	test("OAuth callback with error shows error message", async ({ page }) => {
