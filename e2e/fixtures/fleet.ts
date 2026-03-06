@@ -71,9 +71,9 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 		await route.fulfill({
 			status: 200,
 			contentType: "application/json",
-			body: JSON.stringify({
+			body: JSON.stringify([{
 				result: { data: { id: botId, name: botName } },
-			}),
+			}]),
 		});
 	});
 
@@ -138,7 +138,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 		await route.fulfill({
 			status: 200,
 			contentType: "application/json",
-			body: JSON.stringify({ result: { data: { success: true } } }),
+			body: JSON.stringify([{ result: { data: { success: true } } }]),
 		});
 	});
 
