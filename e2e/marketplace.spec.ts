@@ -136,6 +136,9 @@ test.describe("Marketplace", () => {
     // Navigate to bot settings page where uninstall dialog lives
     await page.goto("/dashboard/bots/e2e-bot-1/settings");
 
+    // Click the Plugins tab — bot settings defaults to Identity tab
+    await page.getByRole("tab", { name: "Plugins" }).click();
+
     // Wait for the page to load and show Discord plugin
     await expect(page.getByText("Discord").first()).toBeVisible({ timeout: 10000 });
 

@@ -342,7 +342,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
   });
 
   // Fleet REST: POST/DELETE /fleet/bots/:id/plugins/:pluginId
-  await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/plugins/*`, async (route) => {
+  await page.route(`${API_BASE_URL}/fleet/bots/*/plugins/*`, async (route) => {
     const method = route.request().method();
     if (method !== "POST" && method !== "DELETE") {
       await route.continue();
@@ -466,7 +466,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
   );
 
   // Fleet REST: GET /fleet/bots/:id/settings (used by bot-settings page)
-  await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/settings`, async (route) => {
+  await page.route(`${API_BASE_URL}/fleet/bots/*/settings`, async (route) => {
     if (route.request().method() !== "GET") {
       await route.continue();
       return;
