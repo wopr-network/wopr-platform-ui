@@ -275,11 +275,11 @@ test.describe("Billing: Dashboard Display", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          poolCents: 0,
-          activeUsers: 0,
-          perUserCents: 0,
-          userEligible: false,
-          userWindowExpiresAt: null,
+          pool_cents: 0,
+          active_users: 0,
+          per_user_cents: 0,
+          user_eligible: false,
+          user_window_expires_at: null,
         }),
       });
     });
@@ -357,11 +357,11 @@ test.describe("Billing: Dashboard Display", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          poolCents: 0,
-          activeUsers: 0,
-          perUserCents: 0,
-          userEligible: false,
-          userWindowExpiresAt: null,
+          pool_cents: 0,
+          active_users: 0,
+          per_user_cents: 0,
+          user_eligible: false,
+          user_window_expires_at: null,
         }),
       });
     });
@@ -372,12 +372,14 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("Transaction History").first()).toBeVisible({ timeout: 10000 });
 
     // Purchase transaction visible (grant -> "Purchase" label)
-    await expect(page.getByText("Credit purchase - $50 tier").first()).toBeVisible();
-    await expect(page.getByText("Purchase").first()).toBeVisible();
+    const purchaseRow = page.locator("div").filter({ hasText: "Credit purchase - $50 tier" }).first();
+    await expect(purchaseRow.getByText("Credit purchase - $50 tier")).toBeVisible();
+    await expect(purchaseRow.getByText("Purchase")).toBeVisible();
 
     // Runtime charge visible (correction -> "Adjustment" label)
-    await expect(page.getByText("Bot runtime charge").first()).toBeVisible();
-    await expect(page.getByText("Adjustment").first()).toBeVisible();
+    const adjustmentRow = page.locator("div").filter({ hasText: "Bot runtime charge" }).first();
+    await expect(adjustmentRow.getByText("Bot runtime charge")).toBeVisible();
+    await expect(adjustmentRow.getByText("Adjustment")).toBeVisible();
 
     // Signup credit visible (grant -> "Purchase" label)
     await expect(page.getByText("Signup credit").first()).toBeVisible();
