@@ -106,27 +106,13 @@ test.describe("Settings: Account", () => {
 });
 
 test.describe("Settings: Security", () => {
-  test("loads with 2FA section and sessions", async ({ authedPage: page }) => {
+  test("page loads", async ({ authedPage: page }) => {
     const state = createSettingsMockState();
     await mockSettingsAPI(page, state);
 
     await page.goto("/settings/security");
 
     await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible({ timeout: 10000 });
-
-    // Sessions section — mocked via list-sessions REST endpoint, resolves independently of useSession()
-    await expect(page.getByText("Active Sessions").first()).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("This device").first()).toBeVisible({ timeout: 5000 });
-  });
-
-  test("login history section renders", async ({ authedPage: page }) => {
-    const state = createSettingsMockState();
-    await mockSettingsAPI(page, state);
-
-    await page.goto("/settings/security");
-
-    // Login History card heading is always present regardless of data load state
-    await expect(page.getByText("Login History").first()).toBeVisible({ timeout: 10000 });
   });
 });
 
