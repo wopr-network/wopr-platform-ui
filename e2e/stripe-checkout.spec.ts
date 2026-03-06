@@ -173,9 +173,9 @@ test.describe("Stripe Checkout: Full Flow", () => {
 
 		// 3DS challenge appears — Stripe renders it in an iframe.
 		// In test mode, Stripe shows a simple "Complete authentication" / "Authorize test payment" button.
-		const challengeFrame = page
-			.frameLocator('iframe[name*="stripe-challenge"], iframe[src*="three-ds"]')
-			.first();
+		const challengeFrame = page.frameLocator(
+			'iframe[name*="stripe-challenge"], iframe[src*="three-ds"]',
+		);
 
 		// Stripe test mode 3DS shows: "3D Secure 2 Test Page" with "Complete" and "Fail" buttons
 		const completeBtn = challengeFrame.getByRole("button", { name: /Complete|Authorize/i });
