@@ -49,7 +49,8 @@ export default function OnboardingPage() {
     } catch {
       // ignore — storage may be blocked
     }
-  }, [router]);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: router.push is stable; using [router] causes infinite re-renders
+  }, [router.push]);
 
   useEffect(() => {
     try {
