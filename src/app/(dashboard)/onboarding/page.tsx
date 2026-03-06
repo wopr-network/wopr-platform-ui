@@ -49,8 +49,7 @@ export default function OnboardingPage() {
     } catch {
       // ignore — storage may be blocked
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: router is stable (Next.js router singleton)
-  }, [router]);
+  }, [router.push]);
 
   useEffect(() => {
     try {
