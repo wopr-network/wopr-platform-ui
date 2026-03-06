@@ -292,7 +292,7 @@ test.describe("Billing: Dashboard Display", () => {
     // Credit Balance card visible with correct amount
     await expect(page.getByText("Credit Balance").first()).toBeVisible();
     // Balance should show $150.00 (15000 cents / 100), animated via useCountUp
-    await expect(page.getByText("$150.00")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("$150.00").first()).toBeVisible({ timeout: 5000 });
 
     // Daily burn and runway visible
     await expect(page.getByText(/daily burn/i).first()).toBeVisible();
@@ -451,7 +451,7 @@ test.describe("Billing: Dashboard Display", () => {
 
     // Total spend line
     await expect(page.getByText("Total spend this period").first()).toBeVisible();
-    await expect(page.getByText("$42.00")).toBeVisible();
+    await expect(page.getByText("$42.00").first()).toBeVisible();
 
     // Platform Usage card
     await expect(page.getByText("Platform Usage")).toBeVisible();
