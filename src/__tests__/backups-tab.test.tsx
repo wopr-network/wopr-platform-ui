@@ -11,8 +11,8 @@ vi.mock("@/lib/api", () => ({
 }));
 
 vi.mock("@/lib/api-config", () => ({
-  API_BASE_URL: "http://localhost:3001/api",
-  PLATFORM_BASE_URL: "http://localhost:3001",
+  API_BASE_URL: "https://api.test/api",
+  PLATFORM_BASE_URL: "https://api.test",
 }));
 
 vi.mock("@/lib/fetch-utils", () => ({
@@ -172,5 +172,50 @@ describe("BackupsTab", () => {
     await waitFor(() => {
       expect(screen.getByText(/failed to load backups/i)).toBeInTheDocument();
     });
+  });
+
+  it("shows retry button in list area when error is set", async () => {
+    mockListSnapshots.mockRejectedValueOnce(new Error("Network error"));
+    render(<BackupsTab botId="bot-1" />);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+    });
+  });
+
+  it("retries load when retry button is clicked", async () => {
+    mockListSnapshots
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockResolvedValueOnce(MOCK_SNAPSHOTS);
+    const user = userEvent.setup();
+    render(<BackupsTab botId="bot-1" />);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("button", { name: /retry/i }));
+    await waitFor(() => {
+      expect(screen.getByText("Before plugin install")).toBeInTheDocument();
+    });
+  });
+
+  it("does not dismiss dialog while async op is in progress", async () => {
+    mockListSnapshots.mockResolvedValue(MOCK_SNAPSHOTS);
+    let resolveDelete!: () => void;
+    mockDeleteSnapshot.mockImplementationOnce(
+      () =>
+        new Promise<undefined>((res) => {
+          resolveDelete = () => res(undefined);
+        }),
+    );
+    const user = userEvent.setup();
+    render(<BackupsTab botId="bot-1" />);
+    await waitFor(() => {
+      expect(screen.getByText("Before plugin install")).toBeInTheDocument();
+    });
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    await user.click(deleteButtons[0]);
+    await user.click(screen.getByRole("button", { name: /^confirm delete$/i }));
+    // While deleting, the dialog should still be open (button changes to "Deleting...")
+    expect(screen.getByRole("button", { name: /deleting/i })).toBeInTheDocument();
+    resolveDelete();
   });
 });

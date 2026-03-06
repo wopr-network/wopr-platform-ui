@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Plus, RotateCw, Shield, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,16 +70,24 @@ export function BackupsTab({ botId }: { botId: string }) {
   const [deleteTarget, setDeleteTarget] = useState<Snapshot | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const snaps = await listSnapshots(botId);
-      setSnapshots(snaps);
+      if (mountedRef.current) setSnapshots(snaps);
     } catch {
-      setError("Failed to load backups. Please try again.");
+      if (mountedRef.current) setError("Failed to load backups. Please try again.");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [botId]);
 
@@ -177,7 +185,15 @@ export function BackupsTab({ botId }: { botId: string }) {
         </div>
       )}
 
-      {snapshots.length === 0 && !error ? (
+      {error ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <Button variant="outline" size="sm" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      ) : snapshots.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Shield className="mb-3 h-10 w-10 text-muted-foreground/50" />
@@ -233,7 +249,15 @@ export function BackupsTab({ botId }: { botId: string }) {
       )}
 
       {/* Create Backup Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+      <Dialog
+        open={showCreate}
+        onOpenChange={(open) => {
+          if (!open && !creating) {
+            setShowCreate(false);
+            setCreateName("");
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Backup</DialogTitle>
@@ -259,7 +283,12 @@ export function BackupsTab({ botId }: { botId: string }) {
       </Dialog>
 
       {/* Restore Confirmation Dialog */}
-      <Dialog open={restoreTarget !== null} onOpenChange={() => setRestoreTarget(null)}>
+      <Dialog
+        open={restoreTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !restoring) setRestoreTarget(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
@@ -281,7 +310,12 @@ export function BackupsTab({ botId }: { botId: string }) {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteTarget !== null} onOpenChange={() => setDeleteTarget(null)}>
+      <Dialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleting) setDeleteTarget(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete backup?</DialogTitle>
