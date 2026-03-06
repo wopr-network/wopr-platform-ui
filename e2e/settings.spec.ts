@@ -114,10 +114,10 @@ test.describe("Settings: Security", () => {
 
     await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible({ timeout: 10000 });
 
-    // 2FA section
+    // 2FA section — wait for the session-driven loading state to settle
     await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible();
-    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible();
+    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible({ timeout: 5000 });
 
     // Sessions section
     await expect(page.getByText("Active Sessions").first()).toBeVisible();
@@ -132,10 +132,8 @@ test.describe("Settings: Security", () => {
     await page.goto("/settings/security");
 
     await expect(page.getByText("Login History").first()).toBeVisible({ timeout: 10000 });
-    // Scroll to make the count visible (it may be below the fold)
-    await page.getByText("Login History").first().scrollIntoViewIfNeeded();
-    // Should show total count from mock
-    await expect(page.getByText("1 total events").first()).toBeVisible();
+    // Wait for data to load — description shows total count once history resolves
+    await expect(page.getByText("1 total events").first()).toBeVisible({ timeout: 10000 });
   });
 });
 
