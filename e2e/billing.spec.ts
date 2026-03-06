@@ -297,7 +297,7 @@ test.describe("Billing: Dashboard Display", () => {
     // Daily burn and runway visible
     await expect(page.getByText(/daily burn/i).first()).toBeVisible();
     await expect(page.getByText("$2.50/day").first()).toBeVisible();
-    await expect(page.getByText(/runway/i)).toBeVisible();
+    await expect(page.getByText(/runway/i).first()).toBeVisible();
     await expect(page.getByText("~60 days")).toBeVisible();
   });
 
@@ -450,7 +450,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("amount due").first()).toBeVisible();
 
     // Total spend line
-    await expect(page.getByText("Total spend this period")).toBeVisible();
+    await expect(page.getByText("Total spend this period").first()).toBeVisible();
     await expect(page.getByText("$42.00")).toBeVisible();
 
     // Platform Usage card
