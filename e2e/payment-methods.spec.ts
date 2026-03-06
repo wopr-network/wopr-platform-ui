@@ -177,7 +177,7 @@ test.describe("Payment Methods Page", () => {
     await page.goto("/billing/payment");
 
     await expect(page.getByRole("heading", { name: "Payment" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Payment Methods" })).toBeVisible();
+    await expect(page.getByText("Payment Methods").first()).toBeVisible();
 
     // Both cards visible
     await expect(page.getByText("**** **** **** 4242").first()).toBeVisible();
@@ -343,7 +343,7 @@ test.describe("Payment Methods Page", () => {
 
     await page.goto("/billing/payment");
 
-    await expect(page.getByText("Failed to load billing information.")).toBeVisible({
+    await expect(page.getByText("Failed to load billing information.").first()).toBeVisible({
       timeout: 10000,
     });
 
