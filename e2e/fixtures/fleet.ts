@@ -326,7 +326,22 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     });
   });
 
-  // Fleet REST: GET /fleet/bots (used by marketplace listBots)
+  // Fleet REST: GET /api/fleet/bots (used by marketplace page via apiFetch)
+  await page.route(`${API_BASE_URL}/fleet/bots`, async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        state.bots.map((b) => ({ id: b.id, name: b.name, state: b.state })),
+      ),
+    });
+  });
+
+  // Fleet REST: GET /fleet/bots (used by marketplace listBots via fleetFetch)
   await page.route(`${PLATFORM_BASE_URL}/fleet/bots`, async (route) => {
     if (route.request().method() !== "GET") {
       await route.continue();
@@ -342,7 +357,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
   });
 
   // Fleet REST: POST/DELETE /fleet/bots/:id/plugins/:pluginId
-  await page.route(`${API_BASE_URL}/fleet/bots/*/plugins/*`, async (route) => {
+  await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/plugins/*`, async (route) => {
     const method = route.request().method();
     if (method !== "POST" && method !== "DELETE") {
       await route.continue();
@@ -530,6 +545,19 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ healthy: true, checks: [] }),
+    });
+  });
+
+  // Fleet REST: GET /fleet/bots/:id/image-status (used by bot-settings page)
+  await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/image-status`, async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "ready", progress: 100 }),
     });
   });
 

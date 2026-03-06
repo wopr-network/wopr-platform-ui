@@ -31,7 +31,7 @@ test.describe("Marketplace", () => {
     await page.getByPlaceholder("Search superpowers...").first().fill("discord");
     await expect(page.getByText("Discord").first()).toBeVisible();
     // Slack should not be visible in the filtered grid
-    await expect(page.locator(".grid").getByText("Slack")).not.toBeVisible({ timeout: 3000 });
+    await expect(page.locator(".grid").getByText("Slack").first()).not.toBeVisible({ timeout: 3000 });
 
     // Clear search
     await page.getByPlaceholder("Search superpowers...").first().fill("");
