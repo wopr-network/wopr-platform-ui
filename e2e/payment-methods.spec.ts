@@ -281,7 +281,7 @@ test.describe("Payment Methods Page", () => {
 
     await page.goto("/billing/payment");
 
-    await expect(page.getByText("No payment methods on file.")).toBeVisible();
+    await expect(page.getByText("No payment methods on file.").first()).toBeVisible();
   });
 
   test("error state shows retry button", async ({ authedPage: page }) => {
