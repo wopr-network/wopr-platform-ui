@@ -676,6 +676,9 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
     // Fleet (for listInstances used by API keys scope=instances)
     "fleet.listInstances": { bots: [] },
 
+    // Account status (for DegradedStateBanner in dashboard layout)
+    "billing.accountStatus": { status: "active", status_reason: null, grace_deadline: null },
+
     // Page context
     "pageContext.update": null,
   };
