@@ -146,10 +146,10 @@ export function BackupsTab({
     setRestoring(true);
     try {
       await restoreSnapshot(botId, restoreTarget.id);
-      toast.success("Bot restored successfully. It may take a moment to restart.");
-      setRestoreTarget(null);
       await onRestore?.();
       await silentRefresh();
+      setRestoreTarget(null);
+      toast.success("Bot restored successfully. It may take a moment to restart.");
     } catch (err) {
       toast.error(toUserMessage(err));
     } finally {
