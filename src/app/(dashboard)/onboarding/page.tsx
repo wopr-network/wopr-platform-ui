@@ -49,7 +49,7 @@ export default function OnboardingPage() {
     } catch {
       // ignore — storage may be blocked
     }
-  }, [router]);
+  }, [router.push]);
 
   useEffect(() => {
     try {
