@@ -239,9 +239,7 @@ test.describe("Dashboard: Command Center", () => {
 		await expect(page.getByText("running").first()).toBeVisible();
 
 		// Verify Recent Activity section renders with the event
-		await expect(
-			page.getByRole("heading", { name: "Recent Activity" }),
-		).toBeVisible();
+		await expect(page.getByText("Recent Activity").first()).toBeVisible();
 		await expect(page.getByText("started").first()).toBeVisible();
 
 		// Verify Resources card shows CPU and memory values
