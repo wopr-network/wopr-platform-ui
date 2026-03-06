@@ -400,6 +400,29 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     });
   });
 
+  // Fleet REST: DELETE /api/fleet/bots/:id/plugins/:pluginId (used by uninstallPlugin via apiFetchRaw)
+  await page.route(`${API_BASE_URL}/fleet/bots/*/plugins/*`, async (route) => {
+    const method = route.request().method();
+    if (method !== "DELETE") {
+      await route.continue();
+      return;
+    }
+    const url = route.request().url();
+    const match = url.match(/\/fleet\/bots\/([^/]+)\/plugins\/([^/?]+)/);
+    const botId = match?.[1] ?? "";
+    const pluginId = match?.[2] ?? "";
+    const plugins = state.installedPlugins.get(botId) ?? [];
+    state.installedPlugins.set(
+      botId,
+      plugins.filter((p) => p.pluginId !== pluginId),
+    );
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true }),
+    });
+  });
+
   // Fleet REST: GET /fleet/bots/:id/plugins
   await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/plugins`, async (route) => {
     if (route.request().method() !== "GET") {
