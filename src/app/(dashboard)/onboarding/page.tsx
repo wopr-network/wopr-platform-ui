@@ -22,20 +22,44 @@ import {
   saveOnboardingState,
 } from "@/lib/onboarding-store";
 
+const MAX_STEP = 2;
+
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState(() => {
-    const saved = loadOnboardingState();
-    return saved.currentStep;
-  });
-  const [botName, setBotName] = useState(() => loadOnboardingState().instanceName);
+  const [step, setStep] = useState(0);
+  const [botName, setBotName] = useState("");
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOnboardingComplete()) {
       router.push("/marketplace");
+      return;
+    }
+    const saved = loadOnboardingState();
+    const restoredStep = saved.currentStep;
+    if (!Number.isNaN(restoredStep) && restoredStep >= 0 && restoredStep <= MAX_STEP) {
+      setStep(restoredStep);
+    }
+    if (saved.instanceName) {
+      setBotName(saved.instanceName);
+    }
+    try {
+      const savedPreset = localStorage.getItem("wopr-onboarding-preset");
+      if (savedPreset) setSelectedPreset(savedPreset);
+    } catch {
+      // ignore — storage may be blocked
     }
   }, [router]);
+
+  useEffect(() => {
+    try {
+      if (selectedPreset) {
+        localStorage.setItem("wopr-onboarding-preset", selectedPreset);
+      }
+    } catch {
+      // ignore
+    }
+  }, [selectedPreset]);
 
   function handleNameNext() {
     if (!botName.trim()) return;
