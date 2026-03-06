@@ -130,6 +130,18 @@ async function mockPaymentAPI(page: Page, state: ReturnType<typeof createMockSta
     },
   );
 
+  // REST: catch-all for other billing REST routes (registered first = lowest LIFO priority)
+  await page.route(
+    (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.includes("/api/billing/"),
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    },
+  );
+
   // REST: setup-intent
   await page.route(`${PLATFORM_BASE_URL}/api/billing/setup-intent`, async (route) => {
     await route.fulfill({
@@ -155,18 +167,6 @@ async function mockPaymentAPI(page: Page, state: ReturnType<typeof createMockSta
       }),
     });
   });
-
-  // REST: catch-all for other billing REST routes
-  await page.route(
-    (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.includes("/api/billing/"),
-    async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({}),
-      });
-    },
-  );
 }
 
 test.describe("Payment Methods Page", () => {
