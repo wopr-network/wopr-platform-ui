@@ -84,8 +84,8 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
     try {
       const snaps = await listSnapshots(botId);
       if (mountedRef.current) setSnapshots(snaps);
-    } catch {
-      if (mountedRef.current) setError("Failed to load backups. Please try again.");
+    } catch (err) {
+      if (mountedRef.current) setError(toUserMessage(err));
     } finally {
       if (mountedRef.current) setLoading(false);
     }
@@ -108,8 +108,8 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
       try {
         const snaps = await listSnapshots(botId);
         if (!cancelled) setSnapshots(snaps);
-      } catch {
-        if (!cancelled) setError("Failed to load backups. Please try again.");
+      } catch (err) {
+        if (!cancelled) setError(toUserMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
       }

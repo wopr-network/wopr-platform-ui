@@ -11,8 +11,8 @@ vi.mock("@/lib/api", () => ({
 }));
 
 vi.mock("@/lib/api-config", () => ({
-  API_BASE_URL: "https://api.test/api",
-  PLATFORM_BASE_URL: "https://api.test",
+  API_BASE_URL: "http://localhost:3001/api",
+  PLATFORM_BASE_URL: "http://localhost:3001",
 }));
 
 vi.mock("@/lib/fetch-utils", () => ({
@@ -170,7 +170,7 @@ describe("BackupsTab", () => {
     mockListSnapshots.mockRejectedValueOnce(new Error("Network error"));
     render(<BackupsTab botId="bot-1" />);
     await waitFor(() => {
-      expect(screen.getByText(/failed to load backups/i)).toBeInTheDocument();
+      expect(screen.getByText("Network error")).toBeInTheDocument();
     });
   });
 
