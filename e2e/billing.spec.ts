@@ -243,3 +243,217 @@ test.describe("Billing: Credit Checkout", () => {
     await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
   });
 });
+
+test.describe("Billing: Dashboard Display", () => {
+  test("balance display shows correct amount after purchase", async ({ authedPage: page }) => {
+    const POST_PURCHASE_MOCKS: Record<string, unknown> = {
+      ...BILLING_TRPC_MOCKS,
+      "billing.creditsBalance": { balance_cents: 15000, daily_burn_cents: 250, runway_days: 60 },
+    };
+
+    await page.route(
+      (url) =>
+        url.href.includes(PLATFORM_BASE_URL) &&
+        url.pathname.startsWith("/trpc/"),
+      async (route) => {
+        const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
+        const results = procs.map((proc) => ({
+          result: {
+            data: proc in POST_PURCHASE_MOCKS ? POST_PURCHASE_MOCKS[proc] : null,
+          },
+        }));
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(results),
+        });
+      },
+    );
+
+    await page.route(`${PLATFORM_BASE_URL}/api/billing/dividend/stats`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          poolCents: 0,
+          activeUsers: 0,
+          perUserCents: 0,
+          userEligible: false,
+          userWindowExpiresAt: null,
+        }),
+      });
+    });
+
+    await page.goto("/billing/credits");
+
+    // Credits heading visible (personal billing view)
+    await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
+
+    // Credit Balance card visible with correct amount
+    await expect(page.getByRole("heading", { name: "Credit Balance" })).toBeVisible();
+    // Balance should show $150.00 (15000 cents / 100), animated via useCountUp
+    await expect(page.getByText("$150.00")).toBeVisible({ timeout: 5000 });
+
+    // Daily burn and runway visible
+    await expect(page.getByText(/daily burn/i)).toBeVisible();
+    await expect(page.getByText("$2.50/day")).toBeVisible();
+    await expect(page.getByText(/runway/i)).toBeVisible();
+    await expect(page.getByText("~60 days")).toBeVisible();
+  });
+
+  test("transaction history shows recent purchase", async ({ authedPage: page }) => {
+    const nowSecs = Math.floor(Date.now() / 1000);
+    const HISTORY_MOCKS: Record<string, unknown> = {
+      ...BILLING_TRPC_MOCKS,
+      "billing.creditsBalance": { balance_cents: 15000, daily_burn_cents: 250, runway_days: 60 },
+      "billing.creditsHistory": {
+        entries: [
+          {
+            id: "tx-purchase-1",
+            type: "grant",
+            reason: "Credit purchase - $50 tier",
+            amount_cents: 5000,
+            created_at: nowSecs,
+          },
+          {
+            id: "tx-signup-1",
+            type: "grant",
+            reason: "Signup credit",
+            amount_cents: 500,
+            created_at: nowSecs - 86400,
+          },
+          {
+            id: "tx-runtime-1",
+            type: "correction",
+            reason: "Bot runtime charge",
+            amount_cents: -120,
+            created_at: nowSecs - 3600,
+          },
+        ],
+      },
+    };
+
+    await page.route(
+      (url) =>
+        url.href.includes(PLATFORM_BASE_URL) &&
+        url.pathname.startsWith("/trpc/"),
+      async (route) => {
+        const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
+        const results = procs.map((proc) => ({
+          result: {
+            data: proc in HISTORY_MOCKS ? HISTORY_MOCKS[proc] : null,
+          },
+        }));
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(results),
+        });
+      },
+    );
+
+    await page.route(`${PLATFORM_BASE_URL}/api/billing/dividend/stats`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          poolCents: 0,
+          activeUsers: 0,
+          perUserCents: 0,
+          userEligible: false,
+          userWindowExpiresAt: null,
+        }),
+      });
+    });
+
+    await page.goto("/billing/credits");
+
+    // Transaction History card visible
+    await expect(page.getByRole("heading", { name: "Transaction History" })).toBeVisible({ timeout: 10000 });
+
+    // Purchase transaction visible (grant -> "Purchase" label)
+    await expect(page.getByText("Credit purchase - $50 tier")).toBeVisible();
+    await expect(page.getByText("Purchase").first()).toBeVisible();
+
+    // Runtime charge visible (correction -> "Adjustment" label)
+    await expect(page.getByText("Bot runtime charge")).toBeVisible();
+    await expect(page.getByText("Adjustment").first()).toBeVisible();
+
+    // Signup credit visible (grant -> "Purchase" label)
+    await expect(page.getByText("Signup credit")).toBeVisible();
+  });
+
+  test("usage page shows correct summary after usage event", async ({ authedPage: page }) => {
+    const USAGE_MOCKS: Record<string, unknown> = {
+      ...BILLING_TRPC_MOCKS,
+      "billing.inferenceMode": { mode: "hosted" },
+      "billing.currentPlan": { tier: "pro" },
+      "billing.usageSummary": {
+        period_start: "2026-03-01T00:00:00Z",
+        period_end: "2026-03-31T23:59:59Z",
+        total_spend_cents: 4200,
+        included_credit_cents: 1000,
+        amount_due_cents: 3200,
+        plan_name: "pro",
+      },
+      "billing.providerCosts": [],
+      "billing.hostedUsageSummary": {
+        capabilities: [
+          { capability: "text_gen", label: "Text Generation", units: 1500, unitLabel: "tokens", cost: 35.00 },
+          { capability: "image_gen", label: "Image Generation", units: 12, unitLabel: "images", cost: 7.00 },
+        ],
+        totalCost: 42.00,
+        includedCredit: 10.00,
+        amountDue: 32.00,
+      },
+      "billing.spendingLimits": {
+        global: { alertAt: null, hardCap: null },
+        perCapability: {},
+      },
+    };
+
+    await page.route(
+      (url) =>
+        url.href.includes(PLATFORM_BASE_URL) &&
+        url.pathname.startsWith("/trpc/"),
+      async (route) => {
+        const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
+        const results = procs.map((proc) => ({
+          result: {
+            data: proc in USAGE_MOCKS ? USAGE_MOCKS[proc] : null,
+          },
+        }));
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(results),
+        });
+      },
+    );
+
+    await page.route(`${PLATFORM_BASE_URL}/api/billing/**`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.goto("/billing/usage");
+
+    // Usage heading visible
+    await expect(page.getByRole("heading", { name: "Usage" })).toBeVisible({ timeout: 10000 });
+
+    // Billing Summary card shows the amount due
+    await expect(page.getByText("Billing Summary")).toBeVisible();
+    await expect(page.getByText("$32.00").first()).toBeVisible();
+    await expect(page.getByText("amount due")).toBeVisible();
+
+    // Total spend line
+    await expect(page.getByText("Total spend this period")).toBeVisible();
+    await expect(page.getByText("$42.00")).toBeVisible();
+
+    // Platform Usage card
+    await expect(page.getByText("Platform Usage")).toBeVisible();
+  });
+});
