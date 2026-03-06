@@ -55,7 +55,7 @@ function typeBadge(snap: Snapshot): {
   }
 }
 
-export function BackupsTab({ botId }: { botId: string }) {
+export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: () => void }) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +91,15 @@ export function BackupsTab({ botId }: { botId: string }) {
     }
   }, [botId]);
 
+  const silentRefresh = useCallback(async () => {
+    try {
+      const snaps = await listSnapshots(botId);
+      if (mountedRef.current) setSnapshots(snaps);
+    } catch {
+      // silently ignore — stale list is better than a flash
+    }
+  }, [botId]);
+
   useEffect(() => {
     let cancelled = false;
     async function init() {
@@ -118,7 +127,7 @@ export function BackupsTab({ botId }: { botId: string }) {
       toast.success(`Backup created (${result.estimatedMonthlyCost} storage cost)`);
       setShowCreate(false);
       setCreateName("");
-      await load();
+      await silentRefresh();
     } catch (err) {
       toast.error(toUserMessage(err));
     } finally {
@@ -133,7 +142,8 @@ export function BackupsTab({ botId }: { botId: string }) {
       await restoreSnapshot(botId, restoreTarget.id);
       toast.success("Bot restored successfully. It may take a moment to restart.");
       setRestoreTarget(null);
-      await load();
+      onRestore?.();
+      await silentRefresh();
     } catch (err) {
       toast.error(toUserMessage(err));
     } finally {
@@ -148,7 +158,7 @@ export function BackupsTab({ botId }: { botId: string }) {
       await deleteSnapshot(botId, deleteTarget.id);
       toast.success("Backup deleted.");
       setDeleteTarget(null);
-      await load();
+      await silentRefresh();
     } catch (err) {
       toast.error(toUserMessage(err));
     } finally {

@@ -342,7 +342,7 @@ export function BotSettingsClient({ botId }: { botId: string }) {
         </TabsContent>
 
         <TabsContent value="backups" className="mt-4">
-          <BackupsTab botId={botId} />
+          <BackupsTab botId={botId} onRestore={load} />
         </TabsContent>
 
         <TabsContent value="usage" className="mt-4">
