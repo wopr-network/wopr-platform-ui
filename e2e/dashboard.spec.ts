@@ -73,6 +73,12 @@ async function mockDashboardAPI(
 			status_reason: null,
 			grace_deadline: null,
 		},
+		"billing.usageSummary": {
+			period_start: new Date().toISOString(),
+			period_end: new Date().toISOString(),
+			total_spend_cents: 0,
+			plan_name: "Free",
+		},
 	};
 
 	// Batch-aware tRPC handler — intercept ALL tRPC requests to the platform
@@ -239,8 +245,8 @@ test.describe("Dashboard: Command Center", () => {
 		await expect(page.getByText("started").first()).toBeVisible();
 
 		// Verify Resources card shows CPU and memory values
-		await expect(page.getByTestId("cpu-usage")).toBeVisible();
-		await expect(page.getByTestId("memory-usage")).toBeVisible();
+		await expect(page.getByRole("main").getByTestId("cpu-usage")).toBeVisible();
+		await expect(page.getByRole("main").getByTestId("memory-usage")).toBeVisible();
 	});
 
 	test("dashboard with no bots shows empty state", async ({
@@ -277,7 +283,7 @@ test.describe("Dashboard: Command Center", () => {
 		await expect(page.getByText("NO EVENTS LOGGED").first()).toBeVisible();
 
 		// Resources card still renders
-		await expect(page.getByTestId("cpu-usage")).toBeVisible();
+		await expect(page.getByRole("main").getByTestId("cpu-usage")).toBeVisible();
 	});
 
 	test("dashboard with offline bot shows stopped status", async ({
