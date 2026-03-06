@@ -82,9 +82,18 @@ async function mockDashboardAPI(
 		async (route) => {
 			const procs =
 				route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
+			const unknownProcs = procs.filter((proc) => !(proc in DASHBOARD_TRPC_MOCKS));
+			if (unknownProcs.length > 0) {
+				await route.fulfill({
+					status: 503,
+					contentType: "application/json",
+					body: JSON.stringify({ error: `Unmocked tRPC procedures: ${unknownProcs.join(", ")}` }),
+				});
+				return;
+			}
 			const results = procs.map((proc) => ({
 				result: {
-					data: proc in DASHBOARD_TRPC_MOCKS ? DASHBOARD_TRPC_MOCKS[proc] : null,
+					data: DASHBOARD_TRPC_MOCKS[proc],
 				},
 			}));
 			await route.fulfill({
