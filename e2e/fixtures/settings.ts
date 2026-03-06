@@ -239,6 +239,31 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
     }
   });
 
+  // better-auth: get-session (ensures TwoFactorSection resolves loading state)
+  await page.route(`${PLATFORM_BASE_URL}/api/auth/get-session`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: {
+          id: "e2e-user-id",
+          name: "E2E Test User",
+          email: "e2e@wopr.test",
+          emailVerified: true,
+          twoFactorEnabled: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        session: {
+          id: "e2e-session-id",
+          userId: "e2e-user-id",
+          token: "e2e-token",
+          expiresAt: new Date(Date.now() + 86400000).toISOString(),
+        },
+      }),
+    });
+  });
+
   // better-auth: list-accounts
   await page.route(`${PLATFORM_BASE_URL}/api/auth/list-accounts`, async (route) => {
     await route.fulfill({

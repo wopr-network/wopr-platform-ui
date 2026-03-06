@@ -132,6 +132,8 @@ test.describe("Settings: Security", () => {
     await page.goto("/settings/security");
 
     await expect(page.getByText("Login History").first()).toBeVisible();
+    // Scroll to make the count visible (it may be below the fold)
+    await page.getByText("Login History").first().scrollIntoViewIfNeeded();
     // Should show total count from mock
     await expect(page.getByText("1 total events").first()).toBeVisible();
   });
@@ -324,8 +326,12 @@ test.describe("Settings: Organization", () => {
     // Fill email
     await page.locator("#invite-email").first().fill("newmember@wopr.test");
 
-    // Submit
+    // Submit — wait for the tRPC response before checking state
+    const responsePromise = page.waitForResponse(
+      (resp) => resp.url().includes("/trpc/") && resp.request().method() === "POST",
+    );
     await page.getByRole("button", { name: "Send invitation" }).first().click();
+    await responsePromise;
 
     // Invite should be added to state
     expect(state.org.invites.length).toBe(1);
