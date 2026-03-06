@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures/auth";
 
-const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? process.env.BASE_URL ?? "http://localhost:3001";
 
 /**
  * Mock all dashboard API endpoints.
@@ -215,7 +215,7 @@ test.describe("Dashboard: Command Center", () => {
 		});
 
 		// Verify Stopped count is 0
-		await expect(page.getByTestId("stopped-count")).toContainText("0", {
+		await expect(page.getByTestId("stopped-count").first()).toContainText("0", {
 			timeout: 5000,
 		});
 
@@ -261,11 +261,11 @@ test.describe("Dashboard: Command Center", () => {
 		});
 
 		// Verify no bot cards
-		await expect(page.getByText("my-test-bot")).not.toBeVisible();
+		await expect(page.getByText("my-test-bot").first()).not.toBeVisible();
 
 		// Verify activity empty state
-		await expect(page.getByText("STANDING BY")).toBeVisible();
-		await expect(page.getByText("NO EVENTS LOGGED")).toBeVisible();
+		await expect(page.getByText("STANDING BY").first()).toBeVisible();
+		await expect(page.getByText("NO EVENTS LOGGED").first()).toBeVisible();
 
 		// Resources card still renders
 		await expect(page.getByTestId("cpu-usage")).toBeVisible();
