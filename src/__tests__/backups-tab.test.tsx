@@ -10,12 +10,10 @@ vi.mock("@/lib/api", () => ({
   apiFetch: vi.fn(),
 }));
 
-vi.mock("@/lib/api-config", () => ({
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api`
-    : "http://localhost:3001/api",
-  PLATFORM_BASE_URL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
-}));
+vi.mock("@/lib/api-config", async () => {
+  const actual = await vi.importActual("@/lib/api-config");
+  return { ...actual };
+});
 
 vi.mock("@/lib/fetch-utils", () => ({
   handleUnauthorized: vi.fn(),

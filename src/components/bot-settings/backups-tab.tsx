@@ -282,7 +282,7 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             onChange={(e) => setCreateName(e.target.value)}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>
+            <Button variant="outline" onClick={() => setShowCreate(false)} disabled={creating}>
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={creating}>
