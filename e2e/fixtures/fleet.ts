@@ -52,10 +52,10 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 			await route.continue();
 			return;
 		}
-		// tRPC sends batch requests as an array; each item has a `json` field containing
-		// the procedure input. Index 0 is the first (and usually only) call in the batch.
-		const body = route.request().postDataJSON() as Array<{ json: { name?: string } }> | null;
-		const botName = body?.[0]?.json?.name ?? "e2e-test-bot";
+		// tRPC v11 httpBatchLink sends POST body as {"0": {input}} (no "json" wrapper).
+		const body = route.request().postDataJSON() as Record<string, { name?: string }> | null;
+		const input = body?.["0"];
+		const botName = input?.name ?? "e2e-test-bot";
 		const botId = `e2e-bot-${++_botCounter}`;
 		const newBot = {
 			id: botId,
@@ -84,7 +84,8 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 		let botId = "";
 		try {
 			const parsed = JSON.parse(inputParam ?? "{}");
-			botId = parsed?.["0"]?.json?.id ?? "";
+			// tRPC v11 httpBatchLink: input is {"0": {id}} (no "json" wrapper)
+			botId = parsed?.["0"]?.id ?? parsed?.["0"]?.json?.id ?? "";
 		} catch { /* ignore */ }
 		const bot = state.bots.find((b) => b.id === botId);
 		if (!bot) {
@@ -127,9 +128,11 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 			await route.continue();
 			return;
 		}
-		const body = route.request().postDataJSON() as Array<{ json: { id: string; action: string } }> | null;
-		const botId = body?.[0]?.json?.id ?? "";
-		const action = body?.[0]?.json?.action ?? "";
+		// tRPC v11 httpBatchLink: POST body is {"0": {id, action}} (no "json" wrapper)
+		const body = route.request().postDataJSON() as Record<string, { id: string; action: string }> | null;
+		const input = body?.["0"];
+		const botId = input?.id ?? "";
+		const action = input?.action ?? "";
 		const bot = state.bots.find((b) => b.id === botId);
 		if (bot) {
 			if (action === "stop") bot.state = "exited";
@@ -147,7 +150,10 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
 		const url = new URL(route.request().url());
 		const inputParam = url.searchParams.get("input");
 		let botId = "";
-		try { botId = JSON.parse(inputParam ?? "{}")?.["0"]?.json?.id ?? ""; } catch { /* ignore */ }
+		try {
+			const parsed = JSON.parse(inputParam ?? "{}");
+			botId = parsed?.["0"]?.id ?? parsed?.["0"]?.json?.id ?? "";
+		} catch { /* ignore */ }
 		const bot = state.bots.find((b) => b.id === botId);
 		await route.fulfill({
 			status: 200,

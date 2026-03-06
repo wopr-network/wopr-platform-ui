@@ -85,21 +85,22 @@ test.describe("Bot instance lifecycle", () => {
 
 		// Header: name and status badge
 		await expect(page.getByRole("heading", { name: "detail-bot" })).toBeVisible({ timeout: 10000 });
-		await expect(page.getByText("Running")).toBeVisible();
+		await expect(page.getByText("Running", { exact: true }).first()).toBeVisible();
 
-		// Overview tab metric card titles
-		await expect(page.getByText("Status")).toBeVisible();
-		await expect(page.getByText("Uptime")).toBeVisible();
-		await expect(page.getByText("Memory")).toBeVisible();
-		await expect(page.getByText("CPU")).toBeVisible();
-		await expect(page.getByText("Plugins")).toBeVisible();
-		await expect(page.getByText("Channels")).toBeVisible();
-		await expect(page.getByText("Active Sessions")).toBeVisible();
-		await expect(page.getByText("Created")).toBeVisible();
+		// Overview tab metric card titles (scoped to the overview tabpanel)
+		const overview = page.getByRole("tabpanel", { name: "Overview" });
+		await expect(overview.getByText("Status")).toBeVisible();
+		await expect(overview.getByText("Uptime")).toBeVisible();
+		await expect(overview.getByText("Memory")).toBeVisible();
+		await expect(overview.getByText("CPU")).toBeVisible();
+		await expect(overview.getByText("Plugins")).toBeVisible();
+		await expect(overview.getByText("Channels")).toBeVisible();
+		await expect(overview.getByText("Active Sessions")).toBeVisible();
+		await expect(overview.getByText("Created")).toBeVisible();
 
 		// Verify resource values render (from stats)
-		await expect(page.getByText("256 MB")).toBeVisible();
-		await expect(page.getByText("25%")).toBeVisible();
+		await expect(overview.getByText("256 MB")).toBeVisible();
+		await expect(overview.getByText("25%")).toBeVisible();
 	});
 
 	test("instance list — 3 instances with correct names and statuses", async ({ authedPage: page }) => {
