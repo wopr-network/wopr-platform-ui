@@ -24,8 +24,11 @@ import {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [botName, setBotName] = useState("");
+  const [step, setStep] = useState(() => {
+    const saved = loadOnboardingState();
+    return saved.currentStep;
+  });
+  const [botName, setBotName] = useState(() => loadOnboardingState().instanceName);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,11 +39,13 @@ export default function OnboardingPage() {
 
   function handleNameNext() {
     if (!botName.trim()) return;
+    saveOnboardingState({ ...loadOnboardingState(), instanceName: botName.trim(), currentStep: 1 });
     setStep(1);
   }
 
   function handlePresetNext() {
     if (!selectedPreset) return;
+    saveOnboardingState({ ...loadOnboardingState(), currentStep: 2 });
     setStep(2);
   }
 
