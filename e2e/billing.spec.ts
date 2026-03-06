@@ -179,12 +179,12 @@ test.describe("Billing: Credit Checkout", () => {
     // Wait briefly for the route handler to fire
     await expect.poll(() => capturedCheckoutBody, { timeout: 5000 }).not.toBeNull();
 
-    // Extract priceId from tRPC batch body: { "0": { "json": { "priceId": "..." } } }
+    // Extract priceId from tRPC batch body: { "0": { "priceId": "..." } }
     const batchInput = capturedCheckoutBody as unknown as Record<
       string,
-      { json: { priceId: string } }
+      { priceId: string }
     >;
-    const priceId = batchInput["0"]?.json?.priceId;
+    const priceId = batchInput["0"]?.priceId;
 
     expect(priceId).toBeDefined();
     // CRITICAL: priceId must be a real Stripe price ID (price_xxx), not synthetic like "credit_10"
