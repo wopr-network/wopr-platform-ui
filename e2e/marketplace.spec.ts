@@ -28,13 +28,13 @@ test.describe("Marketplace", () => {
     await expect(page.getByText("Slack").first()).toBeVisible();
 
     // Search for "discord" — only Discord shown
-    await page.getByPlaceholder("Search superpowers...").fill("discord");
+    await page.getByPlaceholder("Search superpowers...").first().fill("discord");
     await expect(page.getByText("Discord").first()).toBeVisible();
     // Slack should not be visible in the filtered grid
     await expect(page.locator(".grid").getByText("Slack")).not.toBeVisible({ timeout: 3000 });
 
     // Clear search
-    await page.getByPlaceholder("Search superpowers...").fill("");
+    await page.getByPlaceholder("Search superpowers...").first().fill("");
     await expect(page.getByText("Slack").first()).toBeVisible();
 
     // Click "Channels" tab — verify tab mechanism works
@@ -56,7 +56,7 @@ test.describe("Marketplace", () => {
     // Verify detail page renders
     await expect(page.getByRole("heading", { name: /Discord/ })).toBeVisible({ timeout: 10000 });
     // Tagline visible
-    await expect(page.getByText(DISCORD_MANIFEST.superpowerTagline)).toBeVisible();
+    await expect(page.getByText(DISCORD_MANIFEST.superpowerTagline).first()).toBeVisible();
     // Install button visible
     await expect(page.getByRole("button", { name: "Give my bot this superpower" })).toBeVisible();
     // Version visible
@@ -146,8 +146,9 @@ test.describe("Marketplace", () => {
       .click();
 
     // Confirm dialog appears
-    await expect(page.getByText("Uninstall Discord?")).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText("This will remove the plugin and its configuration")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("Uninstall Discord?")).toBeVisible();
+    await expect(page.getByText("This will remove the plugin and its configuration").first()).toBeVisible();
 
     // Click confirm uninstall
     await page.getByRole("button", { name: "Uninstall", exact: true }).click();
