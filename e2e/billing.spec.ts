@@ -296,7 +296,7 @@ test.describe("Billing: Dashboard Display", () => {
 
     // Daily burn and runway visible
     await expect(page.getByText(/daily burn/i).first()).toBeVisible();
-    await expect(page.getByText("$2.50/day")).toBeVisible();
+    await expect(page.getByText("$2.50/day").first()).toBeVisible();
     await expect(page.getByText(/runway/i)).toBeVisible();
     await expect(page.getByText("~60 days")).toBeVisible();
   });
@@ -376,7 +376,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("Purchase").first()).toBeVisible();
 
     // Runtime charge visible (correction -> "Adjustment" label)
-    await expect(page.getByText("Bot runtime charge")).toBeVisible();
+    await expect(page.getByText("Bot runtime charge").first()).toBeVisible();
     await expect(page.getByText("Adjustment").first()).toBeVisible();
 
     // Signup credit visible (grant -> "Purchase" label)
