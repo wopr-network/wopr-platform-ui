@@ -68,10 +68,9 @@ export interface SettingsMockState {
     providerId: string;
     mode: "hosted" | "byok";
   };
+  _apiKeyCounter: number;
+  _inviteCounter: number;
 }
-
-let _apiKeyCounter = 0;
-let _inviteCounter = 0;
 
 export function createSettingsMockState(): SettingsMockState {
   return {
@@ -175,6 +174,8 @@ export function createSettingsMockState(): SettingsMockState {
       providerId: "anthropic",
       mode: "hosted",
     },
+    _apiKeyCounter: 0,
+    _inviteCounter: 0,
   };
 }
 
@@ -330,7 +331,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
     } else if (method === "POST") {
       const body = route.request().postDataJSON();
       const newKey = {
-        id: `key-${++_apiKeyCounter}`,
+        id: `key-${++state._apiKeyCounter}`,
         name: body?.name ?? "Untitled",
         prefix: "wopr_",
         scope: body?.scope ?? "full",
@@ -656,7 +657,10 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
     (url) =>
       url.href.includes(PLATFORM_BASE_URL) &&
       url.pathname.startsWith("/trpc/") &&
-      Object.keys(SETTINGS_TRPC_MOCKS).some((proc) => url.pathname.includes(proc)),
+      Object.keys(SETTINGS_TRPC_MOCKS).some((proc) => {
+        const trpcPath = url.pathname.split("/trpc/")[1] ?? "";
+        return trpcPath.split(",").some((p) => p === proc);
+      }),
     async (route) => {
       const method = route.request().method();
       const urlStr = route.request().url();
@@ -684,16 +688,48 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
             SETTINGS_TRPC_MOCKS["org.updateOrganization"] = state.org;
             SETTINGS_TRPC_MOCKS["org.getOrganization"] = state.org;
           }
+          if (proc === "org.revokeInvite") {
+            const body = route.request().postDataJSON();
+            const input = Array.isArray(body) ? body[0]?.json : body;
+            if (input?.inviteId) {
+              state.org.invites = state.org.invites.filter((i) => i.id !== input.inviteId);
+            }
+          }
+          if (proc === "org.removeMember") {
+            const body = route.request().postDataJSON();
+            const input = Array.isArray(body) ? body[0]?.json : body;
+            if (input?.memberId) {
+              state.org.members = state.org.members.filter((m) => m.id !== input.memberId);
+            }
+          }
+          if (proc === "org.changeRole") {
+            const body = route.request().postDataJSON();
+            const input = Array.isArray(body) ? body[0]?.json : body;
+            if (input?.memberId && input?.role) {
+              const member = state.org.members.find((m) => m.id === input.memberId);
+              if (member) member.role = input.role;
+            }
+          }
+          if (proc === "org.transferOwnership") {
+            const body = route.request().postDataJSON();
+            const input = Array.isArray(body) ? body[0]?.json : body;
+            if (input?.memberId) {
+              for (const m of state.org.members) {
+                if (m.id === input.memberId) m.role = "owner";
+                else if (m.role === "owner") m.role = "admin";
+              }
+            }
+          }
           if (proc === "org.inviteMember") {
             const body = route.request().postDataJSON();
             const input = Array.isArray(body) ? body[0]?.json : body;
             const invite = {
-              id: `invite-${++_inviteCounter}`,
+              id: `invite-${++state._inviteCounter}`,
               orgId: state.org.id,
               email: input?.email ?? "new@wopr.test",
               role: input?.role ?? "member",
               invitedBy: "e2e-user-id",
-              token: `tok-${_inviteCounter}`,
+              token: `tok-${state._inviteCounter}`,
               expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(),
               createdAt: new Date().toISOString(),
             };

@@ -8,23 +8,23 @@ test.describe("Settings: Profile", () => {
 
     await page.goto("/settings/profile");
 
-    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
-    await expect(page.getByText("Personal Information")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Profile" }).first()).toBeVisible();
+    await expect(page.getByText("Personal Information").first()).toBeVisible();
 
     // Form is populated with mock data
-    const nameInput = page.locator("#profile-name");
+    const nameInput = page.locator("#profile-name").first();
     await expect(nameInput).toHaveValue("E2E Test User");
 
-    const emailInput = page.locator("#profile-email");
+    const emailInput = page.locator("#profile-email").first();
     await expect(emailInput).toHaveValue("e2e@wopr.test");
 
     // Change display name
     await nameInput.clear();
     await nameInput.fill("Updated Name");
-    await page.getByRole("button", { name: "Save changes" }).click();
+    await page.getByRole("button", { name: "Save changes" }).first().click();
 
     // Verify success message
-    await expect(page.getByText("Profile updated.")).toBeVisible();
+    await expect(page.getByText("Profile updated.").first()).toBeVisible();
     expect(state.profile.name).toBe("Updated Name");
   });
 
@@ -34,15 +34,15 @@ test.describe("Settings: Profile", () => {
 
     await page.goto("/settings/profile");
 
-    await expect(page.getByText("Change Password")).toBeVisible();
+    await expect(page.getByText("Change Password").first()).toBeVisible();
 
-    await page.locator("#current-password").fill("OldPassword123!");
-    await page.locator("#new-password").fill("NewPassword456!");
-    await page.locator("#confirm-new-password").fill("NewPassword456!");
+    await page.locator("#current-password").first().fill("OldPassword123!");
+    await page.locator("#new-password").first().fill("NewPassword456!");
+    await page.locator("#confirm-new-password").first().fill("NewPassword456!");
 
-    await page.getByRole("button", { name: "Change password" }).click();
+    await page.getByRole("button", { name: "Change password" }).first().click();
 
-    await expect(page.getByText("Password changed.")).toBeVisible();
+    await expect(page.getByText("Password changed.").first()).toBeVisible();
   });
 
   test("connected accounts section renders OAuth providers", async ({ authedPage: page }) => {
@@ -51,11 +51,11 @@ test.describe("Settings: Profile", () => {
 
     await page.goto("/settings/profile");
 
-    await expect(page.getByText("Connected Accounts")).toBeVisible();
+    await expect(page.getByText("Connected Accounts").first()).toBeVisible();
     // Providers are rendered as capitalized text
-    await expect(page.getByText("github")).toBeVisible();
-    await expect(page.getByText("discord")).toBeVisible();
-    await expect(page.getByText("google")).toBeVisible();
+    await expect(page.getByText("github").first()).toBeVisible();
+    await expect(page.getByText("discord").first()).toBeVisible();
+    await expect(page.getByText("google").first()).toBeVisible();
   });
 
   test("delete account dialog requires confirmation text", async ({ authedPage: page }) => {
@@ -64,19 +64,19 @@ test.describe("Settings: Profile", () => {
 
     await page.goto("/settings/profile");
 
-    await page.getByRole("button", { name: "Delete account" }).click();
+    await page.getByRole("button", { name: "Delete account" }).first().click();
 
     // Dialog opens
-    await expect(page.getByText("Are you absolutely sure?")).toBeVisible();
+    await expect(page.getByText("Are you absolutely sure?").first()).toBeVisible();
 
     // Delete button should be disabled without confirmation text
-    await expect(page.getByRole("button", { name: "Delete permanently" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Delete permanently" }).first()).toBeDisabled();
 
     // Type confirmation
-    await page.getByPlaceholder("delete my account").fill("delete my account");
+    await page.getByPlaceholder("delete my account").first().fill("delete my account");
 
     // Delete button should now be enabled
-    await expect(page.getByRole("button", { name: "Delete permanently" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Delete permanently" }).first()).toBeEnabled();
   });
 });
 
@@ -87,12 +87,12 @@ test.describe("Settings: Account", () => {
 
     await page.goto("/settings/account");
 
-    await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
-    await expect(page.getByText("Current Plan")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Account" }).first()).toBeVisible();
+    await expect(page.getByText("Current Plan").first()).toBeVisible();
     // getBillingUsage calls billing.currentPlan which returns { tier: "free" }
     // planName = "Free" (capitalized)
-    await expect(page.getByText("Free")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Manage Billing" })).toBeVisible();
+    await expect(page.getByText("Free").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Manage Billing" }).first()).toBeVisible();
   });
 
   test("teams and organizations section renders", async ({ authedPage: page }) => {
@@ -101,7 +101,7 @@ test.describe("Settings: Account", () => {
 
     await page.goto("/settings/account");
 
-    await expect(page.getByText("Teams & Organizations")).toBeVisible();
+    await expect(page.getByText("Teams & Organizations").first()).toBeVisible();
   });
 });
 
@@ -112,17 +112,17 @@ test.describe("Settings: Security", () => {
 
     await page.goto("/settings/security");
 
-    await expect(page.getByRole("heading", { name: "Security" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible();
 
     // 2FA section
-    await expect(page.getByText("Two-Factor Authentication")).toBeVisible();
-    await expect(page.getByText("Two-factor authentication is not enabled")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Enable 2FA" })).toBeVisible();
+    await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible();
+    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible();
 
     // Sessions section
-    await expect(page.getByText("Active Sessions")).toBeVisible();
+    await expect(page.getByText("Active Sessions").first()).toBeVisible();
     // Current session shows "This device"
-    await expect(page.getByText("This device")).toBeVisible();
+    await expect(page.getByText("This device").first()).toBeVisible();
   });
 
   test("login history section renders", async ({ authedPage: page }) => {
@@ -131,9 +131,9 @@ test.describe("Settings: Security", () => {
 
     await page.goto("/settings/security");
 
-    await expect(page.getByText("Login History")).toBeVisible();
+    await expect(page.getByText("Login History").first()).toBeVisible();
     // Should show total count from mock
-    await expect(page.getByText("1 total events")).toBeVisible();
+    await expect(page.getByText("1 total events").first()).toBeVisible();
   });
 });
 
@@ -144,29 +144,29 @@ test.describe("Settings: API Keys", () => {
 
     await page.goto("/settings/api-keys");
 
-    await expect(page.getByRole("heading", { name: "API Keys" })).toBeVisible();
-    await expect(page.getByText("No API keys yet")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "API Keys" }).first()).toBeVisible();
+    await expect(page.getByText("No API keys yet").first()).toBeVisible();
 
     // Create a key
-    await page.getByRole("button", { name: "Generate new key" }).click();
+    await page.getByRole("button", { name: "Generate new key" }).first().click();
 
     // Dialog opens
-    await expect(page.getByText("Generate API Key")).toBeVisible();
+    await expect(page.getByText("Generate API Key").first()).toBeVisible();
 
     // Fill form
-    await page.locator("#key-name").fill("CI Pipeline");
+    await page.locator("#key-name").first().fill("CI Pipeline");
 
-    await page.getByRole("button", { name: "Generate key" }).click();
+    await page.getByRole("button", { name: "Generate key" }).first().click();
 
     // Key secret should be shown
-    await expect(page.getByText("Your new API key has been created")).toBeVisible();
-    await expect(page.getByText(/wopr_test_/)).toBeVisible();
+    await expect(page.getByText("Your new API key has been created").first()).toBeVisible();
+    await expect(page.getByText(/wopr_test_/).first()).toBeVisible();
 
     // Dismiss the secret banner
-    await page.getByRole("button", { name: "Dismiss" }).click();
+    await page.getByRole("button", { name: "Dismiss" }).first().click();
 
     // Key should appear in the table
-    await expect(page.getByText("CI Pipeline")).toBeVisible();
+    await expect(page.getByText("CI Pipeline").first()).toBeVisible();
 
     // Verify state was mutated
     expect(state.apiKeys.length).toBe(1);
@@ -189,17 +189,17 @@ test.describe("Settings: API Keys", () => {
 
     await page.goto("/settings/api-keys");
 
-    await expect(page.getByText("Old Key")).toBeVisible();
+    await expect(page.getByText("Old Key").first()).toBeVisible();
 
     // Revoke the key
-    await page.getByRole("button", { name: "Revoke" }).click();
+    await page.getByRole("button", { name: "Revoke" }).first().click();
 
     // Confirm revoke dialog
-    await expect(page.getByText("Revoke API Key")).toBeVisible();
-    await page.getByRole("button", { name: "Revoke key" }).click();
+    await expect(page.getByText("Revoke API Key").first()).toBeVisible();
+    await page.getByRole("button", { name: "Revoke key" }).first().click();
 
     // Key should be removed
-    await expect(page.getByText("No API keys yet")).toBeVisible();
+    await expect(page.getByText("No API keys yet").first()).toBeVisible();
   });
 });
 
@@ -210,14 +210,14 @@ test.describe("Settings: Providers", () => {
 
     await page.goto("/settings/providers");
 
-    await expect(page.getByRole("heading", { name: "Provider Settings" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Provider Settings" }).first()).toBeVisible();
 
     // Capability cards should render (from tRPC capabilities.listCapabilityMeta mock)
-    await expect(page.getByText("Text Generation")).toBeVisible();
-    await expect(page.getByText("Transcription")).toBeVisible();
+    await expect(page.getByText("Text Generation").first()).toBeVisible();
+    await expect(page.getByText("Transcription").first()).toBeVisible();
 
     // Provider keys section
-    await expect(page.getByText("Provider Keys")).toBeVisible();
+    await expect(page.getByText("Provider Keys").first()).toBeVisible();
   });
 });
 
@@ -228,15 +228,15 @@ test.describe("Settings: Brain", () => {
 
     await page.goto("/settings/brain");
 
-    await expect(page.getByRole("heading", { name: "Brain" })).toBeVisible();
-    await expect(page.getByText("Choose which AI model powers your WOPR")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Brain" }).first()).toBeVisible();
+    await expect(page.getByText("Choose which AI model powers your WOPR").first()).toBeVisible();
 
     // Current model card should be visible
-    await expect(page.getByTestId("current-model")).toBeVisible();
+    await expect(page.getByTestId("current-model").first()).toBeVisible();
 
     // View mode buttons
-    await expect(page.getByRole("button", { name: /Pick a model/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Bring Your Own Key/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Pick a model/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Bring Your Own Key/ }).first()).toBeVisible();
 
     // Hero models should be visible (from static onboarding-data)
     const modelCards = page.locator("[data-testid^='model-card-']");
@@ -249,11 +249,11 @@ test.describe("Settings: Brain", () => {
 
     await page.goto("/settings/brain");
 
-    await expect(page.getByTestId("more-models-toggle")).toBeVisible();
-    await page.getByTestId("more-models-toggle").click();
+    await expect(page.getByTestId("more-models-toggle").first()).toBeVisible();
+    await page.getByTestId("more-models-toggle").first().click();
 
     // Additional models section should now be visible
-    await expect(page.getByText(/models available/)).toBeVisible();
+    await expect(page.getByText(/models available/).first()).toBeVisible();
   });
 });
 
@@ -264,17 +264,17 @@ test.describe("Settings: Notifications", () => {
 
     await page.goto("/settings/notifications");
 
-    await expect(page.getByText("Notifications")).toBeVisible();
-    await expect(page.getByText("Control which system emails you receive")).toBeVisible();
+    await expect(page.getByText("Notifications").first()).toBeVisible();
+    await expect(page.getByText("Control which system emails you receive").first()).toBeVisible();
 
     // Preference groups should render
-    await expect(page.getByText("Billing")).toBeVisible();
-    await expect(page.getByText("Agents")).toBeVisible();
+    await expect(page.getByText("Billing").first()).toBeVisible();
+    await expect(page.getByText("Agents").first()).toBeVisible();
 
     // Toggle a preference -- "Low balance alerts" switch should be checked initially
     const lowBalanceToggle = page.getByRole("switch", {
       name: "Low balance alerts",
-    });
+    }).first();
     await expect(lowBalanceToggle).toBeVisible();
     await expect(lowBalanceToggle).toBeChecked();
 
@@ -282,7 +282,7 @@ test.describe("Settings: Notifications", () => {
     await lowBalanceToggle.click();
 
     // Should see "Saved" indicator
-    await expect(page.getByText("Saved")).toBeVisible();
+    await expect(page.getByText("Saved").first()).toBeVisible();
 
     // State should be updated
     expect(state.notificationPrefs.billing_low_balance).toBe(false);
@@ -296,18 +296,18 @@ test.describe("Settings: Organization", () => {
 
     await page.goto("/settings/org");
 
-    await expect(page.getByRole("heading", { name: "Organization" })).toBeVisible();
-    await expect(page.getByText("Organization Details")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Organization" }).first()).toBeVisible();
+    await expect(page.getByText("Organization Details").first()).toBeVisible();
 
     // Org form should be populated
-    const nameInput = page.locator("#org-name");
+    const nameInput = page.locator("#org-name").first();
     await expect(nameInput).toHaveValue("E2E Test Org");
 
     // Members section
-    await expect(page.getByText("Members")).toBeVisible();
-    await expect(page.getByText("2 members")).toBeVisible();
-    await expect(page.getByText("E2E Test User")).toBeVisible();
-    await expect(page.getByText("Team Member")).toBeVisible();
+    await expect(page.getByText("Members").first()).toBeVisible();
+    await expect(page.getByText("2 members").first()).toBeVisible();
+    await expect(page.getByText("E2E Test User").first()).toBeVisible();
+    await expect(page.getByText("Team Member").first()).toBeVisible();
   });
 
   test("can invite a member", async ({ authedPage: page }) => {
@@ -316,16 +316,16 @@ test.describe("Settings: Organization", () => {
 
     await page.goto("/settings/org");
 
-    await page.getByRole("button", { name: "Invite member" }).click();
+    await page.getByRole("button", { name: "Invite member" }).first().click();
 
     // Dialog opens
-    await expect(page.getByText("Invite Member")).toBeVisible();
+    await expect(page.getByText("Invite Member").first()).toBeVisible();
 
     // Fill email
-    await page.locator("#invite-email").fill("newmember@wopr.test");
+    await page.locator("#invite-email").first().fill("newmember@wopr.test");
 
     // Submit
-    await page.getByRole("button", { name: "Send invitation" }).click();
+    await page.getByRole("button", { name: "Send invitation" }).first().click();
 
     // Invite should be added to state
     expect(state.org.invites.length).toBe(1);
@@ -340,17 +340,17 @@ test.describe("Settings: Activity", () => {
 
     await page.goto("/settings/activity");
 
-    await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
-    await expect(page.getByText("Events")).toBeVisible();
-    await expect(page.getByText("3 total events")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Activity" }).first()).toBeVisible();
+    await expect(page.getByText("Events").first()).toBeVisible();
+    await expect(page.getByText("3 total events").first()).toBeVisible();
 
     // Events should render in the table (humanAction converts "profile.update" to "Profile Update")
-    await expect(page.getByText("Profile Update")).toBeVisible();
-    await expect(page.getByText("Api Key Create")).toBeVisible();
-    await expect(page.getByText("Security Password Change")).toBeVisible();
+    await expect(page.getByText("Profile Update").first()).toBeVisible();
+    await expect(page.getByText("Api Key Create").first()).toBeVisible();
+    await expect(page.getByText("Security Password Change").first()).toBeVisible();
 
     // Search input should be visible
-    await expect(page.getByPlaceholder("Search...")).toBeVisible();
+    await expect(page.getByPlaceholder("Search...").first()).toBeVisible();
   });
 
   test("search filters events client-side", async ({ authedPage: page }) => {
@@ -359,13 +359,13 @@ test.describe("Settings: Activity", () => {
 
     await page.goto("/settings/activity");
 
-    await expect(page.getByText("3 total events")).toBeVisible();
+    await expect(page.getByText("3 total events").first()).toBeVisible();
 
     // Search for "profile"
-    await page.getByPlaceholder("Search...").fill("profile");
+    await page.getByPlaceholder("Search...").first().fill("profile");
 
     // Only profile event should be visible
-    await expect(page.getByText("Profile Update")).toBeVisible();
+    await expect(page.getByText("Profile Update").first()).toBeVisible();
     await expect(page.getByText("Api Key Create")).not.toBeVisible();
   });
 });
