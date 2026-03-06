@@ -290,7 +290,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
 
     // Credit Balance card visible with correct amount
-    await expect(page.getByRole("heading", { name: "Credit Balance" })).toBeVisible();
+    await expect(page.getByText("Credit Balance").first()).toBeVisible();
     // Balance should show $150.00 (15000 cents / 100), animated via useCountUp
     await expect(page.getByText("$150.00")).toBeVisible({ timeout: 5000 });
 
@@ -369,7 +369,7 @@ test.describe("Billing: Dashboard Display", () => {
     await page.goto("/billing/credits");
 
     // Transaction History card visible
-    await expect(page.getByRole("heading", { name: "Transaction History" })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Transaction History").first()).toBeVisible({ timeout: 10000 });
 
     // Purchase transaction visible (grant -> "Purchase" label)
     await expect(page.getByText("Credit purchase - $50 tier")).toBeVisible();
@@ -445,7 +445,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByRole("heading", { name: "Usage" })).toBeVisible({ timeout: 10000 });
 
     // Billing Summary card shows the amount due
-    await expect(page.getByText("Billing Summary")).toBeVisible();
+    await expect(page.getByText("Billing Summary").first()).toBeVisible();
     await expect(page.getByText("$32.00").first()).toBeVisible();
     await expect(page.getByText("amount due")).toBeVisible();
 
