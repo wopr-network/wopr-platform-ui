@@ -263,7 +263,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     } else if (method === "PUT") {
       const body = route.request().postDataJSON() as Record<string, string> | null;
       if (body) {
-        state.secrets[botId] = { ...(state.secrets[botId] ?? {}), ...body };
+        state.secrets[botId] = { ...state.secrets[botId], ...body };
       }
       await route.fulfill({
         status: 200,
