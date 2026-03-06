@@ -52,7 +52,14 @@ async function mockBillingForStripe(page: import("@playwright/test").Page): Prom
   };
 
   await page.route(
-    (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.startsWith("/trpc/"),
+    (url) => {
+      if (!url.href.includes(PLATFORM_BASE_URL) || !url.pathname.startsWith("/trpc/")) return false;
+      const procPart = url.pathname.split("/trpc/")[1] ?? "";
+      // creditsCheckout must reach the real backend to get a Stripe URL.
+      // creditsBalance must reach the real backend to reflect post-purchase state.
+      const procs = procPart.split(",");
+      return procs.every((p) => p !== "billing.creditsCheckout" && p !== "billing.creditsBalance");
+    },
     async (route) => {
       const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
       const results = procs.map((proc) => ({
@@ -66,6 +73,18 @@ async function mockBillingForStripe(page: import("@playwright/test").Page): Prom
         body: JSON.stringify(results),
       });
     },
+  );
+
+  // Pass creditsCheckout and creditsBalance through to the real backend.
+  // These are registered AFTER the auth fixture's catch-all 503 (LIFO: higher priority)
+  // so they win over the catch-all and let the request reach the real platform API.
+  await page.route(
+    (url) => {
+      if (!url.href.includes(PLATFORM_BASE_URL) || !url.pathname.startsWith("/trpc/")) return false;
+      const procPart = url.pathname.split("/trpc/")[1] ?? "";
+      return procPart.split(",").some((p) => p === "billing.creditsCheckout" || p === "billing.creditsBalance");
+    },
+    async (route) => route.continue(),
   );
 
   await page.route(`${PLATFORM_BASE_URL}/api/billing/dividend/stats`, async (route) => {
