@@ -149,7 +149,9 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Initially usage-based is off
-    const usageToggle = page.locator("#usage-toggle");
+    // Use .first() because the responsive layout renders children in both desktop
+    // and mobile containers simultaneously; the desktop (visible) one is first in DOM.
+    const usageToggle = page.locator("#usage-toggle").first();
     await expect(usageToggle).not.toBeChecked();
 
     // Enable usage-based auto-topup
@@ -159,13 +161,13 @@ test.describe("Auto-topup Settings", () => {
     await expect.poll(() => state.mutations.length, { timeout: 5000 }).toBeGreaterThanOrEqual(1);
 
     // Set threshold to $2 (200 cents)
-    await page.getByLabel("Threshold amount").click();
+    await page.getByLabel("Threshold amount").first().click();
     await page.getByRole("option", { name: "$2" }).click();
 
     await expect.poll(() => state.mutations.length, { timeout: 5000 }).toBeGreaterThanOrEqual(2);
 
     // Set top-up amount to $20 (2000 cents)
-    await page.getByLabel("Top-up amount").click();
+    await page.getByLabel("Top-up amount").first().click();
     await page.getByRole("option", { name: "$20" }).click();
 
     await expect.poll(() => state.mutations.length, { timeout: 5000 }).toBeGreaterThanOrEqual(3);
@@ -178,13 +180,13 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Usage toggle should be on
-    await expect(page.locator("#usage-toggle")).toBeChecked();
+    await expect(page.locator("#usage-toggle").first()).toBeChecked();
 
     // Threshold should show $2
-    await expect(page.getByLabel("Threshold amount")).toContainText("$2");
+    await expect(page.getByLabel("Threshold amount").first()).toContainText("$2");
 
     // Top-up amount should show $20
-    await expect(page.getByLabel("Top-up amount")).toContainText("$20");
+    await expect(page.getByLabel("Top-up amount").first()).toContainText("$20");
   });
 
   test("display saved auto-topup settings on page load", async ({ authedPage: page }) => {
@@ -209,14 +211,14 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Usage-based should be enabled with correct values
-    await expect(page.locator("#usage-toggle")).toBeChecked();
-    await expect(page.getByLabel("Threshold amount")).toContainText("$10");
-    await expect(page.getByLabel("Top-up amount")).toContainText("$50");
+    await expect(page.locator("#usage-toggle").first()).toBeChecked();
+    await expect(page.getByLabel("Threshold amount").first()).toContainText("$10");
+    await expect(page.getByLabel("Top-up amount").first()).toContainText("$50");
 
     // Scheduled should be enabled with correct values
-    await expect(page.locator("#schedule-toggle")).toBeChecked();
-    await expect(page.getByLabel("Scheduled amount")).toContainText("$20");
-    await expect(page.getByLabel("Schedule interval")).toContainText("Weekly");
+    await expect(page.locator("#schedule-toggle").first()).toBeChecked();
+    await expect(page.getByLabel("Scheduled amount").first()).toContainText("$20");
+    await expect(page.getByLabel("Schedule interval").first()).toContainText("Weekly");
 
     // Next charge date should be visible
     await expect(page.getByText(/Next charge:/)).toBeVisible();
@@ -255,15 +257,15 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Both toggles should be on
-    await expect(page.locator("#usage-toggle")).toBeChecked();
-    await expect(page.locator("#schedule-toggle")).toBeChecked();
+    await expect(page.locator("#usage-toggle").first()).toBeChecked();
+    await expect(page.locator("#schedule-toggle").first()).toBeChecked();
 
     // Turn off usage-based
-    await page.locator("#usage-toggle").click();
+    await page.locator("#usage-toggle").first().click();
     await expect.poll(() => state.mutations.length, { timeout: 5000 }).toBeGreaterThanOrEqual(1);
 
     // Turn off scheduled
-    await page.locator("#schedule-toggle").click();
+    await page.locator("#schedule-toggle").first().click();
     await expect.poll(() => state.mutations.length, { timeout: 5000 }).toBeGreaterThanOrEqual(2);
 
     // Reload
@@ -274,12 +276,12 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Both toggles should be off
-    await expect(page.locator("#usage-toggle")).not.toBeChecked();
-    await expect(page.locator("#schedule-toggle")).not.toBeChecked();
+    await expect(page.locator("#usage-toggle").first()).not.toBeChecked();
+    await expect(page.locator("#schedule-toggle").first()).not.toBeChecked();
 
     // Selects should be disabled when toggles are off
-    await expect(page.getByLabel("Threshold amount")).toBeDisabled();
-    await expect(page.getByLabel("Scheduled amount")).toBeDisabled();
+    await expect(page.getByLabel("Threshold amount").first()).toBeDisabled();
+    await expect(page.getByLabel("Scheduled amount").first()).toBeDisabled();
   });
 
   test("mutation failure rolls back optimistic update and shows error", async ({
@@ -342,7 +344,7 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Toggle usage-based on (optimistic update)
-    await page.locator("#usage-toggle").click();
+    await page.locator("#usage-toggle").first().click();
 
     // Error message should appear after mutation fails
     await expect(page.getByText("Failed to save settings. Please try again.")).toBeVisible({
@@ -350,7 +352,7 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Toggle should have reverted to off (rollback)
-    await expect(page.locator("#usage-toggle")).not.toBeChecked();
+    await expect(page.locator("#usage-toggle").first()).not.toBeChecked();
   });
 
   test("no payment method shows add-payment-method prompt", async ({ authedPage: page }) => {
@@ -374,10 +376,10 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Should show the "add payment method" message, not the toggles
-    await expect(page.getByText("Add a payment method to enable auto-topup.")).toBeVisible();
+    await expect(page.getByText("Add a payment method to enable auto-topup.").first()).toBeVisible();
 
     // Toggles should NOT be present
-    await expect(page.locator("#usage-toggle")).not.toBeVisible();
-    await expect(page.locator("#schedule-toggle")).not.toBeVisible();
+    await expect(page.locator("#usage-toggle")).toHaveCount(0);
+    await expect(page.locator("#schedule-toggle")).toHaveCount(0);
   });
 });
