@@ -670,10 +670,23 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
 
       // Handle mutations (POST)
       if (method === "POST") {
-        for (const proc of procs) {
+        const body = route.request().postDataJSON();
+        const isBatchedPost = urlStr.includes("batch=1") || procs.length > 1;
+
+        // Extract input for a given procedure index
+        // Non-batched: body = { json: { ... } }
+        // Batched (tRPC v11): body = { "0": { json: { ... } }, "1": { json: { ... } } }
+        // Batched (legacy): body = [{ json: { ... } }]
+        const getInput = (idx: number) => {
+          if (!isBatchedPost) return body?.json ?? body;
+          if (Array.isArray(body)) return body[idx]?.json ?? body[idx];
+          return body?.[String(idx)]?.json ?? body?.[String(idx)];
+        };
+
+        for (let i = 0; i < procs.length; i++) {
+          const proc = procs[i];
           if (proc === "settings.updateNotificationPreferences") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input) {
               Object.assign(state.notificationPrefs, input);
               SETTINGS_TRPC_MOCKS["settings.notificationPreferences"] = state.notificationPrefs;
@@ -682,8 +695,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
             }
           }
           if (proc === "org.updateOrganization") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input?.name) state.org.name = input.name;
             if (input?.slug) state.org.slug = input.slug;
             if (input?.billingEmail) state.org.billingEmail = input.billingEmail;
@@ -691,30 +703,26 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
             SETTINGS_TRPC_MOCKS["org.getOrganization"] = state.org;
           }
           if (proc === "org.revokeInvite") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input?.inviteId) {
-              state.org.invites = state.org.invites.filter((i) => i.id !== input.inviteId);
+              state.org.invites = state.org.invites.filter((inv) => inv.id !== input.inviteId);
             }
           }
           if (proc === "org.removeMember") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input?.memberId) {
               state.org.members = state.org.members.filter((m) => m.id !== input.memberId);
             }
           }
           if (proc === "org.changeRole") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input?.memberId && input?.role) {
               const member = state.org.members.find((m) => m.id === input.memberId);
               if (member) member.role = input.role;
             }
           }
           if (proc === "org.transferOwnership") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             if (input?.memberId) {
               for (const m of state.org.members) {
                 if (m.id === input.memberId) m.role = "owner";
@@ -723,8 +731,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
             }
           }
           if (proc === "org.inviteMember") {
-            const body = route.request().postDataJSON();
-            const input = Array.isArray(body) ? body[0]?.json : body;
+            const input = getInput(i);
             const invite = {
               id: `invite-${++state._inviteCounter}`,
               orgId: state.org.id,
@@ -753,10 +760,14 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
           data: proc in SETTINGS_TRPC_MOCKS ? SETTINGS_TRPC_MOCKS[proc] : null,
         },
       }));
+
+      // tRPC batch detection: batch=1 query param or multiple procedures
+      const isBatched = urlStr.includes("batch=1") || procs.length > 1;
+      const payload = isBatched ? results : results[0];
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(results),
+        body: JSON.stringify(payload),
       });
     },
   );
