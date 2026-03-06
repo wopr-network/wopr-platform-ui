@@ -165,10 +165,14 @@ test.describe("Billing: Credit Checkout", () => {
 
     await page.goto("/billing/credits");
 
-    await expect(page.getByRole("button", { name: /\$10/ }).first()).toBeVisible();
+    const tenDollarTier = page.getByRole("button", { name: /\$10/ }).first();
+    await expect(tenDollarTier).toBeVisible();
 
-    // Select the $10 tier — use force:true to bypass framer-motion animation interception
-    await page.getByRole("button", { name: /\$10/ }).first().click({ force: true });
+    // Select the $10 tier — use dispatchEvent to bypass framer-motion animation interception
+    await tenDollarTier.dispatchEvent("click");
+
+    // Wait for the tier to register as selected (border-primary class applied)
+    await expect(tenDollarTier).toHaveClass(/border-primary/, { timeout: 5000 });
 
     // Buy button should now be enabled
     await expect(page.getByRole("button", { name: "Buy credits" }).first()).toBeEnabled({ timeout: 5000 });
@@ -372,14 +376,15 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("Transaction History").first()).toBeVisible({ timeout: 10000 });
 
     // Purchase transaction visible (grant -> "Purchase" label)
-    const purchaseRow = page.locator("div").filter({ hasText: "Credit purchase - $50 tier" }).first();
+    // Scope to the row div (rounded-md) to avoid matching ancestor containers
+    const purchaseRow = page.locator("div.rounded-md").filter({ hasText: "Credit purchase - $50 tier" }).first();
     await expect(purchaseRow.getByText("Credit purchase - $50 tier")).toBeVisible();
-    await expect(purchaseRow.getByText("Purchase").first()).toBeVisible();
+    await expect(purchaseRow.locator("text=Purchase").first()).toBeVisible();
 
     // Runtime charge visible (correction -> "Adjustment" label)
-    const adjustmentRow = page.locator("div").filter({ hasText: "Bot runtime charge" }).first();
+    const adjustmentRow = page.locator("div.rounded-md").filter({ hasText: "Bot runtime charge" }).first();
     await expect(adjustmentRow.getByText("Bot runtime charge")).toBeVisible();
-    await expect(adjustmentRow.getByText("Adjustment")).toBeVisible();
+    await expect(adjustmentRow.locator("text=Adjustment").first()).toBeVisible();
 
     // Signup credit visible (grant -> "Purchase" label)
     await expect(page.getByText("Signup credit").first()).toBeVisible();
