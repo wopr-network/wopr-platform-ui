@@ -380,7 +380,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("Adjustment").first()).toBeVisible();
 
     // Signup credit visible (grant -> "Purchase" label)
-    await expect(page.getByText("Signup credit")).toBeVisible();
+    await expect(page.getByText("Signup credit").first()).toBeVisible();
   });
 
   test("usage page shows correct summary after usage event", async ({ authedPage: page }) => {
@@ -447,7 +447,7 @@ test.describe("Billing: Dashboard Display", () => {
     // Billing Summary card shows the amount due
     await expect(page.getByText("Billing Summary").first()).toBeVisible();
     await expect(page.getByText("$32.00").first()).toBeVisible();
-    await expect(page.getByText("amount due")).toBeVisible();
+    await expect(page.getByText("amount due").first()).toBeVisible();
 
     // Total spend line
     await expect(page.getByText("Total spend this period")).toBeVisible();
