@@ -454,6 +454,6 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("$42.00").first()).toBeVisible();
 
     // Platform Usage card
-    await expect(page.getByText("Platform Usage")).toBeVisible();
+    await expect(page.getByText("Platform Usage").first()).toBeVisible();
   });
 });
