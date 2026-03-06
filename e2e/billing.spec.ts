@@ -167,11 +167,11 @@ test.describe("Billing: Credit Checkout", () => {
 
     await expect(page.getByRole("button", { name: /\$10/ }).first()).toBeVisible();
 
-    // Select the $10 tier
-    await page.getByRole("button", { name: /\$10/ }).first().click();
+    // Select the $10 tier — use force:true to bypass framer-motion animation interception
+    await page.getByRole("button", { name: /\$10/ }).first().click({ force: true });
 
     // Buy button should now be enabled
-    await expect(page.getByRole("button", { name: "Buy credits" }).first()).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Buy credits" }).first()).toBeEnabled({ timeout: 5000 });
 
     // Click buy
     await page.getByRole("button", { name: "Buy credits" }).first().click();
@@ -374,7 +374,7 @@ test.describe("Billing: Dashboard Display", () => {
     // Purchase transaction visible (grant -> "Purchase" label)
     const purchaseRow = page.locator("div").filter({ hasText: "Credit purchase - $50 tier" }).first();
     await expect(purchaseRow.getByText("Credit purchase - $50 tier")).toBeVisible();
-    await expect(purchaseRow.getByText("Purchase")).toBeVisible();
+    await expect(purchaseRow.getByText("Purchase").first()).toBeVisible();
 
     // Runtime charge visible (correction -> "Adjustment" label)
     const adjustmentRow = page.locator("div").filter({ hasText: "Bot runtime charge" }).first();
