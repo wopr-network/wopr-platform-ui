@@ -55,7 +55,13 @@ function typeBadge(snap: Snapshot): {
   }
 }
 
-export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: () => void }) {
+export function BackupsTab({
+  botId,
+  onRestore,
+}: {
+  botId: string;
+  onRestore?: () => void | Promise<void>;
+}) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,7 +148,7 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
       await restoreSnapshot(botId, restoreTarget.id);
       toast.success("Bot restored successfully. It may take a moment to restart.");
       setRestoreTarget(null);
-      onRestore?.();
+      await onRestore?.();
       await silentRefresh();
     } catch (err) {
       toast.error(toUserMessage(err));
@@ -282,7 +288,16 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             onChange={(e) => setCreateName(e.target.value)}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)} disabled={creating}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!creating) {
+                  setShowCreate(false);
+                  setCreateName("");
+                }
+              }}
+              disabled={creating}
+            >
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={creating}>
@@ -309,7 +324,13 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRestoreTarget(null)} disabled={restoring}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!restoring) setRestoreTarget(null);
+              }}
+              disabled={restoring}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleRestore} disabled={restoring}>
@@ -336,7 +357,13 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!deleting) setDeleteTarget(null);
+              }}
+              disabled={deleting}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
