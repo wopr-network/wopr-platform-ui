@@ -111,9 +111,8 @@ test.describe("Settings: Security", () => {
     await mockSettingsAPI(page, state);
 
     await page.goto("/settings/security");
-    await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible({ timeout: 10000 });
 
     // 2FA section
     await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible({ timeout: 15000 });
@@ -131,9 +130,8 @@ test.describe("Settings: Security", () => {
     await mockSettingsAPI(page, state);
 
     await page.goto("/settings/security");
-    await page.waitForLoadState("networkidle");
 
-    await expect(page.getByText("Login History").first()).toBeVisible();
+    await expect(page.getByText("Login History").first()).toBeVisible({ timeout: 10000 });
     // Scroll to make the count visible (it may be below the fold)
     await page.getByText("Login History").first().scrollIntoViewIfNeeded();
     // Should show total count from mock
