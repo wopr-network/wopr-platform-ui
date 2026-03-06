@@ -316,6 +316,17 @@ test.describe("Payment Methods Page", () => {
     );
 
     // REST mocks still needed for non-trpc routes
+    await page.route(
+      (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.includes("/api/billing/"),
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({}),
+        });
+      },
+    );
+
     await page.route(`${PLATFORM_BASE_URL}/api/billing/dividend/stats`, async (route) => {
       await route.fulfill({
         status: 200,
@@ -329,17 +340,6 @@ test.describe("Payment Methods Page", () => {
         }),
       });
     });
-
-    await page.route(
-      (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.includes("/api/billing/"),
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({}),
-        });
-      },
-    );
 
     await page.goto("/billing/payment");
 
