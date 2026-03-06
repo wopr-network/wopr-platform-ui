@@ -11,8 +11,10 @@ vi.mock("@/lib/api", () => ({
 }));
 
 vi.mock("@/lib/api-config", () => ({
-  API_BASE_URL: "http://localhost:3001/api",
-  PLATFORM_BASE_URL: "http://localhost:3001",
+  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+    : "http://localhost:3001/api",
+  PLATFORM_BASE_URL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
 }));
 
 vi.mock("@/lib/fetch-utils", () => ({

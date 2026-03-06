@@ -309,7 +309,7 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRestoreTarget(null)}>
+            <Button variant="outline" onClick={() => setRestoreTarget(null)} disabled={restoring}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleRestore} disabled={restoring}>
@@ -336,7 +336,7 @@ export function BackupsTab({ botId, onRestore }: { botId: string; onRestore?: ()
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
