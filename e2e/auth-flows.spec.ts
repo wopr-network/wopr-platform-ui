@@ -106,7 +106,7 @@ test.describe("Auth flows", () => {
 			domain: "localhost",
 			path: "/",
 			httpOnly: true,
-			sameSite: "Lax" as const,
+			sameSite: "Lax",
 			secure: false,
 			expires: Math.floor(Date.now() / 1000) + 86400,
 		}]);
@@ -146,7 +146,7 @@ test.describe("Auth flows", () => {
 			domain: "localhost",
 			path: "/",
 			httpOnly: true,
-			sameSite: "Lax" as const,
+			sameSite: "Lax",
 			secure: false,
 			expires: Math.floor(Date.now() / 1000) + 86400,
 		}]);
