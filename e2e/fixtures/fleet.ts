@@ -504,16 +504,18 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
         identity: { name: bot?.name ?? "unknown", personality: "default" },
         brain: { provider: "openai", model: "gpt-4" },
         channels: [],
-        plugins: installed.map((p) => {
+        installedPlugins: installed.map((p) => {
           const manifest = allManifests.find((m) => m.id === p.pluginId);
           return {
             id: p.pluginId,
-            pluginId: p.pluginId,
             name: manifest?.name ?? p.pluginId,
-            version: manifest?.version ?? "1.0.0",
-            enabled: p.enabled,
+            description: manifest?.description ?? "",
+            icon: manifest?.icon ?? "Package",
+            status: p.enabled ? "active" : "disabled",
+            capabilities: manifest?.capabilities ?? [],
           };
         }),
+        discoverPlugins: [],
       }),
     });
   });
