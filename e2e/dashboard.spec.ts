@@ -209,8 +209,8 @@ test.describe("Dashboard: Command Center", () => {
 		).toBeVisible();
 
 		// Verify Running count card shows 1
-		await expect(page.getByTestId("running-count")).toBeVisible();
-		await expect(page.getByTestId("running-count")).toContainText("1", {
+		await expect(page.getByTestId("running-count").first()).toBeVisible();
+		await expect(page.getByTestId("running-count").first()).toContainText("1", {
 			timeout: 5000,
 		});
 
@@ -250,13 +250,13 @@ test.describe("Dashboard: Command Center", () => {
 		).toBeVisible();
 
 		// Verify all status counts are 0
-		await expect(page.getByTestId("running-count")).toContainText("0", {
+		await expect(page.getByTestId("running-count").first()).toContainText("0", {
 			timeout: 5000,
 		});
-		await expect(page.getByTestId("stopped-count")).toContainText("0", {
+		await expect(page.getByTestId("stopped-count").first()).toContainText("0", {
 			timeout: 5000,
 		});
-		await expect(page.getByTestId("degraded-count")).toContainText("0", {
+		await expect(page.getByTestId("degraded-count").first()).toContainText("0", {
 			timeout: 5000,
 		});
 
@@ -294,10 +294,10 @@ test.describe("Dashboard: Command Center", () => {
 		).toBeVisible();
 
 		// Verify Running is 0, Stopped is 1
-		await expect(page.getByTestId("running-count")).toContainText("0", {
+		await expect(page.getByTestId("running-count").first()).toContainText("0", {
 			timeout: 5000,
 		});
-		await expect(page.getByTestId("stopped-count")).toContainText("1", {
+		await expect(page.getByTestId("stopped-count").first()).toContainText("1", {
 			timeout: 5000,
 		});
 
