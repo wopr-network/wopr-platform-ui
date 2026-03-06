@@ -93,7 +93,13 @@ test.describe("Auth flows", () => {
 		// The redirect_uri is URL-encoded, so check for the encoded form
 		expect(redirectUrl).toContain("%2Fauth%2Fcallback%2Fgithub");
 
-		// 4. Simulate the OAuth callback return — inject session cookie
+		// Wait for the browser to fully land on the stubbed OAuth provider page
+		// before navigating away. Without this, goto() can be interrupted by the
+		// in-flight OAuth redirect that hasn't settled yet.
+		await page.waitForURL("**/github.example.com/**", { timeout: 5000 });
+
+		// 4. Simulate the OAuth callback return — inject session cookie so middleware
+		// allows the subsequent redirect to /onboarding
 		await page.context().addCookies([{
 			name: "better-auth.session_token",
 			value: `e2e-oauth-session-${Date.now()}`,
@@ -105,7 +111,7 @@ test.describe("Auth flows", () => {
 			expires: Math.floor(Date.now() / 1000) + 86400,
 		}]);
 
-		// Navigate to the callback page (simulating provider redirect)
+		// Navigate to the callback page (simulating provider redirect).
 		await page.goto("/auth/callback/github");
 
 		// 5. Verify the callback page shows spinner then redirects to onboarding
@@ -130,6 +136,18 @@ test.describe("Auth flows", () => {
 
 	test("email verification success → shows $5 credit → redirects to onboarding", async ({ page }) => {
 		await mockAuthAPI(page);
+
+		// Inject session cookie so middleware allows the redirect to /onboarding
+		await page.context().addCookies([{
+			name: "better-auth.session_token",
+			value: `e2e-verify-session-${Date.now()}`,
+			domain: "localhost",
+			path: "/",
+			httpOnly: true,
+			sameSite: "Lax" as const,
+			secure: false,
+			expires: Math.floor(Date.now() / 1000) + 86400,
+		}]);
 
 		// Navigate to verify page with success status
 		await page.goto("/auth/verify?status=success");
