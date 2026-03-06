@@ -187,7 +187,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   // Profile: avatar upload
   await page.route(`${API_BASE_URL}/settings/profile/avatar`, async (route) => {
     if (route.request().method() !== "POST") {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
       return;
     }
     await route.fulfill({
@@ -200,7 +200,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   // Profile: password change
   await page.route(`${API_BASE_URL}/settings/profile/password`, async (route) => {
     if (route.request().method() !== "POST") {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
       return;
     }
     await route.fulfill({
@@ -235,7 +235,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         body: JSON.stringify({}),
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -317,7 +317,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         body: "{}",
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -354,7 +354,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         }),
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -391,7 +391,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         body: "{}",
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -436,7 +436,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         });
       }
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -460,7 +460,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         body: JSON.stringify(state.modelSelection),
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
@@ -502,7 +502,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   // Fleet: bots list (needed by API keys create dialog)
   await page.route(`${PLATFORM_BASE_URL}/fleet/bots`, async (route) => {
     if (route.request().method() !== "GET") {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
       return;
     }
     await route.fulfill({
@@ -540,7 +540,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
         }),
       });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 405, body: "Method not allowed" });
     }
   });
 
