@@ -221,13 +221,14 @@ test.describe("Auto-topup Settings", () => {
     await expect(page.getByLabel("Schedule interval").first()).toContainText("Weekly");
 
     // Next charge date should be visible
-    await expect(page.getByText(/Next charge:/)).toBeVisible();
+    // Use .first() — responsive layout renders both desktop and mobile containers simultaneously.
+    await expect(page.getByText(/Next charge:/).first()).toBeVisible();
 
     // Payment method footer
-    await expect(page.getByText(/visa .... 4242/i)).toBeVisible();
+    await expect(page.getByText(/visa .... 4242/i).first()).toBeVisible();
 
     // Dividend tip visible when scheduled is on
-    await expect(page.getByText(/Tip:.*dividend pool/)).toBeVisible();
+    await expect(page.getByText(/Tip:.*dividend pool/).first()).toBeVisible();
   });
 
   test("toggle auto-topup off — disabled state persists after reload", async ({
@@ -376,7 +377,9 @@ test.describe("Auto-topup Settings", () => {
     });
 
     // Should show the "add payment method" message, not the toggles
-    await expect(page.getByText("Add a payment method to enable auto-topup.").first()).toBeVisible();
+    await expect(
+      page.getByText("Add a payment method to enable auto-topup.").first(),
+    ).toBeVisible();
 
     // Toggles should NOT be present
     await expect(page.locator("#usage-toggle")).toHaveCount(0);
