@@ -123,7 +123,7 @@ vi.mock("@/lib/trpc", () => ({
       },
     },
   },
-  TrpcProvider: ({ children }: { children?: unknown }) => children,
+  TRPCProvider: ({ children }: { children?: unknown }) => children,
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
