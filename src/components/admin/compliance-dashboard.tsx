@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { DeletionRequest, ExportRequest, RetentionPolicy } from "@/lib/admin-compliance-api";
 import {
+  cancelDeletion,
   fetchRetentionPolicies,
   getDeletionRequests,
   getExportRequests,
@@ -42,6 +43,7 @@ import {
 } from "@/lib/admin-compliance-api";
 import type { AuditLogResponse } from "@/lib/api";
 import { fetchAuditLog } from "@/lib/api";
+import { toUserMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 50;
@@ -71,15 +73,21 @@ const DATE_RANGES = [
 // --- Utilities ---
 
 function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const rawDiff = Date.now() - new Date(iso).getTime();
+  const isFuture = rawDiff < 0;
+  const diff = Math.abs(rawDiff);
   const seconds = Math.floor(diff / 1000);
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return isFuture ? `in ${minutes}m` : `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return isFuture ? `in ${hours}h` : `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return isFuture ? `in ${days}d` : `${days}d ago`;
+}
+
+function isSafeUrl(url: string): boolean {
+  return url.startsWith("https://") || url.startsWith("/");
 }
 
 function statusBadgeClasses(status: string): string {
@@ -164,6 +172,14 @@ function TriggerDialog({
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setTenantId("");
+      setReason("");
+    }
+    onOpenChange(open);
+  };
+
   const handleConfirm = async () => {
     if (!tenantId.trim() || !reason.trim()) return;
     setSubmitting(true);
@@ -173,14 +189,14 @@ function TriggerDialog({
       setTenantId("");
       setReason("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Operation failed");
+      toast.error(toUserMessage(err));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-base font-semibold uppercase tracking-wider">
@@ -203,7 +219,7 @@ function TriggerDialog({
           />
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button
@@ -341,6 +357,16 @@ function DeletionRequestsTab() {
     await triggerDeletion(tenantId, reason);
     toast.success("Deletion request created");
     load(offset);
+  };
+
+  const handleCancelDeletion = async (requestId: string) => {
+    try {
+      await cancelDeletion(requestId);
+      toast.success("Deletion request cancelled");
+      load(offset);
+    } catch (err) {
+      toast.error(toUserMessage(err));
+    }
   };
 
   // Backend endpoints not yet available
@@ -514,7 +540,12 @@ function DeletionRequestsTab() {
                   </TableCell>
                   <TableCell>
                     {req.status === "pending" ? (
-                      <Button variant="ghost" size="sm" className="text-xs">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleCancelDeletion(req.id)}
+                      >
                         Cancel
                       </Button>
                     ) : (
@@ -784,14 +815,18 @@ function DataExportsTab() {
                   </TableCell>
                   <TableCell>
                     {req.status === "completed" && req.downloadUrl ? (
-                      <a
-                        href={req.downloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-terminal hover:underline"
-                      >
-                        Download
-                      </a>
+                      isSafeUrl(req.downloadUrl) ? (
+                        <a
+                          href={req.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-terminal hover:underline"
+                        >
+                          Download
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Unavailable</span>
+                      )
                     ) : req.status === "pending" ? (
                       <Button variant="ghost" size="sm" className="text-xs">
                         Cancel

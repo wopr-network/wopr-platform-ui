@@ -72,7 +72,9 @@ export interface RetentionPolicy {
 // --- API calls ---
 
 export async function fetchComplianceEvidence(from: string, to: string): Promise<EvidenceReport> {
-  return apiFetch<EvidenceReport>(`/admin/compliance/evidence?from=${from}&to=${to}`);
+  return apiFetch<EvidenceReport>(
+    `/admin/compliance/evidence?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+  );
 }
 
 export async function fetchRetentionPolicies(): Promise<RetentionPolicy[]> {
@@ -107,4 +109,8 @@ export async function triggerExport(tenantId: string, reason: string): Promise<E
     tenantId,
     reason,
   });
+}
+
+export async function cancelDeletion(requestId: string): Promise<DeletionRequest> {
+  return trpcVanilla.admin.complianceCancelDeletion.mutate({ requestId });
 }
