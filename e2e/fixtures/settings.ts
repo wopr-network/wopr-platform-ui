@@ -294,7 +294,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
 
   // better-auth: two-factor status (via get-session, already mocked by auth fixture)
   // 2FA enable/disable/verify endpoints
-  await page.route(`${PLATFORM_BASE_URL}/api/auth/two-factor/**`, async (route) => {
+  await page.route(`${PLATFORM_BASE_URL}/api/auth/two-factor/*`, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -303,7 +303,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   });
 
   // API Keys: DELETE specific key
-  await page.route(`${API_BASE_URL}/settings/api-keys/**`, async (route) => {
+  await page.route(`${API_BASE_URL}/settings/api-keys/*`, async (route) => {
     const method = route.request().method();
     if (method === "DELETE") {
       const url = route.request().url();
@@ -465,7 +465,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   });
 
   // Login history
-  await page.route(`${API_BASE_URL}/settings/login-history**`, async (route) => {
+  await page.route(`${API_BASE_URL}/settings/login-history*`, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -487,7 +487,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   });
 
   // Audit log
-  await page.route(`${API_BASE_URL}/audit**`, async (route) => {
+  await page.route(`${API_BASE_URL}/audit*`, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -513,7 +513,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
   });
 
   // Tenant key store endpoints
-  await page.route(`${API_BASE_URL}/tenant-keys/**`, async (route) => {
+  await page.route(`${API_BASE_URL}/tenant-keys/*`, async (route) => {
     const method = route.request().method();
     if (method === "PUT" || method === "POST") {
       await route.fulfill({
