@@ -295,7 +295,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("$150.00")).toBeVisible({ timeout: 5000 });
 
     // Daily burn and runway visible
-    await expect(page.getByText(/daily burn/i)).toBeVisible();
+    await expect(page.getByText(/daily burn/i).first()).toBeVisible();
     await expect(page.getByText("$2.50/day")).toBeVisible();
     await expect(page.getByText(/runway/i)).toBeVisible();
     await expect(page.getByText("~60 days")).toBeVisible();
@@ -372,7 +372,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByText("Transaction History").first()).toBeVisible({ timeout: 10000 });
 
     // Purchase transaction visible (grant -> "Purchase" label)
-    await expect(page.getByText("Credit purchase - $50 tier")).toBeVisible();
+    await expect(page.getByText("Credit purchase - $50 tier").first()).toBeVisible();
     await expect(page.getByText("Purchase").first()).toBeVisible();
 
     // Runtime charge visible (correction -> "Adjustment" label)
