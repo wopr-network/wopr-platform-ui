@@ -1,6 +1,8 @@
 import type { Page } from "@playwright/test";
 
-const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+// NEXT_PUBLIC_API_URL (app config) > BASE_URL (Playwright webServer) > localhost fallback
+const PLATFORM_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? process.env.BASE_URL ?? "http://localhost:3001";
 const API_BASE_URL = `${PLATFORM_BASE_URL}/api`;
 
 // --- Mock data ---
