@@ -33,37 +33,46 @@ test.describe("Onboarding wizard", () => {
 
 		// Step 0: Name your WOPR
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.name-bot"]'),
+			page.locator('[data-onboarding-id="onboarding.name-bot"]').first(),
 		).toBeVisible();
 		await page
 			.locator('[data-onboarding-id="onboarding.name-bot"]')
+			.first()
 			.fill("TestBot");
 		await page
 			.locator('[data-onboarding-id="onboarding.continue.name"]')
+			.first()
 			.click();
 
 		// Step 1: Pick a preset
 		await expect(
-			page.locator(
-				'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
-			),
+			page
+				.locator(
+					'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
+				)
+				.first(),
 		).toBeVisible();
 		await page
 			.locator(
 				'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
 			)
+			.first()
 			.click();
 		await page
 			.locator('[data-onboarding-id="onboarding.continue.preset"]')
+			.first()
 			.click();
 
 		// Step 2: Launch
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.launch"]'),
+			page.locator('[data-onboarding-id="onboarding.launch"]').first(),
 		).toBeVisible();
-		await expect(page.getByText("TestBot")).toBeVisible();
-		await expect(page.getByText("Discord AI Bot")).toBeVisible();
-		await page.locator('[data-onboarding-id="onboarding.launch"]').click();
+		await expect(page.getByText("TestBot").first()).toBeVisible();
+		await expect(page.getByText("Discord AI Bot").first()).toBeVisible();
+		await page
+			.locator('[data-onboarding-id="onboarding.launch"]')
+			.first()
+			.click();
 
 		// Should redirect to /marketplace
 		await page.waitForURL("**/marketplace");
@@ -81,7 +90,7 @@ test.describe("Onboarding wizard", () => {
 
 		// Step 0 should be visible
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.name-bot"]'),
+			page.locator('[data-onboarding-id="onboarding.name-bot"]').first(),
 		).toBeVisible();
 
 		// Click "Skip setup"
@@ -103,20 +112,24 @@ test.describe("Onboarding wizard", () => {
 
 		// Step 0: Name your WOPR
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.name-bot"]'),
+			page.locator('[data-onboarding-id="onboarding.name-bot"]').first(),
 		).toBeVisible();
 		await page
 			.locator('[data-onboarding-id="onboarding.name-bot"]')
+			.first()
 			.fill("ResumeBot");
 		await page
 			.locator('[data-onboarding-id="onboarding.continue.name"]')
+			.first()
 			.click();
 
 		// Step 1 should now be visible
 		await expect(
-			page.locator(
-				'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
-			),
+			page
+				.locator(
+					'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
+				)
+				.first(),
 		).toBeVisible();
 
 		// Navigate away WITHOUT completing step 1
@@ -127,12 +140,14 @@ test.describe("Onboarding wizard", () => {
 
 		// Step 1 (preset selection) should be visible, NOT step 0 (name input)
 		await expect(
-			page.locator(
-				'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
-			),
+			page
+				.locator(
+					'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
+				)
+				.first(),
 		).toBeVisible();
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.name-bot"]'),
+			page.locator('[data-onboarding-id="onboarding.name-bot"]').first(),
 		).not.toBeVisible();
 
 		// Complete from here: select preset and launch
@@ -140,17 +155,22 @@ test.describe("Onboarding wizard", () => {
 			.locator(
 				'[data-onboarding-id="onboarding.select-preset.discord-ai-bot"]',
 			)
+			.first()
 			.click();
 		await page
 			.locator('[data-onboarding-id="onboarding.continue.preset"]')
+			.first()
 			.click();
 
 		// Step 2: Verify bot name was preserved from earlier
 		await expect(
-			page.locator('[data-onboarding-id="onboarding.launch"]'),
+			page.locator('[data-onboarding-id="onboarding.launch"]').first(),
 		).toBeVisible();
-		await expect(page.getByText("ResumeBot")).toBeVisible();
-		await page.locator('[data-onboarding-id="onboarding.launch"]').click();
+		await expect(page.getByText("ResumeBot").first()).toBeVisible();
+		await page
+			.locator('[data-onboarding-id="onboarding.launch"]')
+			.first()
+			.click();
 
 		// Should redirect to /marketplace
 		await page.waitForURL("**/marketplace");
