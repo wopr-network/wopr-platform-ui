@@ -136,12 +136,8 @@ function StepIndicator({ currentStep, steps }: { currentStep: number; steps: str
 // ---------- 2FA section ----------
 
 function TwoFactorSection() {
-  const { data: profileData, isLoading: profileLoading } = trpc.profile.getProfile.useQuery(
-    undefined,
-    { retry: false },
-  );
+  const { data: profileData } = trpc.profile.getProfile.useQuery(undefined, { retry: false });
   const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [codesRemaining, setCodesRemaining] = useState(8);
   const [error, setError] = useState<string | null>(null);
 
@@ -181,11 +177,10 @@ function TwoFactorSection() {
   }, []);
 
   useEffect(() => {
-    if (!profileLoading) {
+    if (profileData) {
       setEnabled(!!(profileData as { twoFactorEnabled?: boolean } | undefined)?.twoFactorEnabled);
-      setLoading(false);
     }
-  }, [profileLoading, profileData]);
+  }, [profileData]);
 
   function handleStartEnable() {
     setEnableStep(-1);
@@ -284,21 +279,6 @@ function TwoFactorSection() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-48" />
-          <Skeleton className="h-4 w-64" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Skeleton className="h-4 w-56" />
-          <Skeleton className="h-9 w-28" />
-        </CardContent>
-      </Card>
-    );
   }
 
   return (
