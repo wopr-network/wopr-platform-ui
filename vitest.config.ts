@@ -16,7 +16,6 @@ export default defineConfig({
     exclude: ["node_modules", "e2e/**"],
     testTimeout: 15000,
     coverage: {
-      enabled: true,
       provider: "v8",
       include: ["src/**"],
       reporter: ["text", "json-summary"],
