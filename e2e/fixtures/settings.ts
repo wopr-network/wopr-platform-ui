@@ -181,7 +181,11 @@ export function createSettingsMockState(): SettingsMockState {
   };
 }
 
-export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
+export async function mockSettingsAPI(
+  page: Page,
+  state: SettingsMockState,
+  overrides?: { twoFactorEnabled?: boolean },
+) {
   // --- REST endpoints ---
 
   // Profile: avatar upload
@@ -695,7 +699,7 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
       name: state.profile.name,
       email: state.profile.email,
       image: null,
-      twoFactorEnabled: false,
+      twoFactorEnabled: overrides?.twoFactorEnabled ?? false,
     },
 
     // Page context

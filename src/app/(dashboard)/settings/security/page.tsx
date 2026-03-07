@@ -136,7 +136,10 @@ function StepIndicator({ currentStep, steps }: { currentStep: number; steps: str
 // ---------- 2FA section ----------
 
 function TwoFactorSection() {
-  const { data: profileData } = trpc.profile.getProfile.useQuery(undefined, { retry: false });
+  const { data: profileData, error: profileError } = trpc.profile.getProfile.useQuery(undefined, {
+    retry: false,
+  });
+  const utils = trpc.useUtils();
   const [enabled, setEnabled] = useState(false);
   const [codesRemaining, setCodesRemaining] = useState(8);
   const [error, setError] = useState<string | null>(null);
@@ -178,7 +181,7 @@ function TwoFactorSection() {
 
   useEffect(() => {
     if (profileData) {
-      setEnabled(!!(profileData as { twoFactorEnabled?: boolean } | undefined)?.twoFactorEnabled);
+      setEnabled(!!(profileData as { twoFactorEnabled?: boolean })?.twoFactorEnabled);
     }
   }, [profileData]);
 
@@ -220,6 +223,7 @@ function TwoFactorSection() {
     setVerifyError(null);
     try {
       await authClient.twoFactor.verifyTotp({ code: verifyCode });
+      await utils.profile.getProfile.invalidate();
       setEnableStep(2);
       setEnabled(true);
     } catch {
@@ -234,6 +238,7 @@ function TwoFactorSection() {
     setDisableError(null);
     try {
       await authClient.twoFactor.disable({ password: disableCode });
+      await utils.profile.getProfile.invalidate();
       setEnabled(false);
       setDisableOpen(false);
       setDisableCode("");
@@ -279,6 +284,20 @@ function TwoFactorSection() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  if (profileError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Two-Factor Authentication</CardTitle>
+          <CardDescription>Add an extra layer of security to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive text-sm">Failed to load security settings</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

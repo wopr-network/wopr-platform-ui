@@ -122,13 +122,28 @@ test.describe("Settings: Security", () => {
     await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible({ timeout: 10000 });
   });
 
+  test("shows 2FA enabled state when twoFactorEnabled is true", async ({ authedPage: page }) => {
+    const state = createSettingsMockState();
+    await mockSettingsAPI(page, state, { twoFactorEnabled: true });
+
+    await page.goto("/settings/security");
+
+    await page.waitForLoadState("networkidle");
+    await expect(
+      page.getByText("Two-factor authentication is active").first(),
+    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("button", { name: "Disable 2FA" }).first()).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
   test("shows active sessions section", async ({ authedPage: page }) => {
     const state = createSettingsMockState();
     await mockSettingsAPI(page, state);
 
     await page.goto("/settings/security");
 
-    await expect(page.getByText("Active Sessions").first()).toBeVisible();
+    await expect(page.getByText("Active Sessions").first()).toBeVisible({ timeout: 10000 });
     // Current session should be shown (wait for async session fetch to complete)
     await expect(page.getByText("Current").first()).toBeVisible({ timeout: 10000 });
   });
