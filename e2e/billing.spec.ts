@@ -448,7 +448,8 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(page.getByRole("heading", { name: "Usage" })).toBeVisible({ timeout: 10000 });
 
     // Billing Summary card shows the amount due — scoped to avoid matching Hosted AI Usage totals
-    const billingSummary = page.locator("text=Billing Summary").first().locator("..");
+    // Navigate up to the Card root (text → CardTitle → CardHeader → Card)
+    const billingSummary = page.locator("text=Billing Summary").first().locator("../../..");
     await expect(billingSummary).toBeVisible();
     await expect(page.getByText("Billing Summary").first()).toBeVisible();
     await expect(page.getByText("amount due").first()).toBeVisible();
