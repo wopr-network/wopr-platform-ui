@@ -10,7 +10,7 @@ import {
   TabletIcon,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { Component, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +36,8 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { LoginAttempt, LoginHistoryResponse } from "@/lib/api";
 import { fetchLoginHistory } from "@/lib/api";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc";
 
 // ---------- helpers ----------
 
@@ -132,41 +133,11 @@ function StepIndicator({ currentStep, steps }: { currentStep: number; steps: str
   );
 }
 
-// ---------- 2FA error boundary ----------
-
-class TwoFactorErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardHeader>
-            <CardTitle>Two-Factor Authentication</CardTitle>
-            <CardDescription>Add an extra layer of security to your account</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Unable to load two-factor authentication status. Please refresh the page.
-            </p>
-          </CardContent>
-        </Card>
-      );
-    }
-    return this.props.children;
-  }
-}
-
 // ---------- 2FA section ----------
 
 function TwoFactorSection() {
-  const { data: sessionData, isPending: sessionPending } = useSession();
-  const sessionUser = sessionData?.user as { twoFactorEnabled?: boolean } | undefined;
+  const { data: profileData, isLoading: profileLoading } =
+    trpc.profile.getProfile.useQuery(undefined);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [codesRemaining, setCodesRemaining] = useState(8);
@@ -208,11 +179,11 @@ function TwoFactorSection() {
   }, []);
 
   useEffect(() => {
-    if (!sessionPending) {
-      setEnabled(!!sessionUser?.twoFactorEnabled);
+    if (!profileLoading) {
+      setEnabled(!!(profileData as { twoFactorEnabled?: boolean } | undefined)?.twoFactorEnabled);
       setLoading(false);
     }
-  }, [sessionPending, sessionUser?.twoFactorEnabled]);
+  }, [profileLoading, profileData]);
 
   function handleStartEnable() {
     setEnableStep(-1);
@@ -1131,9 +1102,7 @@ export default function SecurityPage() {
         <p className="text-sm text-muted-foreground">Manage your account security settings</p>
       </div>
 
-      <TwoFactorErrorBoundary>
-        <TwoFactorSection />
-      </TwoFactorErrorBoundary>
+      <TwoFactorSection />
       <SessionsSection />
       <LoginHistorySection />
     </div>

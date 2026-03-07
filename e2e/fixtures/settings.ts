@@ -679,6 +679,15 @@ export async function mockSettingsAPI(page: Page, state: SettingsMockState) {
     // Account status (for DegradedStateBanner in dashboard layout)
     "billing.accountStatus": { status: "active", status_reason: null, grace_deadline: null },
 
+    // Profile (for TwoFactorSection — replaces useSession)
+    "profile.getProfile": {
+      id: state.profile.id,
+      name: state.profile.name,
+      email: state.profile.email,
+      image: null,
+      twoFactorEnabled: false,
+    },
+
     // Page context
     "pageContext.update": null,
   };

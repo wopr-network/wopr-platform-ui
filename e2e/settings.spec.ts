@@ -106,13 +106,39 @@ test.describe("Settings: Account", () => {
 });
 
 test.describe("Settings: Security", () => {
-  test("page loads", async ({ authedPage: page }) => {
+  test("page loads and shows 2FA section", async ({ authedPage: page }) => {
     const state = createSettingsMockState();
     await mockSettingsAPI(page, state);
 
     await page.goto("/settings/security");
 
     await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible({ timeout: 10000 });
+
+    // 2FA section renders with disabled state
+    await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible();
+    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible();
+  });
+
+  test("shows active sessions section", async ({ authedPage: page }) => {
+    const state = createSettingsMockState();
+    await mockSettingsAPI(page, state);
+
+    await page.goto("/settings/security");
+
+    await expect(page.getByText("Active Sessions").first()).toBeVisible();
+    // Current session should be shown
+    await expect(page.getByText("Current").first()).toBeVisible();
+  });
+
+  test("shows login history section", async ({ authedPage: page }) => {
+    const state = createSettingsMockState();
+    await mockSettingsAPI(page, state);
+
+    await page.goto("/settings/security");
+
+    await expect(page.getByText("Login History").first()).toBeVisible();
+    await expect(page.getByText("1 total events").first()).toBeVisible();
   });
 });
 
