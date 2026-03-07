@@ -11,10 +11,10 @@ export default function ChatPage() {
   const { messages, isConnected, isTyping, sendMessage, clearHistory } = useChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll must fire when message count or typing state changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll must fire when messages or typing state changes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length, isTyping]);
+  }, [messages, isTyping]);
 
   return (
     <div className="flex h-full flex-col" data-testid="chat-page">
