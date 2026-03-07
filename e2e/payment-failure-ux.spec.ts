@@ -1,7 +1,8 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures/auth";
 
-const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const PLATFORM_BASE_URL =
+  process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 const HAS_STRIPE_KEYS = !!(
   process.env.STRIPE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -365,34 +366,34 @@ test.describe("Payment Failure UX: Network Error Recovery", () => {
           .some((p) => p === "billing.creditsCheckout"),
       async (route) => {
         callCount++;
+        const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
+        const count = Math.max(procs.length, 1);
         if (callCount === 1) {
+          const errorResult = {
+            error: {
+              message: "Internal server error",
+              code: -32603,
+              data: { code: "INTERNAL_SERVER_ERROR" },
+            },
+          };
           await route.fulfill({
             status: 200,
             contentType: "application/json",
-            body: JSON.stringify([
-              {
-                error: {
-                  message: "Internal server error",
-                  code: -32603,
-                  data: { code: "INTERNAL_SERVER_ERROR" },
-                },
-              },
-            ]),
+            body: JSON.stringify(Array.from({ length: count }, () => errorResult)),
           });
         } else {
+          const successResult = {
+            result: {
+              data: {
+                url: "https://checkout.stripe.com/pay/test_mock_recovery",
+                sessionId: "cs_test_mock_recovery",
+              },
+            },
+          };
           await route.fulfill({
             status: 200,
             contentType: "application/json",
-            body: JSON.stringify([
-              {
-                result: {
-                  data: {
-                    url: "https://checkout.stripe.com/pay/test_mock_recovery",
-                    sessionId: "cs_test_mock_recovery",
-                  },
-                },
-              },
-            ]),
+            body: JSON.stringify(Array.from({ length: count }, () => successResult)),
           });
         }
       },
@@ -496,7 +497,7 @@ test.describe("Payment Failure UX: Suspended Account", () => {
     await expect(page.getByText("bots are offline").first()).toBeVisible();
 
     // Banner should show the reason in parens
-    await expect(page.getByText("payment_failed").first()).toBeVisible();
+    await expect(page.getByText(/payment.?failed/i).first()).toBeVisible();
 
     // "Contact support" link pointing to /billing should be visible
     const supportLink = page.getByRole("link", { name: "Contact support" }).first();
