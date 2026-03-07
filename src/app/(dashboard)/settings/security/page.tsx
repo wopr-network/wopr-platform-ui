@@ -184,9 +184,9 @@ function TwoFactorSection() {
   }, []);
 
   useEffect(() => {
-    if (profileData) {
-      setEnabled(!!(profileData as { twoFactorEnabled?: boolean })?.twoFactorEnabled);
-    }
+    setEnabled(
+      Boolean((profileData as { twoFactorEnabled?: boolean } | undefined)?.twoFactorEnabled),
+    );
   }, [profileData]);
 
   function handleStartEnable() {
