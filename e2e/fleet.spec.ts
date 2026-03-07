@@ -48,7 +48,7 @@ test.describe("Fleet overview and health", () => {
 		).toBeVisible({ timeout: 10000 });
 
 		// Verify aggregate instance count: 3 instances
-		await expect(page.getByText("3").first()).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole("main").getByText("3").first()).toBeVisible({ timeout: 5000 });
 		await expect(page.getByText("instances").first()).toBeVisible();
 
 		// Verify running count label appears (status bar shows "running" beside emerald dot)
@@ -60,8 +60,9 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByText("gamma-unit").first()).toBeVisible();
 
 		// alpha-unit and beta-unit are running -> "Healthy"; gamma-unit is exited -> "Degraded"
-		await expect(page.getByText("Healthy").first()).toBeVisible();
-		await expect(page.getByText("Degraded").first()).toBeVisible();
+		// Dual DOM (desktop+mobile) renders each card twice: 2 running = 4 Healthy, 1 exited = 2 Degraded
+		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(4);
+		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(2);
 
 		// Verify card metric column headers render
 		await expect(page.getByText("Uptime").first()).toBeVisible();
@@ -111,15 +112,15 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByText("sentinel-two").first()).toBeVisible();
 
 		// Verify instance count shows 2
-		await expect(page.getByText("2").first()).toBeVisible();
+		await expect(page.getByRole("main").getByText("2").first()).toBeVisible();
 
 		// Verify no degraded or unhealthy indicators
-		await expect(page.getByText("Degraded").first()).not.toBeVisible();
-		await expect(page.getByText("Unhealthy").first()).not.toBeVisible();
+		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(0);
+		await expect(page.getByRole("main").getByText("Unhealthy")).toHaveCount(0);
 
-		// Verify health card metric columns render
-		await expect(page.getByText("Plugins").first()).toBeVisible();
-		await expect(page.getByText("Sessions").first()).toBeVisible();
+		// Verify health card metric columns render (scoped to main to avoid sidebar nav "Plugins" match)
+		await expect(page.getByRole("main").getByText("Plugins").first()).toBeVisible();
+		await expect(page.getByRole("main").getByText("Sessions").first()).toBeVisible();
 	});
 
 	test("fleet health page shows empty state when no instances deployed", async ({
@@ -145,12 +146,13 @@ test.describe("Fleet overview and health", () => {
 		).toBeVisible();
 
 		// Verify "Deploy your first instance" CTA link points to /instances/new
+		// Dual DOM renders desktop+mobile simultaneously — expect 2 copies
 		const deployLink = page.getByRole("link", { name: "Deploy your first instance" });
-		await expect(deployLink.first()).toBeVisible();
+		await expect(deployLink).toHaveCount(2);
 		await expect(deployLink.first()).toHaveAttribute("href", "/instances/new");
 
 		// Verify no instance cards or system nominal banner
-		await expect(page.getByText("Healthy").first()).not.toBeVisible();
-		await expect(page.getByText("ALL SYSTEMS NOMINAL").first()).not.toBeVisible();
+		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(0);
+		await expect(page.getByRole("main").getByText("ALL SYSTEMS NOMINAL")).toHaveCount(0);
 	});
 });
