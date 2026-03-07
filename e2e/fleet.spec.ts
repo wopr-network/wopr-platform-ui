@@ -60,9 +60,9 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByText("gamma-unit").first()).toBeVisible();
 
 		// alpha-unit and beta-unit are running -> "Healthy"; gamma-unit is exited -> "Degraded"
-		// Fleet health uses a single grid (no dual DOM) — each card renders once
-		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(2);
-		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(1);
+		// Use locator('span') with exact regex to match only the badge spans, not parent containers
+		await expect(page.getByRole("main").locator("span", { hasText: /^Healthy$/ })).toHaveCount(2);
+		await expect(page.getByRole("main").locator("span", { hasText: /^Degraded$/ })).toHaveCount(1);
 
 		// Verify card metric column headers render
 		await expect(page.getByText("Uptime").first()).toBeVisible();
@@ -115,8 +115,8 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByRole("main").getByText(/^2$/).first()).toBeVisible();
 
 		// Verify no degraded or unhealthy indicators
-		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(0);
-		await expect(page.getByRole("main").getByText("Unhealthy")).toHaveCount(0);
+		await expect(page.getByRole("main").locator("span", { hasText: /^Degraded$/ })).toHaveCount(0);
+		await expect(page.getByRole("main").locator("span", { hasText: /^Unhealthy$/ })).toHaveCount(0);
 
 		// Verify health card metric columns render (scoped to main to avoid sidebar nav "Plugins" match)
 		await expect(page.getByRole("main").getByText("Plugins").first()).toBeVisible();
@@ -152,7 +152,7 @@ test.describe("Fleet overview and health", () => {
 		await expect(deployLink.first()).toHaveAttribute("href", "/instances/new");
 
 		// Verify no instance cards or system nominal banner
-		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(0);
+		await expect(page.getByRole("main").locator("span", { hasText: /^Healthy$/ })).toHaveCount(0);
 		await expect(page.getByRole("main").getByText("ALL SYSTEMS NOMINAL")).toHaveCount(0);
 	});
 });
