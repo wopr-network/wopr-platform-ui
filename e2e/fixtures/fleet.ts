@@ -20,6 +20,7 @@ export interface FleetMockState {
     } | null;
   }>;
   installedPlugins: Map<string, Array<{ pluginId: string; enabled: boolean }>>;
+  connectedChannels: Map<string, Array<{ id: string; name: string; type: string; status: string }>>;
   secrets: Record<string, Record<string, string>>;
 }
 
@@ -27,6 +28,7 @@ export function createFleetMockState(): FleetMockState {
   return {
     bots: [],
     installedPlugins: new Map(),
+    connectedChannels: new Map(),
     secrets: {},
   };
 }
@@ -553,6 +555,15 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     });
   });
 
+  // API: POST /api/channels/telegram/test (connectionTest endpoint declared in TELEGRAM_MANIFEST)
+  await page.route(`${API_BASE_URL}/channels/telegram/test`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, message: "Telegram connection test successful." }),
+    });
+  });
+
   // tRPC: capabilityMeta (used by install wizard's useCapabilityMeta hook)
   await page.route(
     (url) =>
@@ -581,7 +592,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     const botId = match?.[1] ?? "";
     const bot = state.bots.find((b) => b.id === botId);
     const installed = state.installedPlugins.get(botId) ?? [];
-    const allManifests = [DISCORD_MANIFEST, SLACK_MANIFEST];
+    const allManifests = [DISCORD_MANIFEST, SLACK_MANIFEST, TELEGRAM_MANIFEST];
 
     await route.fulfill({
       status: 200,
@@ -593,7 +604,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
         status: bot?.state ?? "stopped",
         identity: { name: bot?.name ?? "unknown", personality: "default" },
         brain: { provider: "openai", model: "gpt-4" },
-        channels: [],
+        channels: state.connectedChannels.get(botId) ?? [],
         installedPlugins: installed.map((p) => {
           const manifest = allManifests.find((m) => m.id === p.pluginId);
           return {
@@ -662,16 +673,18 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     }
     const url = route.request().url();
     const match = url.match(/\/fleet\/bots\/([^/]+)\/channels\/([^/?]+)/);
+    const botId = match?.[1] ?? "";
     const pluginId = match?.[2] ?? "";
+    const channel = { id: `ch-${pluginId}`, name: pluginId, type: pluginId, status: "connected" };
+    const channels = state.connectedChannels.get(botId) ?? [];
+    if (!channels.some((c) => c.type === pluginId)) {
+      channels.push(channel);
+    }
+    state.connectedChannels.set(botId, channels);
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({
-        id: `ch-${pluginId}`,
-        name: pluginId,
-        type: pluginId,
-        status: "connected",
-      }),
+      body: JSON.stringify(channel),
     });
   });
 
