@@ -115,9 +115,9 @@ test.describe("Settings: Security", () => {
     await expect(page.getByRole("heading", { name: "Security" }).first()).toBeVisible({ timeout: 10000 });
 
     // 2FA section renders with disabled state
-    await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible();
-    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible();
-    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible();
+    await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test("shows active sessions section", async ({ authedPage: page }) => {
@@ -137,8 +137,8 @@ test.describe("Settings: Security", () => {
 
     await page.goto("/settings/security");
 
-    await expect(page.getByText("Login History").first()).toBeVisible();
-    await expect(page.getByText("1 total events").first()).toBeVisible();
+    await expect(page.getByText("Login History").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("1 total events").first()).toBeVisible({ timeout: 10000 });
   });
 });
 

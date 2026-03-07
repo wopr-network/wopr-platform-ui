@@ -136,8 +136,10 @@ function StepIndicator({ currentStep, steps }: { currentStep: number; steps: str
 // ---------- 2FA section ----------
 
 function TwoFactorSection() {
-  const { data: profileData, isLoading: profileLoading } =
-    trpc.profile.getProfile.useQuery(undefined);
+  const { data: profileData, isLoading: profileLoading } = trpc.profile.getProfile.useQuery(
+    undefined,
+    { retry: false },
+  );
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [codesRemaining, setCodesRemaining] = useState(8);
