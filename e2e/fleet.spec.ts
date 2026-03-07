@@ -60,9 +60,9 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByText("gamma-unit").first()).toBeVisible();
 
 		// alpha-unit and beta-unit are running -> "Healthy"; gamma-unit is exited -> "Degraded"
-		// Dual DOM (desktop+mobile) renders each card twice: 2 running = 4 Healthy, 1 exited = 2 Degraded
-		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(4);
-		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(2);
+		// Fleet health uses a single grid (no dual DOM) — each card renders once
+		await expect(page.getByRole("main").getByText("Healthy")).toHaveCount(2);
+		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(1);
 
 		// Verify card metric column headers render
 		await expect(page.getByText("Uptime").first()).toBeVisible();
@@ -146,9 +146,9 @@ test.describe("Fleet overview and health", () => {
 		).toBeVisible();
 
 		// Verify "Deploy your first instance" CTA link points to /instances/new
-		// Dual DOM renders desktop+mobile simultaneously — expect 2 copies
+		// Fleet health uses a single grid (no dual DOM) — link renders once
 		const deployLink = page.getByRole("link", { name: "Deploy your first instance" });
-		await expect(deployLink).toHaveCount(2);
+		await expect(deployLink).toHaveCount(1);
 		await expect(deployLink.first()).toHaveAttribute("href", "/instances/new");
 
 		// Verify no instance cards or system nominal banner
