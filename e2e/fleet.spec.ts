@@ -48,7 +48,7 @@ test.describe("Fleet overview and health", () => {
 		).toBeVisible({ timeout: 10000 });
 
 		// Verify aggregate instance count: 3 instances
-		await expect(page.getByRole("main").getByText("3").first()).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole("main").getByText(/^3$/).first()).toBeVisible({ timeout: 5000 });
 		await expect(page.getByText("instances").first()).toBeVisible();
 
 		// Verify running count label appears (status bar shows "running" beside emerald dot)
@@ -112,7 +112,7 @@ test.describe("Fleet overview and health", () => {
 		await expect(page.getByText("sentinel-two").first()).toBeVisible();
 
 		// Verify instance count shows 2
-		await expect(page.getByRole("main").getByText("2").first()).toBeVisible();
+		await expect(page.getByRole("main").getByText(/^2$/).first()).toBeVisible();
 
 		// Verify no degraded or unhealthy indicators
 		await expect(page.getByRole("main").getByText("Degraded")).toHaveCount(0);
