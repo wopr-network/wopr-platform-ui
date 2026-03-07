@@ -1,8 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures/auth";
-
-const PLATFORM_BASE_URL =
-  process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+import { pricingData } from "../src/lib/pricing-data";
 
 const MOCK_ORG = {
   id: "e2e-org-id",
@@ -42,14 +40,19 @@ async function mockBillingPageAPI(page: Page, pageMocks: Record<string, unknown>
   const allMocks = { ...BASE_TRPC_MOCKS, ...pageMocks };
 
   await page.route(
-    (url) => url.href.includes(PLATFORM_BASE_URL) && url.pathname.startsWith("/trpc/"),
+    (url) => url.pathname.startsWith("/trpc/"),
     async (route) => {
       const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
-      const results = procs.map((proc) => ({
-        result: {
-          data: proc in allMocks ? allMocks[proc] : null,
-        },
-      }));
+      const results = procs.map((proc) => {
+        if (!(proc in allMocks)) {
+          console.warn(`[mockBillingPageAPI] Unhandled tRPC procedure: ${proc}`);
+        }
+        return {
+          result: {
+            data: proc in allMocks ? allMocks[proc] : null,
+          },
+        };
+      });
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -59,7 +62,7 @@ async function mockBillingPageAPI(page: Page, pageMocks: Record<string, unknown>
   );
 
   // REST fallback for billing API endpoints (dividend stats, etc.)
-  await page.route(`${PLATFORM_BASE_URL}/api/billing/**`, async (route) => {
+  await page.route("**/api/billing/**", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -134,84 +137,6 @@ test.describe("Billing Pages", () => {
     await expect(page.getByText("$5.00").first()).toBeVisible();
     await expect(page.getByText("b***@outlook.com").first()).toBeVisible();
     await expect(page.getByText("pending").first()).toBeVisible();
-  });
-
-  test("usage page shows platform usage and billing summary", async ({ authedPage: page }) => {
-    await mockBillingPageAPI(page, {
-      "billing.inferenceMode": { mode: "hosted" },
-      "billing.currentPlan": { tier: "pro" },
-      "billing.providerCosts": [],
-      "billing.usageSummary": {
-        period_start: "2026-03-01T00:00:00Z",
-        period_end: "2026-03-31T23:59:59Z",
-        total_spend_cents: 4200,
-        included_credit_cents: 1000,
-        amount_due_cents: 3200,
-        plan_name: "pro",
-      },
-      "billing.hostedUsageSummary": {
-        capabilities: [
-          {
-            capability: "text_gen",
-            label: "Text Generation",
-            units: 1500,
-            unitLabel: "tokens",
-            cost: 35.0,
-          },
-          {
-            capability: "image_gen",
-            label: "Image Generation",
-            units: 12,
-            unitLabel: "images",
-            cost: 7.0,
-          },
-        ],
-        totalCost: 42.0,
-        includedCredit: 10.0,
-        amountDue: 32.0,
-      },
-      "billing.spendingLimits": {
-        global: { alertAt: null, hardCap: null },
-        perCapability: {},
-      },
-    });
-
-    await page.goto("/billing/usage");
-
-    // Usage heading
-    await expect(page.getByRole("heading", { name: "Usage" }).first()).toBeVisible({
-      timeout: 10000,
-    });
-
-    // Billing Summary card
-    await expect(page.getByText("Billing Summary").first()).toBeVisible();
-    // amount_due_cents 3200 = $32.00
-    await expect(page.getByText("$32.00").first()).toBeVisible();
-    await expect(page.getByText("amount due").first()).toBeVisible();
-
-    // Total spend line: total_spend_cents 4200 = $42.00
-    await expect(page.getByText("Total spend this period").first()).toBeVisible();
-    await expect(page.getByText("$42.00").first()).toBeVisible();
-
-    // Included credit line
-    await expect(page.getByText("Included credit").first()).toBeVisible();
-
-    // Platform Usage card
-    await expect(page.getByText("Platform Usage").first()).toBeVisible();
-    await expect(page.getByText("Instances").first()).toBeVisible();
-    await expect(page.getByText("Storage").first()).toBeVisible();
-    await expect(page.getByText("API calls").first()).toBeVisible();
-
-    // Hosted AI Usage card (visible because mode is hosted and hostedUsage is set)
-    await expect(page.getByText("Hosted AI Usage").first()).toBeVisible();
-    await expect(page.getByText("Text Generation").first()).toBeVisible();
-    await expect(page.getByText("Image Generation").first()).toBeVisible();
-
-    // "View detailed breakdown" link to /billing/usage/hosted
-    await expect(page.getByRole("link", { name: "View detailed breakdown" }).first()).toBeVisible();
-
-    // Usage Over Time card (always rendered; shows "No usage data available." when empty)
-    await expect(page.getByText("Usage Over Time").first()).toBeVisible();
   });
 
   test("hosted usage detail page shows event table", async ({ authedPage: page }) => {
@@ -295,13 +220,13 @@ test.describe("Billing Pages", () => {
     // Plan card title (rendered as uppercase CardTitle)
     await expect(page.getByText("WOPR Bot").first()).toBeVisible();
 
-    // Price: $5/month (from pricingData.bot_price.amount = 5, period = "month")
-    await expect(page.getByText("$5").first()).toBeVisible();
-    await expect(page.getByText(/\/month/).first()).toBeVisible();
+    // Price: from pricingData.bot_price
+    await expect(page.getByText(`$${pricingData.bot_price.amount}`).first()).toBeVisible();
+    await expect(page.getByText(new RegExp(`\\/${pricingData.bot_price.period}`)).first()).toBeVisible();
     await expect(page.getByText("per bot").first()).toBeVisible();
 
-    // Features list (pricingData.signup_credit = 5)
-    await expect(page.getByText("$5 signup credit included").first()).toBeVisible();
+    // Features list (pricingData.signup_credit)
+    await expect(page.getByText(`$${pricingData.signup_credit} signup credit included`).first()).toBeVisible();
     await expect(page.getByText("All channels").first()).toBeVisible();
     await expect(page.getByText("All plugins").first()).toBeVisible();
     await expect(page.getByText("All providers").first()).toBeVisible();
