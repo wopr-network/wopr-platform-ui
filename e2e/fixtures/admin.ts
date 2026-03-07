@@ -343,7 +343,7 @@ export async function mockAdminAPI(page: Page, state: AdminMockState) {
 				last60m: { totalRequests: 12000, totalErrors: 15, errorRate: 0.00125 },
 			},
 			paymentChecks: {
-				stripeApi: { ok: true, latencyMs: 120, error: undefined },
+				stripeApi: { ok: true, latencyMs: 120, error: null },
 				webhookFreshness: { ok: true, lastEventAgeMs: 30000 },
 				creditLedger: { ok: true, negativeBalanceTenants: 0 },
 				meterDlq: { ok: true, depth: 0 },
@@ -394,7 +394,7 @@ export async function mockAdminAPI(page: Page, state: AdminMockState) {
 
 		// Dashboard layout dependencies
 		"billing.accountStatus": { status: "active", status_reason: null, grace_deadline: null },
-		"billing.creditsBalance": { balance_cents: 5000, daily_burn_cents: 0, runway_days: 999 },
+		"billing.creditsBalance": { balance: 5000, currency: "USD" },
 		"pageContext.update": null,
 		"org.getOrganization": {
 			id: "e2e-org-id",

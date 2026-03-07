@@ -212,7 +212,7 @@ export default async function middleware(request: NextRequest) {
       // is mocked by Playwright on the browser side only — the server-side fetch here
       // would fail with ECONNREFUSED since no real backend is running. The client-side
       // AdminGuard enforces the role check in tests.
-      if (!process.env.PLAYWRIGHT_TESTING) {
+      if (!process.env.PLAYWRIGHT_TESTING || process.env.NODE_ENV === "production") {
         const role = await getSessionRole(request);
         if (role !== "platform_admin") {
           return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
