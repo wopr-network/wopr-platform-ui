@@ -136,7 +136,11 @@ function StepIndicator({ currentStep, steps }: { currentStep: number; steps: str
 // ---------- 2FA section ----------
 
 function TwoFactorSection() {
-  const { data: profileData, error: profileError } = trpc.profile.getProfile.useQuery(undefined, {
+  const {
+    data: profileData,
+    error: profileError,
+    isPending: profilePending,
+  } = trpc.profile.getProfile.useQuery(undefined, {
     retry: false,
   });
   const utils = trpc.useUtils();
@@ -284,6 +288,23 @@ function TwoFactorSection() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  if (profilePending) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Two-Factor Authentication</CardTitle>
+          <CardDescription>Add an extra layer of security to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-9 w-28" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (profileError) {
