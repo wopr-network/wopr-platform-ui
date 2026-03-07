@@ -148,16 +148,21 @@ async function startCheckout(page: Page): Promise<void> {
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 20000 });
 }
 
-/** Fill Stripe Checkout form fields. */
+/** Fill Stripe Checkout form fields. Handles cross-origin Stripe iframes. */
 async function fillStripeCard(page: Page, cardNumber: string): Promise<void> {
   const emailField = page.locator('input[name="email"]');
   if (await emailField.isVisible({ timeout: 3000 }).catch(() => false)) {
     await emailField.fill("e2e@wopr.test");
   }
 
-  await page.locator('input[name="cardNumber"]').fill(cardNumber);
-  await page.locator('input[name="cardExpiry"]').fill("12/30");
-  await page.locator('input[name="cardCvc"]').fill("123");
+  // Stripe renders card fields inside cross-origin iframes — use frameLocator to reach them
+  const stripeFrame = page.frameLocator(
+    'iframe[name^="__privateStripeFrame"], iframe[src*="js.stripe.com"]',
+  );
+
+  await stripeFrame.locator('[name="cardNumber"], input[placeholder*="card number" i]').first().fill(cardNumber);
+  await stripeFrame.locator('[name="cardExpiry"], input[placeholder*="expir" i]').first().fill("12/30");
+  await stripeFrame.locator('[name="cardCvc"], input[placeholder*="cvc" i], input[placeholder*="cvv" i]').first().fill("123");
 
   const nameField = page.locator('input[name="billingName"]');
   if (await nameField.isVisible({ timeout: 1000 }).catch(() => false)) {
@@ -426,6 +431,10 @@ test.describe("Payment Failure UX: Network Error Recovery", () => {
     await expect(page.getByRole("button", { name: "Buy credits" }).first()).toBeEnabled({
       timeout: 5000,
     });
+
+    // Click retry — second call succeeds and redirects to Stripe Checkout
+    await page.getByRole("button", { name: "Buy credits" }).first().click();
+    await page.waitForURL(/checkout\.stripe\.com/, { timeout: 20000 });
   });
 });
 
