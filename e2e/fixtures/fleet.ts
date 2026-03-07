@@ -75,6 +75,64 @@ export const SLACK_MANIFEST = {
   superpowerTagline: "Connect to Slack workspaces",
 };
 
+export const TELEGRAM_MANIFEST = {
+  id: "telegram",
+  name: "Telegram",
+  description: "Connect your WOPR instance to Telegram.",
+  version: "1.5.0",
+  author: "WOPR Team",
+  icon: "Send",
+  color: "#0088CC",
+  category: "channel",
+  tags: ["channel"],
+  capabilities: ["channel"],
+  requires: [],
+  install: [],
+  configSchema: [],
+  setup: [
+    {
+      id: "create-bot",
+      title: "Create a Telegram Bot",
+      description: "Use BotFather to create your bot.",
+      fields: [],
+    },
+    {
+      id: "paste-token",
+      title: "Enter Bot Token",
+      description: "Paste the token from BotFather.",
+      fields: [
+        {
+          key: "botToken",
+          label: "Bot Token",
+          type: "string",
+          required: true,
+          secret: true,
+          setupFlow: "paste",
+          placeholder: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+          description: "Issued by BotFather.",
+          validation: {
+            pattern: "^\\d+:[A-Za-z0-9_-]{35,}$",
+            message: "Invalid Telegram bot token format",
+          },
+        },
+      ],
+    },
+    {
+      id: "done",
+      title: "Connection Complete",
+      description: "Your Telegram bot is ready.",
+      fields: [],
+    },
+  ],
+  connectionTest: {
+    label: "Test Telegram Connection",
+    endpoint: "/api/channels/telegram/test",
+  },
+  installCount: 5100,
+  changelog: [],
+  marketplaceTab: "channel",
+};
+
 let _botCounter = 0;
 
 /** Helper to create a full bot object with defaults for the expanded type. */
@@ -451,7 +509,7 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify([DISCORD_MANIFEST, SLACK_MANIFEST]),
+      body: JSON.stringify([DISCORD_MANIFEST, SLACK_MANIFEST, TELEGRAM_MANIFEST]),
     });
   });
 
@@ -483,6 +541,15 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(SLACK_MANIFEST),
+    });
+  });
+
+  // API: GET /api/marketplace/plugins/telegram (detail)
+  await page.route(`${API_BASE_URL}/marketplace/plugins/telegram`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(TELEGRAM_MANIFEST),
     });
   });
 
@@ -583,6 +650,28 @@ export async function mockFleetAPI(page: Page, state: FleetMockState) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ status: "ready", progress: 100 }),
+    });
+  });
+
+  // Fleet REST: POST /fleet/bots/:id/channels/:pluginId (connectChannel)
+  await page.route(`${PLATFORM_BASE_URL}/fleet/bots/*/channels/*`, async (route) => {
+    const method = route.request().method();
+    if (method !== "POST") {
+      await route.continue();
+      return;
+    }
+    const url = route.request().url();
+    const match = url.match(/\/fleet\/bots\/([^/]+)\/channels\/([^/?]+)/);
+    const pluginId = match?.[2] ?? "";
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: `ch-${pluginId}`,
+        name: pluginId,
+        type: pluginId,
+        status: "connected",
+      }),
     });
   });
 
