@@ -208,11 +208,12 @@ export default async function middleware(request: NextRequest) {
       request.cookies.get("better-auth.session_token") ??
       request.cookies.get("__Secure-better-auth.session_token");
     if (sessionCookie?.value.trim()) {
-      // In e2e test mode, skip the server-side role check. The get-session endpoint
-      // is mocked by Playwright on the browser side only — the server-side fetch here
-      // would fail with ECONNREFUSED since no real backend is running. The client-side
-      // AdminGuard enforces the role check in tests.
-      if (!process.env.PLAYWRIGHT_TESTING || process.env.NODE_ENV === "production") {
+      // In e2e test mode (PLAYWRIGHT_TESTING=true), skip the server-side role check.
+      // The get-session endpoint is mocked by Playwright on the browser side only —
+      // the server-side fetch would fail with ECONNREFUSED since no real backend runs.
+      // Note: `next start` sets NODE_ENV=production, so we cannot use NODE_ENV here.
+      // The client-side AdminGuard enforces the role check in tests.
+      if (!process.env.PLAYWRIGHT_TESTING) {
         const role = await getSessionRole(request);
         if (role !== "platform_admin") {
           return withCsp(NextResponse.redirect(new URL("/marketplace", request.url)));
