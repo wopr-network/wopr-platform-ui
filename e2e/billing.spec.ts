@@ -452,7 +452,7 @@ test.describe("Billing: Dashboard Display", () => {
     await expect(billingSummary).toBeVisible();
     await expect(page.getByText("Billing Summary").first()).toBeVisible();
     await expect(page.getByText("amount due").first()).toBeVisible();
-    await expect(page.getByText("$32.00").first()).toBeVisible();
+    await expect(billingSummary.getByText("$32.00").first()).toBeVisible();
 
     // Total spend line
     await expect(page.getByText("Total spend this period").first()).toBeVisible();

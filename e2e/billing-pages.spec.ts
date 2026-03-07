@@ -45,11 +45,11 @@ async function mockBillingPageAPI(page: Page, pageMocks: Record<string, unknown>
       const procs = route.request().url().split("?")[0].split("/trpc/")[1]?.split(",") ?? [];
       const results = procs.map((proc) => {
         if (!(proc in allMocks)) {
-          console.warn(`[mockBillingPageAPI] Unhandled tRPC procedure: ${proc}`);
+          throw new Error(`[mockBillingPageAPI] Unhandled tRPC procedure: ${proc}`);
         }
         return {
           result: {
-            data: proc in allMocks ? allMocks[proc] : null,
+            data: allMocks[proc],
           },
         };
       });
