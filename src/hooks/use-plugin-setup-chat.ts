@@ -60,6 +60,7 @@ export function usePluginSetupChat(
       abortRef.current?.abort();
 
       botIdRef.current = botId;
+      pluginIdRef.current = pluginId;
       setState({
         isOpen: true,
         pluginId,
@@ -171,6 +172,7 @@ export function usePluginSetupChat(
     abortRef.current?.abort();
     abortRef.current = null;
     botIdRef.current = null;
+    pluginIdRef.current = null;
     setState(initialState);
   }, []);
 

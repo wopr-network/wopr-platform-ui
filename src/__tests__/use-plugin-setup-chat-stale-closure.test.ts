@@ -17,13 +17,10 @@ describe("usePluginSetupChat sendMessage stale closure", () => {
 
     const { result } = renderHook(() => usePluginSetupChat());
 
-    // Open setup with pluginId "plugin-A"
+    // Open setup and send a message in the SAME act() block — useEffect has not
+    // fired yet, so pluginIdRef must be set synchronously in openSetup.
     act(() => {
       result.current.openSetup("plugin-A", "Plugin A", "bot-1");
-    });
-
-    // Send a message — should use "plugin-A"
-    act(() => {
       result.current.sendMessage("hello");
     });
 
@@ -38,13 +35,10 @@ describe("usePluginSetupChat sendMessage stale closure", () => {
     expect(typeof firstBody.sessionId).toBe("string");
     expect(firstBody.text).toBe("hello");
 
-    // Open setup again with a DIFFERENT pluginId "plugin-B"
+    // Open setup again with a DIFFERENT pluginId "plugin-B" and send in the same
+    // act() — verifies synchronous ref update prevents stale "plugin-A" being used.
     act(() => {
       result.current.openSetup("plugin-B", "Plugin B", "bot-2");
-    });
-
-    // Send another message — must use "plugin-B", not stale "plugin-A"
-    act(() => {
       result.current.sendMessage("world");
     });
 
