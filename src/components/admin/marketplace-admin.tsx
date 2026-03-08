@@ -29,12 +29,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   type AdminPlugin,
-  type InstallStatus,
   addPluginByNpm,
   deletePlugin,
   getDiscoveryQueue,
   getEnabledPlugins,
   getInstallStatus,
+  type InstallStatus,
   reorderPlugins,
   triggerDiscovery,
   updatePlugin,
