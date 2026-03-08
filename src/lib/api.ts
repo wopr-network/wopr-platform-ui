@@ -904,6 +904,68 @@ export async function revokeApiKey(id: string): Promise<void> {
   await apiFetch(`/settings/api-keys/${id}`, { method: "DELETE" });
 }
 
+// --- Secrets Vault types ---
+
+/** A secret summary (value never returned after creation). */
+export interface SecretSummary {
+  id: string;
+  name: string;
+  /** e.g. "webhook-signing", "api-token", "service-credential" */
+  type: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  rotatedAt: string | null;
+  isActive: boolean;
+}
+
+/** An audit log entry for secret access. */
+export interface SecretAuditEntry {
+  id: string;
+  secretId: string;
+  action: "accessed" | "rotated" | "created" | "deleted";
+  actorType: "plugin" | "bot" | "user";
+  actorName: string;
+  timestamp: string;
+}
+
+/** GET /settings/secrets — List all secrets for the tenant. */
+export async function listSecrets(): Promise<SecretSummary[]> {
+  return apiFetch<SecretSummary[]>("/settings/secrets");
+}
+
+/** POST /settings/secrets — Create a new secret. */
+export async function createSecret(data: {
+  name: string;
+  value: string;
+  expiresIn?: string;
+}): Promise<{ secret: SecretSummary; plaintextValue: string }> {
+  return apiFetch<{ secret: SecretSummary; plaintextValue: string }>("/settings/secrets", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/** POST /settings/secrets/:id/rotate — Rotate a secret. */
+export async function rotateSecret(
+  id: string,
+): Promise<{ secret: SecretSummary; plaintextValue: string }> {
+  return apiFetch<{ secret: SecretSummary; plaintextValue: string }>(
+    `/settings/secrets/${encodeURIComponent(id)}/rotate`,
+    { method: "POST" },
+  );
+}
+
+/** DELETE /settings/secrets/:id — Delete a secret. */
+export async function deleteSecret(id: string): Promise<void> {
+  await apiFetch(`/settings/secrets/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+/** GET /settings/secrets/:id/audit — Fetch audit log for a secret. */
+export async function fetchSecretAudit(id: string): Promise<SecretAuditEntry[]> {
+  return apiFetch<SecretAuditEntry[]>(`/settings/secrets/${encodeURIComponent(id)}/audit`);
+}
+
 // --- Billing types ---
 
 export interface BillingUsage {
