@@ -17,11 +17,19 @@ test.describe("Public pages (no auth required)", () => {
 	});
 
 	test("status page renders Platform Status heading without 500 error", async ({ page }) => {
+		await page.route("**/api/health", (route) =>
+			route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({ status: "healthy" }),
+			}),
+		);
+
 		const response = await page.goto("/status", { waitUntil: "domcontentloaded" });
 
 		// Page must not 500
 		expect(response).not.toBeNull();
-		expect(response!.status()).not.toBe(500);
+		expect(response!.ok()).toBe(true);
 
 		// Main heading
 		await expect(page.getByRole("heading", { name: "Platform Status" }).first()).toBeVisible({
