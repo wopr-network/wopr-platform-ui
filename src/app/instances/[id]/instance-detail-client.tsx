@@ -118,19 +118,14 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
   const [renameSaving, setRenameSaving] = useState(false);
 
   useEffect(() => {
-    if (!configText.trim()) {
-      if (configStatus === "invalid") setConfigStatus("idle");
-      return;
-    }
+    if (!configText.trim()) return;
     try {
       JSON.parse(configText);
-      if (configStatus === "invalid") setConfigStatus("idle");
+      setConfigStatus((prev) => (prev === "invalid" ? "idle" : prev));
     } catch {
-      if (configStatus !== "saved" && configStatus !== "error") {
-        setConfigStatus("invalid");
-      }
+      setConfigStatus("invalid");
     }
-  }, [configText, configStatus]);
+  }, [configText]);
 
   async function handleTogglePlugin(pluginId: string, enabled: boolean) {
     if (!instance) return;

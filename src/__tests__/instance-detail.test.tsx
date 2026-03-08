@@ -520,6 +520,35 @@ describe("InstanceDetailClient", () => {
     });
   });
 
+  it("shows invalid JSON indicator after a successful save when user edits to invalid JSON", async () => {
+    const user = userEvent.setup();
+    render(<InstanceDetailClient instanceId="inst-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("test-instance")).toBeInTheDocument();
+    });
+
+    const configTab = screen.getByRole("tab", { name: "Config" });
+    await user.click(configTab);
+
+    // Save the config successfully first
+    const saveBtn = screen.getByText("Save Config");
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Config saved")).toBeInTheDocument();
+    });
+
+    // Now edit to invalid JSON — the indicator must appear immediately
+    const editor = await screen.findByRole("textbox", { name: /instance configuration/i });
+    await user.clear(editor);
+    await user.type(editor, "not valid json {{");
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid JSON")).toBeInTheDocument();
+    });
+  });
+
   it("rename cancel restores original name", async () => {
     const user = userEvent.setup();
     render(<InstanceDetailClient instanceId="inst-001" />);
