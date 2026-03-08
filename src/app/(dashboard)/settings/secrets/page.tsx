@@ -438,7 +438,7 @@ function AuditPanel({ secretId }: { secretId: string }) {
                 variant="ghost"
                 size="sm"
                 className="text-xs text-muted-foreground"
-                onClick={() => setVisibleCount((c) => c + 10)}
+                onClick={() => setVisibleCount((c) => Math.min(c + 10, entries.length))}
               >
                 Load {Math.min(remaining, 10)} more
               </Button>

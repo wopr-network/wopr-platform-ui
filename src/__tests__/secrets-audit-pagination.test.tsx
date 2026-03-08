@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock framer-motion to avoid animation issues in tests
@@ -59,6 +60,7 @@ describe("AuditPanel pagination", () => {
   });
 
   it("shows only 10 entries initially and a Load more button when >10 exist", async () => {
+    const user = userEvent.setup();
     const entries = makeEntries(25);
     vi.mocked(fetchSecretAudit).mockResolvedValue(entries);
 
@@ -67,19 +69,20 @@ describe("AuditPanel pagination", () => {
 
     // Wait for secrets to load, then click audit toggle
     const auditBtn = await screen.findByRole("button", { name: /access log/i });
-    await userEvent.click(auditBtn);
+    await user.click(auditBtn);
 
     // Should show first 10
     await screen.findByText("Actor 0");
     expect(screen.getByText("Actor 9")).toBeInTheDocument();
     expect(screen.queryByText("Actor 10")).not.toBeInTheDocument();
 
-    // Should show load more button (use getByText since button is inside table td)
-    const loadMore = screen.getByText(/load \d+ more/i);
+    // Should show load more button
+    const loadMore = screen.getByRole("button", { name: /load \d+ more/i });
     expect(loadMore).toBeInTheDocument();
   });
 
   it("loads 10 more entries on click", async () => {
+    const user = userEvent.setup();
     const entries = makeEntries(25);
     vi.mocked(fetchSecretAudit).mockResolvedValue(entries);
 
@@ -87,11 +90,11 @@ describe("AuditPanel pagination", () => {
     render(<SecretsPage />);
 
     const auditBtn = await screen.findByRole("button", { name: /access log/i });
-    await userEvent.click(auditBtn);
+    await user.click(auditBtn);
     await screen.findByText("Actor 0");
 
-    const loadMore = screen.getByText(/load \d+ more/i);
-    await userEvent.click(loadMore);
+    const loadMore = screen.getByRole("button", { name: /load \d+ more/i });
+    await user.click(loadMore);
 
     // Now 20 visible
     expect(screen.getByText("Actor 19")).toBeInTheDocument();
@@ -99,6 +102,7 @@ describe("AuditPanel pagination", () => {
   });
 
   it("hides Load more button when all entries are visible", async () => {
+    const user = userEvent.setup();
     const entries = makeEntries(15);
     vi.mocked(fetchSecretAudit).mockResolvedValue(entries);
 
@@ -106,19 +110,20 @@ describe("AuditPanel pagination", () => {
     render(<SecretsPage />);
 
     const auditBtn = await screen.findByRole("button", { name: /access log/i });
-    await userEvent.click(auditBtn);
+    await user.click(auditBtn);
     await screen.findByText("Actor 0");
 
-    const loadMore = screen.getByText(/load \d+ more/i);
-    await userEvent.click(loadMore);
+    const loadMore = screen.getByRole("button", { name: /load \d+ more/i });
+    await user.click(loadMore);
 
     // All 15 visible now
     expect(screen.getByText("Actor 14")).toBeInTheDocument();
     // No more button
-    expect(screen.queryByText(/load \d+ more/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /load \d+ more/i })).not.toBeInTheDocument();
   });
 
   it("does not show Load more button when <=10 entries", async () => {
+    const user = userEvent.setup();
     const entries = makeEntries(5);
     vi.mocked(fetchSecretAudit).mockResolvedValue(entries);
 
@@ -126,9 +131,9 @@ describe("AuditPanel pagination", () => {
     render(<SecretsPage />);
 
     const auditBtn = await screen.findByRole("button", { name: /access log/i });
-    await userEvent.click(auditBtn);
+    await user.click(auditBtn);
     await screen.findByText("Actor 0");
 
-    expect(screen.queryByText(/load \d+ more/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /load \d+ more/i })).not.toBeInTheDocument();
   });
 });
