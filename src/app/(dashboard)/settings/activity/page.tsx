@@ -96,10 +96,11 @@ export default function ActivityPage() {
         setData(result);
         setOffset(newOffset);
       } catch {
+        if (reqId !== requestIdRef.current) return;
         setLoadError(true);
-      } finally {
-        setLoading(false);
       }
+      if (reqId !== requestIdRef.current) return;
+      setLoading(false);
     },
     [dateRange, actionFilter, debouncedSearch],
   );
