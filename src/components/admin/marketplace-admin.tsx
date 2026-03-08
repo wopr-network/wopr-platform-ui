@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, GripVertical, Package, Plus, Star } from "lucide-react";
+import { ExternalLink, GripVertical, Package, Plus, Scan, Star, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +29,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   type AdminPlugin,
+  type InstallStatus,
   addPluginByNpm,
+  deletePlugin,
   getDiscoveryQueue,
   getEnabledPlugins,
+  getInstallStatus,
   reorderPlugins,
+  triggerDiscovery,
   updatePlugin,
 } from "@/lib/admin-marketplace-api";
 import { cn } from "@/lib/utils";
@@ -62,9 +66,15 @@ export function MarketplaceAdmin() {
   const [addPackage, setAddPackage] = useState("");
   const [addLoading, setAddLoading] = useState(false);
   const [notes, setNotes] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [installStatus, setInstallStatus] = useState<InstallStatus | null>(null);
+  const [installStatusLoading, setInstallStatusLoading] = useState(false);
   const notesTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const dragItemRef = useRef<number | null>(null);
   const dragOverRef = useRef<number | null>(null);
+  const installPollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -88,6 +98,47 @@ export function MarketplaceAdmin() {
   useEffect(() => {
     setNotes(selected?.notes ?? "");
   }, [selected?.notes]);
+
+  // ---- Install status polling ----
+
+  const startInstallStatusPoll = useCallback((id: string) => {
+    if (installPollRef.current) clearInterval(installPollRef.current);
+    setInstallStatusLoading(true);
+
+    const poll = async () => {
+      try {
+        const status = await getInstallStatus(id);
+        setInstallStatus(status);
+        setInstallStatusLoading(false);
+        if (status.status !== "pending" && installPollRef.current) {
+          clearInterval(installPollRef.current);
+          installPollRef.current = undefined;
+        }
+      } catch {
+        setInstallStatusLoading(false);
+      }
+    };
+
+    poll();
+    installPollRef.current = setInterval(poll, 3000);
+  }, []);
+
+  useEffect(() => {
+    if (installPollRef.current) {
+      clearInterval(installPollRef.current);
+      installPollRef.current = undefined;
+    }
+    setInstallStatus(null);
+    if (selected) {
+      startInstallStatusPoll(selected.id);
+    }
+    return () => {
+      if (installPollRef.current) {
+        clearInterval(installPollRef.current);
+        installPollRef.current = undefined;
+      }
+    };
+  }, [selected, startInstallStatusPoll]);
 
   // ---- Handlers ----
 
@@ -146,6 +197,54 @@ export function MarketplaceAdmin() {
       toast.error(`Failed to add plugin: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setAddLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selected) return;
+    setDeleteLoading(true);
+    try {
+      await deletePlugin(selected.id);
+      setSelected(null);
+      setDeleteOpen(false);
+      await load();
+      toast.success("Plugin deleted.");
+    } catch (err) {
+      toast.error(
+        `Failed to delete plugin: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleScan = async () => {
+    setScanLoading(true);
+    try {
+      const result = await triggerDiscovery();
+      toast.success(
+        `Discovered ${result.discovered} new plugin${result.discovered !== 1 ? "s" : ""}, ${result.alreadyKnown} already known.`,
+      );
+      if (result.discovered > 0) {
+        await load();
+      }
+    } catch (err) {
+      toast.error(`Discovery failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const handleCategoryChange = async (category: string) => {
+    if (!selected) return;
+    try {
+      const updated = await updatePlugin({ id: selected.id, category });
+      setSelected(updated);
+      await load();
+    } catch (err) {
+      toast.error(
+        `Failed to update category: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
     }
   };
 
@@ -224,47 +323,58 @@ export function MarketplaceAdmin() {
             <h1 className="text-xl font-bold uppercase tracking-wider [text-shadow:0_0_10px_rgba(0,255,65,0.25)]">
               Marketplace Curation
             </h1>
-            <Dialog open={addOpen} onOpenChange={setAddOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="bg-terminal/10 text-terminal border border-terminal/30 hover:bg-terminal/20"
-                >
-                  <Plus className="size-4 mr-1.5" />
-                  Add Plugin
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Plugin by npm Package</DialogTitle>
-                  <DialogDescription>
-                    Paste the npm package name to add it to the discovery queue.
-                  </DialogDescription>
-                </DialogHeader>
-                <Input
-                  className="font-mono"
-                  placeholder="@wopr-network/plugin-name"
-                  value={addPackage}
-                  onChange={(e) => setAddPackage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleAdd();
-                  }}
-                />
-                <DialogFooter>
-                  <Button variant="ghost" onClick={() => setAddOpen(false)}>
-                    Cancel
-                  </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                className="border border-border hover:bg-secondary"
+                onClick={handleScan}
+                disabled={scanLoading}
+              >
+                <Scan className="size-4 mr-1.5" />
+                {scanLoading ? "Scanning..." : "Scan npm"}
+              </Button>
+              <Dialog open={addOpen} onOpenChange={setAddOpen}>
+                <DialogTrigger asChild>
                   <Button
                     variant="ghost"
                     className="bg-terminal/10 text-terminal border border-terminal/30 hover:bg-terminal/20"
-                    onClick={handleAdd}
-                    disabled={addLoading || !addPackage.trim()}
                   >
-                    {addLoading ? "Adding..." : "Add"}
+                    <Plus className="size-4 mr-1.5" />
+                    Add Plugin
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Plugin by npm Package</DialogTitle>
+                    <DialogDescription>
+                      Paste the npm package name to add it to the discovery queue.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Input
+                    className="font-mono"
+                    placeholder="@wopr-network/plugin-name"
+                    value={addPackage}
+                    onChange={(e) => setAddPackage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAdd();
+                    }}
+                  />
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setAddOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="bg-terminal/10 text-terminal border border-terminal/30 hover:bg-terminal/20"
+                      onClick={handleAdd}
+                      disabled={addLoading || !addPackage.trim()}
+                    >
+                      {addLoading ? "Adding..." : "Add"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           {/* Discovery Queue */}
@@ -456,16 +566,77 @@ export function MarketplaceAdmin() {
                 </div>
 
                 {/* Metadata */}
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground items-center">
                   <span className="font-mono">v{selected.version}</span>
                   <span>by {selected.author}</span>
-                  <Badge
-                    variant="outline"
-                    className={cn("text-xs", categoryBadgeClass(selected.category))}
+                  <select
+                    className={cn(
+                      "text-xs border rounded-sm px-1.5 py-0.5 bg-transparent cursor-pointer",
+                      categoryBadgeClass(selected.category),
+                      "border-current",
+                    )}
+                    value={selected.category}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
                   >
-                    {selected.category}
-                  </Badge>
+                    {["superpower", "channel", "utility", "integration", "other"].map((cat) => (
+                      <option key={cat} value={cat} className="bg-background text-foreground">
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                {/* Install status */}
+                {!installStatusLoading && installStatus && (
+                  <div className="flex items-center gap-2">
+                    {installStatus.status === "pending" && (
+                      <Badge
+                        variant="outline"
+                        className="border-amber-500/30 text-amber-400 text-xs animate-pulse"
+                      >
+                        Installing...
+                      </Badge>
+                    )}
+                    {installStatus.status === "installed" && (
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className="border-terminal/30 text-terminal text-xs"
+                        >
+                          Installed
+                        </Badge>
+                        {installStatus.installedAt && (
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(installStatus.installedAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {installStatus.status === "failed" && (
+                      <div className="space-y-1">
+                        <Badge
+                          variant="outline"
+                          className="border-destructive/50 text-destructive text-xs"
+                        >
+                          Install failed
+                        </Badge>
+                        {installStatus.installError && (
+                          <p className="text-xs text-destructive font-mono">
+                            {installStatus.installError}
+                          </p>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-6 px-2"
+                          onClick={() => startInstallStatusPoll(selected.id)}
+                        >
+                          Retry
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* SUPERPOWER.md Preview */}
                 {selected.superpower_md && (
@@ -528,6 +699,44 @@ export function MarketplaceAdmin() {
                   View on npm
                   <ExternalLink className="size-3" />
                 </a>
+
+                {/* Delete button — disabled plugins only */}
+                {!selected.enabled && (
+                  <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10 border border-destructive/30 w-full mt-2"
+                      >
+                        <Trash2 className="size-3.5 mr-1.5" />
+                        Delete Plugin
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete Plugin</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete <strong>{selected.name}</strong>? This
+                          action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20"
+                          onClick={handleDelete}
+                          disabled={deleteLoading}
+                        >
+                          {deleteLoading ? "Deleting..." : "Delete"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </motion.div>
             ) : (
               <motion.div
