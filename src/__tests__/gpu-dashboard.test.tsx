@@ -165,13 +165,16 @@ describe("GpuDashboard", () => {
     const node = fakeNode({ id: "gpu-99", name: "my-node" });
     mockListGpuNodes.mockResolvedValue([node]);
     mockDestroyGpuNode.mockResolvedValue(undefined);
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
 
     render(<GpuDashboard />);
     await waitFor(() => screen.getByText("my-node"));
 
     const destroyBtn = screen.getAllByTitle("Destroy")[0];
     await userEvent.click(destroyBtn);
+
+    // AlertDialog should now be open — click the confirm action
+    const confirmBtn = await screen.findByRole("button", { name: "Destroy" });
+    await userEvent.click(confirmBtn);
 
     expect(mockDestroyGpuNode).toHaveBeenCalledWith("gpu-99");
     await waitFor(() => {
@@ -182,13 +185,16 @@ describe("GpuDashboard", () => {
   it("does not call destroyGpuNode when Destroy is cancelled", async () => {
     const node = fakeNode({ id: "gpu-99", name: "my-node" });
     mockListGpuNodes.mockResolvedValue([node]);
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(false));
 
     render(<GpuDashboard />);
     await waitFor(() => screen.getByText("my-node"));
 
     const destroyBtn = screen.getAllByTitle("Destroy")[0];
     await userEvent.click(destroyBtn);
+
+    // AlertDialog should now be open — click Cancel
+    const cancelBtn = await screen.findByRole("button", { name: "Cancel" });
+    await userEvent.click(cancelBtn);
 
     expect(mockDestroyGpuNode).not.toHaveBeenCalled();
   });
