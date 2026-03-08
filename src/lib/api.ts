@@ -248,8 +248,9 @@ export function parsePluginsFromEnv(env: Record<string, string> | undefined): Pl
 }
 
 /** Extract the LLM provider from bot env vars. */
-export function getProviderFromEnv(env: Record<string, string> | undefined): string {
-  return env?.WOPR_LLM_PROVIDER ?? "";
+export function getProviderFromEnv(env?: Record<string, string>): string {
+  const val = env?.WOPR_LLM_PROVIDER;
+  return typeof val === "string" ? val : "";
 }
 
 export function mapBotState(state: string): InstanceStatus {
@@ -378,8 +379,8 @@ export async function deployInstance(payload: DeployBotPayload): Promise<Instanc
     name: (profile.name as string) ?? payload.name,
     status: "stopped",
     provider: getProviderFromEnv(payload.env),
-    channels: [],
-    plugins: [],
+    channels: parseChannelsFromEnv(payload.env),
+    plugins: parsePluginsFromEnv(payload.env),
     uptime: null,
     createdAt: new Date().toISOString(),
   };

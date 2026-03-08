@@ -75,6 +75,7 @@ vi.mock("@/lib/api", () => ({
     }
     return [...ids].map((id) => ({ id, name: id, version: "", enabled: true }));
   }),
+  apiFetch: vi.fn(),
   controlInstance: vi.fn().mockResolvedValue(undefined),
   getImageStatus: vi.fn().mockResolvedValue({
     currentDigest: "sha256:aaa",
