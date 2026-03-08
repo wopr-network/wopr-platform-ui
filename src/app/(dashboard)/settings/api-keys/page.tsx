@@ -84,8 +84,13 @@ export default function ApiKeysPage() {
     try {
       await revokeApiKey(id);
     } catch {
-      await load();
       setError("Failed to revoke API key. Please try again.");
+      try {
+        const refreshed = await listApiKeys();
+        setKeys(refreshed);
+      } catch {
+        // silently ignore refresh failure — we already showed the revoke error
+      }
     }
   }
 
