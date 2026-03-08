@@ -54,7 +54,6 @@ export type InstanceStatus = "running" | "stopped" | "degraded" | "error";
 export interface Instance {
   id: string;
   name: string;
-  template: string;
   status: InstanceStatus;
   provider: string;
   channels: string[];
@@ -292,9 +291,8 @@ export async function listInstances(): Promise<Instance[]> {
   return bots.map((bot) => ({
     id: bot.id,
     name: bot.name,
-    template: "",
     status: mapBotState(bot.state),
-    provider: "",
+    provider: (bot.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
     channels: parseChannelsFromEnv(bot.env),
     plugins: parsePluginsFromEnv(bot.env),
     uptime: (() => {
@@ -313,9 +311,8 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
   return {
     id: bot.id,
     name: bot.name,
-    template: "",
     status: mapBotState(bot.state),
-    provider: "",
+    provider: (bot.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
     channels: [],
     plugins: [],
     uptime: Number.isNaN(uptimeMs) ? null : Math.floor((Date.now() - uptimeMs) / 1000),
@@ -332,7 +329,7 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
 
 export async function createInstance(data: {
   name: string;
-  template: string;
+  template?: string;
   provider: string;
   channels: string[];
   plugins: string[];
@@ -342,7 +339,6 @@ export async function createInstance(data: {
   return {
     id: (profile.id as string) ?? "",
     name: (profile.name as string) ?? data.name,
-    template: data.template,
     status: "stopped",
     provider: data.provider,
     channels: data.channels,
@@ -375,9 +371,8 @@ export async function deployInstance(payload: DeployBotPayload): Promise<Instanc
   return {
     id: (profile.id as string) ?? "",
     name: (profile.name as string) ?? payload.name,
-    template: "",
     status: "stopped",
-    provider: "",
+    provider: (payload.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
     channels: [],
     plugins: [],
     uptime: null,
