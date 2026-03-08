@@ -192,6 +192,7 @@ function ScriptEditor({ scripts, onSaved }: ScriptEditorProps) {
       setName(script.name);
       setContent(script.content);
     } else {
+      setSelected(null);
       setName("");
       setContent("");
     }

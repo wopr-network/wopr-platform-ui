@@ -60,6 +60,9 @@ function RoleRow({ assignment, onChanged }: RoleRowProps) {
       if (newRole === "user") {
         await revokeRole(assignment.user_id, assignment.tenant_id, assignment.role);
       } else {
+        if (assignment.role !== "user") {
+          await revokeRole(assignment.user_id, assignment.tenant_id, assignment.role);
+        }
         await assignRole(assignment.user_id, assignment.tenant_id, newRole);
       }
       onChanged(assignment.user_id, assignment.tenant_id, newRole);
