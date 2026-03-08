@@ -76,10 +76,10 @@ export function ResourcesTab({ botId }: { botId: string }) {
         .then((res) => {
           if (!cancelled) setCurrentTier(res.tier);
         })
-        .catch((err) => {
+        .catch((_err) => {
           if (!cancelled) {
             setCurrentTier(null);
-            setLoadError(toUserMessage(err, "Failed to load resource tier. Please refresh."));
+            setLoadError("Failed to load resource tier. Please refresh.");
           }
         })
         .finally(() => {
