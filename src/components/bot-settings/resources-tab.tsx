@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,19 +57,27 @@ const TIERS = [
 type TierEntry = (typeof TIERS)[number];
 
 export function ResourcesTab({ botId }: { botId: string }) {
-  const [currentTier, setCurrentTier] = useState<string>("standard");
+  const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [confirmTier, setConfirmTier] = useState<TierEntry | null>(null);
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // biome-ignore lint/suspicious/noEmptyBlockStatements: initial no-op placeholder replaced in useEffect
+  const retryRef = useRef<() => void>(() => {});
+
   useEffect(() => {
-    getResourceTier(botId)
-      .then((res) => setCurrentTier(res.tier))
-      .catch(() => {
-        // Silently degrade — tier defaults to null and UI shows no current tier
-      })
-      .finally(() => setLoading(false));
+    function loadTier() {
+      setLoading(true);
+      setLoadError(false);
+      getResourceTier(botId)
+        .then((res) => setCurrentTier(res.tier))
+        .catch(() => setLoadError(true))
+        .finally(() => setLoading(false));
+    }
+    retryRef.current = loadTier;
+    loadTier();
   }, [botId]);
 
   async function handleConfirm() {
@@ -89,6 +97,17 @@ export function ResourcesTab({ botId }: { botId: string }) {
 
   if (loading) {
     return <div className="text-muted-foreground">Loading resource info...</div>;
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-destructive">
+        <span>Failed to load resource tier.</span>
+        <Button size="sm" variant="outline" onClick={() => retryRef.current()}>
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   const currentTierIndex = TIERS.findIndex((t) => t.key === currentTier);
@@ -131,7 +150,11 @@ export function ResourcesTab({ botId }: { botId: string }) {
                     variant={tier.key === "standard" ? "outline" : "default"}
                     onClick={() => setConfirmTier(tier)}
                   >
-                    {tierIndex < currentTierIndex ? "Downgrade" : "Upgrade"}
+                    {currentTier === null
+                      ? "Select"
+                      : tierIndex < currentTierIndex
+                        ? "Downgrade"
+                        : "Upgrade"}
                   </Button>
                 )}
               </CardContent>
