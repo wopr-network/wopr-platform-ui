@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, FileText, Pencil, Search, Shield, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -1061,22 +1061,27 @@ function EditRetentionPolicyDialog({
   onOpenChange: (open: boolean) => void;
   onSaved: (updated: RetentionPolicy) => void;
 }) {
-  const [retentionDays, setRetentionDays] = useState(policy.retentionDays);
+  const [retentionDaysInput, setRetentionDaysInput] = useState(String(policy.retentionDays));
   const [autoDelete, setAutoDelete] = useState(policy.autoDelete);
   const [saving, setSaving] = useState(false);
 
+  const retentionDaysParsed = parseInt(retentionDaysInput, 10);
+  const retentionDaysValid =
+    !Number.isNaN(retentionDaysParsed) && retentionDaysParsed >= 1 && retentionDaysParsed <= 3650;
+
   useEffect(() => {
     if (open) {
-      setRetentionDays(policy.retentionDays);
+      setRetentionDaysInput(String(policy.retentionDays));
       setAutoDelete(policy.autoDelete);
     }
   }, [open, policy.retentionDays, policy.autoDelete]);
 
   const handleSave = async () => {
+    if (!retentionDaysValid) return;
     setSaving(true);
     try {
       const updated = await updateRetentionPolicy(policy.dataType, {
-        retentionDays,
+        retentionDays: retentionDaysParsed,
         autoDelete,
       });
       onSaved(updated);
@@ -1104,9 +1109,11 @@ function EditRetentionPolicyDialog({
             <Input
               id="retentionDays"
               type="number"
+              step={1}
               min={1}
-              value={retentionDays}
-              onChange={(e) => setRetentionDays(Number(e.target.value))}
+              max={3650}
+              value={retentionDaysInput}
+              onChange={(e) => setRetentionDaysInput(e.target.value)}
             />
           </div>
           <div className="flex items-center justify-between">
@@ -1118,7 +1125,7 @@ function EditRetentionPolicyDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={saving || retentionDays < 1}>
+          <Button onClick={handleSave} disabled={saving || !retentionDaysValid}>
             {saving ? "Saving\u2026" : "Save"}
           </Button>
         </DialogFooter>
@@ -1132,6 +1139,8 @@ function RetentionPoliciesTab() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<RetentionPolicy | null>(null);
+  const lastEditingPolicyRef = useRef<RetentionPolicy | null>(null);
+  if (editingPolicy !== null) lastEditingPolicyRef.current = editingPolicy;
 
   useEffect(() => {
     let cancelled = false;
@@ -1254,10 +1263,10 @@ function RetentionPoliciesTab() {
           </div>
         </div>
       ))}
-      {editingPolicy && (
+      {lastEditingPolicyRef.current && (
         <EditRetentionPolicyDialog
-          policy={editingPolicy}
-          open={!!editingPolicy}
+          policy={lastEditingPolicyRef.current}
+          open={editingPolicy !== null}
           onOpenChange={(open) => {
             if (!open) setEditingPolicy(null);
           }}

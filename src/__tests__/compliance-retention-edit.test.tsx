@@ -58,21 +58,7 @@ const MOCK_POLICIES = [
 
 describe("updateRetentionPolicy", () => {
   it("calls PATCH /admin/compliance/retention/:dataType with body", async () => {
-    mockApiFetch.mockResolvedValueOnce({
-      dataType: "audit_logs",
-      retentionDays: 180,
-      autoDelete: true,
-      lastPurge: null,
-      recordsAffected: 0,
-    });
-
-    const result = await mockUpdateRetentionPolicy("audit_logs", {
-      retentionDays: 180,
-      autoDelete: true,
-    });
-
-    // Since the module is mocked, test the underlying apiFetch directly via the mock
-    // by calling it as the real implementation would
+    // Test the underlying apiFetch directly via the real implementation
     mockApiFetch.mockResolvedValueOnce({
       dataType: "audit_logs",
       retentionDays: 180,
