@@ -88,7 +88,9 @@ export default function NetworkPage() {
         </div>
       )}
 
-      {selectedInstanceId && <FriendsTab key={selectedInstanceId} instanceId={selectedInstanceId} />}
+      {selectedInstanceId && (
+        <FriendsTab key={selectedInstanceId} instanceId={selectedInstanceId} />
+      )}
     </div>
   );
 }
