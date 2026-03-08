@@ -130,6 +130,15 @@ export function BotSettingsClient({ botId }: { botId: string }) {
         if (mountedRef.current) {
           setSettings((prev) => (prev ? { ...prev, status } : prev));
           setHealth(h);
+          if (status === "running") {
+            setPendingAction((prev) => {
+              if (prev === "restart") {
+                setActionPending(false);
+                return null;
+              }
+              return prev;
+            });
+          }
         }
       })
       .catch((_err) => {
@@ -173,8 +182,10 @@ export function BotSettingsClient({ botId }: { botId: string }) {
     } catch {
       setActionError(`Failed to ${action} bot`);
     } finally {
-      setActionPending(false);
-      setPendingAction(null);
+      if (action !== "restart") {
+        setActionPending(false);
+        setPendingAction(null);
+      }
     }
   }
 
