@@ -19,6 +19,9 @@ export function VpsInfoPanel({ botId }: VpsPanelProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    setError(false);
+    setLoading(true);
+    setVps(null);
     getVpsInfo(botId)
       .then((data) => setVps(data))
       .catch(() => setError(true))
