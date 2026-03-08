@@ -145,7 +145,7 @@ export function InstanceDetailClient({ instanceId }: { instanceId: string }) {
     }
     setRenameSaving(true);
     const previousName = instance.name;
-    setInstance({ ...instance, name: renameValue.trim() });
+    setInstance((prev) => (prev ? { ...prev, name: renameValue.trim() } : prev));
     try {
       await renameInstance(instanceId, renameValue.trim());
       setRenaming(false);

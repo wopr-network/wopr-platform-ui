@@ -391,6 +391,7 @@ export function InstanceListClient() {
           if (!open) {
             setRenameTarget(null);
             setRenameValue("");
+            setActionError(null);
           }
         }}
       >
@@ -408,7 +409,12 @@ export function InstanceListClient() {
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && renameValue.trim()) handleRename();
+              if (
+                e.key === "Enter" &&
+                renameValue.trim() &&
+                renameValue.trim() !== renameTarget?.name
+              )
+                handleRename();
             }}
             disabled={renameLoading}
           />
@@ -418,6 +424,7 @@ export function InstanceListClient() {
               onClick={() => {
                 setRenameTarget(null);
                 setRenameValue("");
+                setActionError(null);
               }}
             >
               Cancel
