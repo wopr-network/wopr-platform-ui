@@ -122,7 +122,7 @@ function SeverityClassifierPanel() {
               onChange={(e) =>
                 setSignals((s) => ({
                   ...s,
-                  gatewayErrorRate: Number.parseFloat(e.target.value) || 0,
+                  gatewayErrorRate: Number.parseFloat(e.target.value) ?? 0,
                 }))
               }
               className="h-7 text-xs"
@@ -306,7 +306,7 @@ function ResponseProcedurePanel() {
     setLoading(true);
     try {
       const r = await getResponseProcedure(severity);
-      setProcedure(r.procedure);
+      setProcedure(r);
     } catch (err) {
       toast.error(toUserMessage(err, "Failed to load response procedure"));
     } finally {

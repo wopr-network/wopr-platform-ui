@@ -83,12 +83,12 @@ export async function getEscalationMatrix(severity: IncidentSeverity): Promise<E
   return apiFetch<EscalationResult>(`/admin/incidents/escalation/${severity}`);
 }
 
-export async function getResponseProcedure(
-  severity: IncidentSeverity,
-): Promise<{ success: boolean; procedure: ResponseProcedure }> {
-  return apiFetch<{ success: boolean; procedure: ResponseProcedure }>(
+export async function getResponseProcedure(severity: IncidentSeverity): Promise<ResponseProcedure> {
+  const result = await apiFetch<{ success: boolean; procedure: ResponseProcedure; error?: string }>(
     `/admin/incidents/procedure/${severity}`,
   );
+  if (!result.success) throw new Error(result.error ?? "Request failed");
+  return result.procedure;
 }
 
 export async function getCommunicationTemplates(
