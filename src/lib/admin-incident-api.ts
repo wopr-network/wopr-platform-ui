@@ -1,0 +1,117 @@
+import { apiFetch } from "./api";
+
+// --- Types ---
+
+export type IncidentSeverity = "SEV1" | "SEV2" | "SEV3";
+
+export interface SeveritySignals {
+  stripeReachable: boolean;
+  webhooksReceiving: boolean | null;
+  gatewayErrorRate: number;
+  creditDeductionFailures: number;
+  dlqDepth: number;
+  tenantsWithNegativeBalance: number;
+  autoTopupFailures: number;
+  firingAlertCount: number;
+}
+
+export interface SeverityResult {
+  severity: IncidentSeverity;
+  label: string;
+  description: string;
+}
+
+export interface EscalationContact {
+  role: string;
+  name: string;
+  method: string;
+  within: string;
+}
+
+export interface EscalationResult {
+  severity: IncidentSeverity;
+  contacts: EscalationContact[];
+}
+
+export interface ResponseProcedure {
+  severity: IncidentSeverity;
+  steps: string[];
+}
+
+export interface CommunicateContext {
+  severity: IncidentSeverity;
+  incidentId: string;
+  startedAt: string;
+  affectedSystems: string[];
+  customerImpact: string;
+  currentStatus: string;
+}
+
+export interface CommunicationTemplates {
+  customer: string;
+  internal: string;
+}
+
+export interface PostmortemInput {
+  incidentId: string;
+  severity: IncidentSeverity;
+  title: string;
+  startedAt: string;
+  detectedAt: string;
+  resolvedAt: string | null;
+  affectedSystems: string[];
+  affectedTenantCount: number;
+  revenueImpactCents: number | null;
+}
+
+// --- API calls ---
+
+export async function classifyIncidentSeverity(signals: SeveritySignals): Promise<SeverityResult> {
+  const result = await apiFetch<{ success: boolean } & SeverityResult>(
+    "/admin/incidents/severity",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(signals),
+    },
+  );
+  return result;
+}
+
+export async function getEscalationMatrix(severity: IncidentSeverity): Promise<EscalationResult> {
+  return apiFetch<EscalationResult>(`/admin/incidents/escalation/${severity}`);
+}
+
+export async function getResponseProcedure(
+  severity: IncidentSeverity,
+): Promise<{ success: boolean; procedure: ResponseProcedure }> {
+  return apiFetch<{ success: boolean; procedure: ResponseProcedure }>(
+    `/admin/incidents/procedure/${severity}`,
+  );
+}
+
+export async function getCommunicationTemplates(
+  context: CommunicateContext,
+): Promise<CommunicationTemplates> {
+  const result = await apiFetch<{ success: boolean; templates: CommunicationTemplates }>(
+    "/admin/incidents/communicate",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(context),
+    },
+  );
+  return result.templates;
+}
+
+export async function generatePostmortem(input: PostmortemInput): Promise<string> {
+  const result = await apiFetch<{ success: boolean; report: string }>(
+    "/admin/incidents/postmortem",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
+  return result.report;
+}
