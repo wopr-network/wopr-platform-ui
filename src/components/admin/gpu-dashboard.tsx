@@ -90,6 +90,10 @@ function ProvisionForm({ regions, sizes, onProvision, onCancel }: ProvisionFormP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    if (!region || !size) {
+      toast.error("Region and size are required");
+      return;
+    }
     setSubmitting(true);
     try {
       await onProvision({ name: name.trim(), region, size });
@@ -160,7 +164,7 @@ function ProvisionForm({ regions, sizes, onProvision, onCancel }: ProvisionFormP
           </select>
         </div>
         <div className="flex gap-2">
-          <Button type="submit" size="sm" disabled={submitting || !name.trim()}>
+          <Button type="submit" size="sm" disabled={submitting || !name.trim() || !region || !size}>
             {submitting ? "Provisioning…" : "Provision"}
           </Button>
           <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
