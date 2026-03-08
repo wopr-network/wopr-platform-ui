@@ -1,11 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { HTMLAttributes } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---- Mock framer-motion ----
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: JSX.IntrinsicElements["div"]) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: HTMLAttributes<HTMLDivElement>) => (
+      <div {...props}>{children}</div>
+    ),
   },
 }));
 

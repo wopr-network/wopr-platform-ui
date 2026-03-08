@@ -14,6 +14,7 @@ import {
   provisionGpuNode,
   rebootGpuNode,
 } from "@/lib/admin-gpu-api";
+import { toUserMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 
 // ---- Status badge ----
@@ -195,7 +196,7 @@ export function GpuDashboard() {
       setRegions(regionList);
       setSizes(sizeList);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load GPU data");
+      setError(toUserMessage(e, "Failed to load GPU data"));
     } finally {
       setLoading(false);
     }
@@ -246,14 +247,18 @@ export function GpuDashboard() {
   // KPI computations
   const runningNodes = nodes.filter((n) => n.status === "running");
   const errorNodes = nodes.filter((n) => n.status === "error");
+  const utilizationValues = runningNodes
+    .filter((n) => n.utilization != null)
+    .map((n) => n.utilization as number);
   const avgUtilization =
-    runningNodes.length > 0
-      ? runningNodes.reduce((sum, n) => sum + (n.utilization ?? 0), 0) / runningNodes.length
-      : 0;
+    utilizationValues.length > 0
+      ? utilizationValues.reduce((a, b) => a + b, 0) / utilizationValues.length
+      : null;
+  const tempValues = runningNodes
+    .filter((n) => n.temperatureCelsius != null)
+    .map((n) => n.temperatureCelsius as number);
   const avgTemp =
-    runningNodes.length > 0
-      ? runningNodes.reduce((sum, n) => sum + (n.temperatureCelsius ?? 0), 0) / runningNodes.length
-      : 0;
+    tempValues.length > 0 ? tempValues.reduce((a, b) => a + b, 0) / tempValues.length : null;
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto">
@@ -312,17 +317,23 @@ export function GpuDashboard() {
         <KpiCard
           index={2}
           label="Avg Utilization"
-          value={loading ? "" : `${avgUtilization.toFixed(1)}%`}
-          valueClassName={avgUtilization > 85 ? "text-amber-400" : "text-foreground"}
+          value={loading ? "" : avgUtilization != null ? `${avgUtilization.toFixed(1)}%` : "—"}
+          valueClassName={
+            avgUtilization != null && avgUtilization > 85 ? "text-amber-400" : "text-foreground"
+          }
           subtext="running nodes"
           loading={loading}
         />
         <KpiCard
           index={3}
           label="Avg Temp"
-          value={loading ? "" : runningNodes.length > 0 ? `${avgTemp.toFixed(0)}°C` : "—"}
+          value={loading ? "" : avgTemp != null ? `${avgTemp.toFixed(0)}°C` : "—"}
           valueClassName={
-            avgTemp > 80 ? "text-destructive" : avgTemp > 70 ? "text-amber-400" : "text-foreground"
+            avgTemp != null && avgTemp > 80
+              ? "text-destructive"
+              : avgTemp != null && avgTemp > 70
+                ? "text-amber-400"
+                : "text-foreground"
           }
           subtext={errorNodes.length > 0 ? `${errorNodes.length} node(s) in error` : undefined}
           loading={loading}
@@ -385,8 +396,8 @@ export function GpuDashboard() {
 
             {nodes.map((node) => {
               const vramPct =
-                node.memoryTotalMib != null && node.memoryUsedMib != null
-                  ? ((node.memoryUsedMib / node.memoryTotalMib) * 100).toFixed(0)
+                node.memoryTotalMib != null && node.memoryUsedMib != null && node.memoryTotalMib > 0
+                  ? `${Math.round((node.memoryUsedMib / node.memoryTotalMib) * 100)}%`
                   : null;
               const busy = actionInFlight === node.id;
 
@@ -427,7 +438,7 @@ export function GpuDashboard() {
                   </div>
                   <div className="flex-1 text-right tabular-nums text-sm text-muted-foreground">
                     {vramPct != null
-                      ? `${vramPct}% (${node.memoryUsedMib} / ${node.memoryTotalMib} MiB)`
+                      ? `${vramPct} (${node.memoryUsedMib} / ${node.memoryTotalMib} MiB)`
                       : "—"}
                   </div>
                   <div className="w-28 flex justify-end gap-1">
