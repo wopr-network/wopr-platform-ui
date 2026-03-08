@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -66,6 +66,7 @@ export default function ActivityPage() {
   const [actionFilter, setActionFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -78,6 +79,7 @@ export default function ActivityPage() {
     async (newOffset: number) => {
       setLoading(true);
       setLoadError(false);
+      const reqId = ++requestIdRef.current;
       try {
         const since =
           dateRange === "all"
@@ -88,8 +90,9 @@ export default function ActivityPage() {
           offset: newOffset,
           since,
           action: actionFilter === "all" ? undefined : actionFilter,
-          search: debouncedSearch || undefined,
+          search: debouncedSearch?.trim() || undefined,
         });
+        if (reqId !== requestIdRef.current) return;
         setData(result);
         setOffset(newOffset);
       } catch {
@@ -183,7 +186,9 @@ export default function ActivityPage() {
             </div>
           ) : events.length === 0 ? (
             <div className="flex h-32 items-center justify-center">
-              <p className="text-sm text-muted-foreground">No activity yet.</p>
+              <p className="text-sm text-muted-foreground">
+                {debouncedSearch?.trim() ? "No events match your search." : "No activity yet."}
+              </p>
             </div>
           ) : (
             <>
