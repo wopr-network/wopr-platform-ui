@@ -573,17 +573,17 @@ function InvoiceRow({
           </Button>
         </TableCell>
       </motion.tr>
-      {expanded && hasLineItems && (
-        <tr>
-          <td colSpan={4} className="p-0">
-            <AnimatePresence>
+      <tr>
+        <td colSpan={4} className="p-0">
+          <AnimatePresence>
+            {expanded && hasLineItems && (
               <motion.div
                 key="invoice-detail"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                style={{ overflow: "hidden" }}
+                className="overflow-hidden"
               >
                 <div className="bg-muted/50 p-4">
                   <p className="mb-2 text-xs font-semibold text-muted-foreground">
@@ -605,10 +605,10 @@ function InvoiceRow({
                   </div>
                 </div>
               </motion.div>
-            </AnimatePresence>
-          </td>
-        </tr>
-      )}
+            )}
+          </AnimatePresence>
+        </td>
+      </tr>
     </>
   );
 }
