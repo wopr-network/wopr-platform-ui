@@ -31,7 +31,7 @@ const mockControlBot = vi
   .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 const mockGetBotSettings = vi.fn().mockResolvedValue({
   id: "bot-1",
-  identity: { name: "Test Bot", description: "", avatar: "" },
+  identity: { name: "Test Bot", personality: "", avatar: "" },
   brain: { model: "gpt-4", mode: "chat" },
   channels: [],
   availableChannels: [],
@@ -39,7 +39,7 @@ const mockGetBotSettings = vi.fn().mockResolvedValue({
   availableSuperpowers: [],
   installedPlugins: [],
   discoverPlugins: [],
-  usage: { credits: 0, creditsLimit: 100, messagesThisMonth: 0 },
+  usage: { totalSpend: 0, creditBalance: 0, capabilities: [], trend: [] },
   status: "running" as const,
 });
 const mockGetBotStatus = vi.fn().mockResolvedValue({ status: "running" });
@@ -95,7 +95,7 @@ describe("BotSettingsClient restart feedback", () => {
     mockControlBot.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
     mockGetBotSettings.mockResolvedValue({
       id: "bot-1",
-      identity: { name: "Test Bot", description: "", avatar: "" },
+      identity: { name: "Test Bot", personality: "", avatar: "" },
       brain: { model: "gpt-4", mode: "chat" },
       channels: [],
       availableChannels: [],
@@ -103,7 +103,7 @@ describe("BotSettingsClient restart feedback", () => {
       availableSuperpowers: [],
       installedPlugins: [],
       discoverPlugins: [],
-      usage: { credits: 0, creditsLimit: 100, messagesThisMonth: 0 },
+      usage: { totalSpend: 0, creditBalance: 0, capabilities: [], trend: [] },
       status: "running" as const,
     });
     mockGetBotStatus.mockResolvedValue({ status: "running" });
