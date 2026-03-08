@@ -27,15 +27,35 @@ export function BuyCreditsPanel() {
         setTiers(options);
         setTiersLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Failed to load credit options:", err);
         setLoadError(true);
         setTiersLoading(false);
       });
   }, []);
 
   useEffect(() => {
-    loadTiers();
-  }, [loadTiers]);
+    let cancelled = false;
+    setTiersLoading(true);
+    setLoadError(false);
+    getCreditOptions()
+      .then((options) => {
+        if (!cancelled) {
+          setTiers(options);
+          setTiersLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error("Failed to load credit options:", err);
+          setLoadError(true);
+          setTiersLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleCheckout() {
     if (selected === null) return;
