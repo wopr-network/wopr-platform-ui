@@ -929,15 +929,18 @@ export interface SecretAuditEntry {
   timestamp: string;
 }
 
+// NOTE: migrate to tRPC when secrets router is extended
 /** GET /settings/secrets — List all secrets for the tenant. */
 export async function listSecrets(): Promise<SecretSummary[]> {
   return apiFetch<SecretSummary[]>("/settings/secrets");
 }
 
+// NOTE: migrate to tRPC when secrets router is extended
 /** POST /settings/secrets — Create a new secret. */
 export async function createSecret(data: {
   name: string;
   value: string;
+  type: string;
   expiresIn?: string;
 }): Promise<{ secret: SecretSummary; plaintextValue: string }> {
   return apiFetch<{ secret: SecretSummary; plaintextValue: string }>("/settings/secrets", {
@@ -946,6 +949,7 @@ export async function createSecret(data: {
   });
 }
 
+// NOTE: migrate to tRPC when secrets router is extended
 /** POST /settings/secrets/:id/rotate — Rotate a secret. */
 export async function rotateSecret(
   id: string,
@@ -956,11 +960,13 @@ export async function rotateSecret(
   );
 }
 
+// NOTE: migrate to tRPC when secrets router is extended
 /** DELETE /settings/secrets/:id — Delete a secret. */
 export async function deleteSecret(id: string): Promise<void> {
   await apiFetch(`/settings/secrets/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
+// NOTE: migrate to tRPC when secrets router is extended
 /** GET /settings/secrets/:id/audit — Fetch audit log for a secret. */
 export async function fetchSecretAudit(id: string): Promise<SecretAuditEntry[]> {
   return apiFetch<SecretAuditEntry[]>(`/settings/secrets/${encodeURIComponent(id)}/audit`);

@@ -107,8 +107,9 @@ export default function SecretsPage() {
     setSecrets((prev) => prev.filter((s) => s.id !== id));
     try {
       await deleteSecret(id);
+      setError(null);
     } catch {
-      setSecrets(previous);
+      setSecrets(() => previous);
       setError("Failed to delete secret. Please try again.");
     }
   }
@@ -117,6 +118,7 @@ export default function SecretsPage() {
     try {
       const { plaintextValue } = await rotateSecret(id);
       setRevealedValue(plaintextValue);
+      setError(null);
       load();
     } catch {
       setError("Failed to rotate secret. Please try again.");
@@ -356,16 +358,18 @@ function SecretRow({
       </TableRow>
       <AnimatePresence>
         {isAuditExpanded && (
-          <motion.tr
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <TableCell colSpan={6} className="p-0">
-              <AuditPanel secretId={secret.id} />
-            </TableCell>
-          </motion.tr>
+          <tr>
+            <td colSpan={6} className="p-0">
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <AuditPanel secretId={secret.id} />
+              </motion.div>
+            </td>
+          </tr>
         )}
       </AnimatePresence>
     </>
@@ -439,6 +443,7 @@ function CreateSecretDialog({ onCreated }: { onCreated: (value: string) => void 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [value, setValue] = useState("");
+  const [type, setType] = useState("api-token");
   const [expiration, setExpiration] = useState("never");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -449,10 +454,12 @@ function CreateSecretDialog({ onCreated }: { onCreated: (value: string) => void 
       const result = await createSecret({
         name,
         value,
+        type,
         ...(expiration !== "never" ? { expiresIn: expiration } : {}),
       });
       setName("");
       setValue("");
+      setType("api-token");
       setExpiration("never");
       setOpen(false);
       onCreated(result.plaintextValue);
@@ -500,6 +507,19 @@ function CreateSecretDialog({ onCreated }: { onCreated: (value: string) => void 
               onChange={(e) => setValue(e.target.value)}
               required
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="secret-type">Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger id="secret-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="api-token">API Token</SelectItem>
+                <SelectItem value="webhook-signing">Webhook Signing Key</SelectItem>
+                <SelectItem value="service-credential">Service Credential</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="secret-expiration">Expiration</Label>
