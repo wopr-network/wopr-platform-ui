@@ -247,6 +247,11 @@ export function parsePluginsFromEnv(env: Record<string, string> | undefined): Pl
   return [...ids].map((id) => ({ id, name: id, version: "", enabled: true }));
 }
 
+/** Extract the LLM provider from bot env vars. */
+export function getProviderFromEnv(env: Record<string, string> | undefined): string {
+  return env?.WOPR_LLM_PROVIDER ?? "";
+}
+
 export function mapBotState(state: string): InstanceStatus {
   if (state === "running") return "running";
   if (state === "error" || state === "dead") return "error";
@@ -292,7 +297,7 @@ export async function listInstances(): Promise<Instance[]> {
     id: bot.id,
     name: bot.name,
     status: mapBotState(bot.state),
-    provider: (bot.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
+    provider: getProviderFromEnv(bot.env as Record<string, string> | undefined),
     channels: parseChannelsFromEnv(bot.env),
     plugins: parsePluginsFromEnv(bot.env),
     uptime: (() => {
@@ -312,7 +317,7 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
     id: bot.id,
     name: bot.name,
     status: mapBotState(bot.state),
-    provider: (bot.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
+    provider: getProviderFromEnv(bot.env as Record<string, string> | undefined),
     channels: parseChannelsFromEnv(bot.env as Record<string, string> | undefined),
     plugins: parsePluginsFromEnv(bot.env as Record<string, string> | undefined),
     uptime: Number.isNaN(uptimeMs) ? null : Math.floor((Date.now() - uptimeMs) / 1000),
@@ -372,7 +377,7 @@ export async function deployInstance(payload: DeployBotPayload): Promise<Instanc
     id: (profile.id as string) ?? "",
     name: (profile.name as string) ?? payload.name,
     status: "stopped",
-    provider: (payload.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
+    provider: getProviderFromEnv(payload.env),
     channels: [],
     plugins: [],
     uptime: null,

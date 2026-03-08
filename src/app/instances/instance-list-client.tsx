@@ -52,6 +52,7 @@ import { useImageStatus } from "@/hooks/use-image-status";
 import type { BotStatusResponse, Instance, InstanceStatus } from "@/lib/api";
 import {
   controlInstance,
+  getProviderFromEnv,
   mapBotState,
   parseChannelsFromEnv,
   parsePluginsFromEnv,
@@ -87,7 +88,7 @@ export function InstanceListClient() {
       id: bot.id,
       name: bot.name,
       status: mapBotState(bot.state),
-      provider: (bot.env as Record<string, string> | undefined)?.WOPR_LLM_PROVIDER ?? "",
+      provider: getProviderFromEnv(bot.env as Record<string, string> | undefined),
       channels: parseChannelsFromEnv(bot.env),
       plugins: parsePluginsFromEnv(bot.env),
       uptime: (() => {
