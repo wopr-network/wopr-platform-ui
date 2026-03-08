@@ -13,11 +13,8 @@ vi.mock("@/lib/admin-incident-api", () => ({
     contacts: [{ role: "On-Call Engineer", name: "Jane Doe", method: "PagerDuty", within: "5m" }],
   }),
   getResponseProcedure: vi.fn().mockResolvedValue({
-    success: true,
-    procedure: {
-      severity: "SEV1",
-      steps: ["Acknowledge the alert", "Assemble incident team"],
-    },
+    severity: "SEV1",
+    steps: ["Acknowledge the alert", "Assemble incident team"],
   }),
   getCommunicationTemplates: vi.fn().mockResolvedValue({
     customer: "We are experiencing an issue...",

@@ -122,7 +122,7 @@ function SeverityClassifierPanel() {
               onChange={(e) =>
                 setSignals((s) => ({
                   ...s,
-                  gatewayErrorRate: Number.parseFloat(e.target.value) ?? 0,
+                  gatewayErrorRate: Number.parseFloat(e.target.value) || 0,
                 }))
               }
               className="h-7 text-xs"
@@ -325,7 +325,10 @@ function ResponseProcedurePanel() {
             <button
               key={s}
               type="button"
-              onClick={() => setSeverity(s)}
+              onClick={() => {
+                setSeverity(s);
+                setProcedure(null);
+              }}
               className={cn(
                 "text-xs px-3 py-1 rounded border transition-colors font-mono",
                 severity === s
