@@ -15,9 +15,13 @@ const adminNavItems = [
   { label: "Compliance", href: "/admin/compliance" },
   { label: "Marketplace", href: "/admin/marketplace" },
   { label: "Inference", href: "/admin/inference" },
+  { label: "GPU", href: "/admin/gpu" },
   { label: "Promotions", href: "/admin/promotions" },
   { label: "Rate Overrides", href: "/admin/rate-overrides" },
   { label: "Affiliates", href: "/admin/affiliates" },
+  { label: "Onboarding", href: "/admin/onboarding" },
+  { label: "Roles", href: "/admin/roles" },
+  { label: "Migrations", href: "/admin/migrations" },
 ];
 
 export function AdminNav() {
