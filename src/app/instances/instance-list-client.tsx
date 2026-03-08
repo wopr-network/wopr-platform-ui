@@ -418,6 +418,7 @@ export function InstanceListClient() {
             }}
             disabled={renameLoading}
           />
+          {actionError && <p className="text-sm text-destructive">{actionError}</p>}
           <DialogFooter>
             <Button
               variant="outline"

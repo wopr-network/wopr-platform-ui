@@ -193,6 +193,9 @@ export async function fleetFetch<T>(path: string, init?: RequestInit): Promise<T
     const body = await res.json().catch(() => ({}));
     throw new ApiError(res.status, res.statusText, (body as { error?: string }).error ?? undefined);
   }
+  if (res.status === 204 || res.headers.get("content-length") === "0") {
+    return undefined as T;
+  }
   return res.json() as Promise<T>;
 }
 
