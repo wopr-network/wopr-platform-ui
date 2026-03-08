@@ -39,6 +39,7 @@ import {
   triggerDiscovery,
   updatePlugin,
 } from "@/lib/admin-marketplace-api";
+import { toUserMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 
 // ---- Category badge styling ----
@@ -99,23 +100,36 @@ export function MarketplaceAdmin() {
     setNotes(selected?.notes ?? "");
   }, [selected?.notes]);
 
+  // Reset delete dialog when selected plugin changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: selected drives the reset; setDeleteOpen is stable
+  useEffect(() => {
+    setDeleteOpen(false);
+  }, [selected]);
+
   // ---- Install status polling ----
 
   const startInstallStatusPoll = useCallback((id: string) => {
     if (installPollRef.current) clearInterval(installPollRef.current);
     setInstallStatusLoading(true);
+    let errorCount = 0;
 
     const poll = async () => {
       try {
         const status = await getInstallStatus(id);
         setInstallStatus(status);
         setInstallStatusLoading(false);
+        errorCount = 0;
         if (status.status !== "pending" && installPollRef.current) {
           clearInterval(installPollRef.current);
           installPollRef.current = undefined;
         }
       } catch {
         setInstallStatusLoading(false);
+        errorCount++;
+        if (errorCount >= 3 && installPollRef.current) {
+          clearInterval(installPollRef.current);
+          installPollRef.current = undefined;
+        }
       }
     };
 
@@ -148,9 +162,7 @@ export function MarketplaceAdmin() {
       if (selected?.id === plugin.id) setSelected(updated);
       await load();
     } catch (err) {
-      toast.error(
-        `Failed to update plugin: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+      toast.error(`Failed to update plugin: ${toUserMessage(err)}`);
     }
   };
 
@@ -164,9 +176,7 @@ export function MarketplaceAdmin() {
       if (selected?.id === plugin.id) setSelected(null);
       await load();
     } catch (err) {
-      toast.error(
-        `Failed to review plugin: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+      toast.error(`Failed to review plugin: ${toUserMessage(err)}`);
     }
   };
 
@@ -194,7 +204,7 @@ export function MarketplaceAdmin() {
       setAddOpen(false);
       await load();
     } catch (err) {
-      toast.error(`Failed to add plugin: ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(`Failed to add plugin: ${toUserMessage(err)}`);
     } finally {
       setAddLoading(false);
     }
@@ -210,9 +220,7 @@ export function MarketplaceAdmin() {
       await load();
       toast.success("Plugin deleted.");
     } catch (err) {
-      toast.error(
-        `Failed to delete plugin: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+      toast.error(`Failed to delete plugin: ${toUserMessage(err)}`);
     } finally {
       setDeleteLoading(false);
     }
@@ -229,7 +237,7 @@ export function MarketplaceAdmin() {
         await load();
       }
     } catch (err) {
-      toast.error(`Discovery failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(`Discovery failed: ${toUserMessage(err)}`);
     } finally {
       setScanLoading(false);
     }
@@ -242,9 +250,7 @@ export function MarketplaceAdmin() {
       setSelected(updated);
       await load();
     } catch (err) {
-      toast.error(
-        `Failed to update category: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+      toast.error(`Failed to update category: ${toUserMessage(err)}`);
     }
   };
 
