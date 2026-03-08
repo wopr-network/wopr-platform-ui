@@ -80,12 +80,11 @@ export default function ApiKeysPage() {
   }, [load]);
 
   async function handleRevoke(id: string) {
-    const previousKeys = keys;
     setKeys((prev) => prev.filter((k) => k.id !== id));
     try {
       await revokeApiKey(id);
     } catch {
-      setKeys(previousKeys);
+      await load();
       setError("Failed to revoke API key. Please try again.");
     }
   }
