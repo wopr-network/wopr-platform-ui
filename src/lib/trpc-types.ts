@@ -126,6 +126,7 @@ type AppRouterRecord = {
     getInstanceLogs: AnyTRPCQueryProcedure;
     getInstanceMetrics: AnyTRPCQueryProcedure;
     listTemplates: AnyTRPCQueryProcedure;
+    renameInstance: AnyTRPCMutationProcedure;
   };
   settings: {
     notificationPreferences: AnyTRPCQueryProcedure;

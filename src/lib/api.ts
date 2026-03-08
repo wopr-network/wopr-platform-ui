@@ -453,6 +453,14 @@ export async function updateInstanceConfig(id: string, env: Record<string, strin
   });
 }
 
+/** PATCH /fleet/bots/:id — Rename a bot instance. */
+export async function renameInstance(id: string, name: string): Promise<void> {
+  await fleetFetch(`/bots/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+
 /** GET /fleet/bots/:id/secrets — List secret key names (no values). */
 export async function getInstanceSecretKeys(id: string): Promise<string[]> {
   try {
