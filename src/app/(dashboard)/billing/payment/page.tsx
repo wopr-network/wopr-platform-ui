@@ -573,11 +573,12 @@ function InvoiceRow({
           </Button>
         </TableCell>
       </motion.tr>
-      <AnimatePresence>
-        {expanded && hasLineItems && (
-          <tr>
-            <td colSpan={4} className="p-0">
+      {expanded && hasLineItems && (
+        <tr>
+          <td colSpan={4} className="p-0">
+            <AnimatePresence>
               <motion.div
+                key="invoice-detail"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
@@ -604,10 +605,10 @@ function InvoiceRow({
                   </div>
                 </div>
               </motion.div>
-            </td>
-          </tr>
-        )}
-      </AnimatePresence>
+            </AnimatePresence>
+          </td>
+        </tr>
+      )}
     </>
   );
 }
