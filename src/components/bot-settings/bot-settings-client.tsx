@@ -412,6 +412,7 @@ function IdentityTab({
         const updated = await updateBotIdentity(botId, payload);
         onUpdate({ ...settings, identity: updated });
         setSaved(true);
+        clearTimeout(savedTimerRef.current ?? undefined);
         savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
       } catch {
         throw new Error("Failed to save \u2014 please try again.");
