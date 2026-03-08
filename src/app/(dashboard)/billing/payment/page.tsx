@@ -575,32 +575,37 @@ function InvoiceRow({
       </motion.tr>
       <AnimatePresence>
         {expanded && hasLineItems && (
-          <motion.tr
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <TableCell colSpan={4} className="bg-muted/50 p-4">
-              <p className="mb-2 text-xs font-semibold text-muted-foreground">
-                Hosted Usage Line Items
-              </p>
-              <div className="space-y-1 text-xs">
-                {invoice.hostedLineItems?.map((item, i) => (
-                  <div key={`${invoice.id}-item-${i}`} className="flex justify-between">
-                    <span>
-                      {item.capability} — {item.units.toLocaleString()} units @{" "}
-                      <CreditDetailed value={item.unitPrice} />
-                      /unit
-                    </span>
-                    <span className="font-medium min-w-[7rem]">
-                      <CreditDetailed value={item.total} />
-                    </span>
+          <tr>
+            <td colSpan={4} className="p-0">
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                style={{ overflow: "hidden" }}
+              >
+                <div className="bg-muted/50 p-4">
+                  <p className="mb-2 text-xs font-semibold text-muted-foreground">
+                    Hosted Usage Line Items
+                  </p>
+                  <div className="space-y-1 text-xs">
+                    {invoice.hostedLineItems?.map((item, i) => (
+                      <div key={`${invoice.id}-item-${i}`} className="flex justify-between">
+                        <span>
+                          {item.capability} — {item.units.toLocaleString()} units @{" "}
+                          <CreditDetailed value={item.unitPrice} />
+                          /unit
+                        </span>
+                        <span className="font-medium min-w-[7rem]">
+                          <CreditDetailed value={item.total} />
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </TableCell>
-          </motion.tr>
+                </div>
+              </motion.div>
+            </td>
+          </tr>
         )}
       </AnimatePresence>
     </>
