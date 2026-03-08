@@ -228,7 +228,7 @@ export function BotSettingsClient({ botId }: { botId: string }) {
         <div
           className={`transition-all duration-500 ${statusChanged ? "ring-2 ring-terminal/30 rounded-full" : ""}`}
         >
-          {pendingAction === "restart" ? (
+          {actionPending && pendingAction === "restart" ? (
             <Badge
               variant="outline"
               className="gap-1.5 bg-yellow-500/15 text-yellow-500 border-yellow-500/25"
@@ -257,7 +257,7 @@ export function BotSettingsClient({ botId }: { botId: string }) {
               Start
             </Button>
           )}
-          {settings.status === "running" && pendingAction !== "restart" && (
+          {settings.status === "running" && !(actionPending && pendingAction === "restart") && (
             <>
               <Button
                 size="sm"
