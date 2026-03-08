@@ -50,6 +50,7 @@ vi.mock("@/lib/api", () => ({
     if (state === "error" || state === "dead") return "error";
     return "stopped";
   }),
+  getProviderFromEnv: vi.fn((env?: Record<string, string>) => env?.WOPR_LLM_PROVIDER ?? ""),
   parseChannelsFromEnv: vi.fn((env?: Record<string, string>) => {
     const raw = env?.WOPR_PLUGINS_CHANNELS;
     if (!raw) return [];
