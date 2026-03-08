@@ -103,13 +103,12 @@ export default function SecretsPage() {
   }, [load]);
 
   async function handleDelete(id: string) {
-    const previous = secrets;
     setSecrets((prev) => prev.filter((s) => s.id !== id));
     try {
       await deleteSecret(id);
       setError(null);
     } catch {
-      setSecrets(() => previous);
+      await load();
       setError("Failed to delete secret. Please try again.");
     }
   }
@@ -137,25 +136,6 @@ export default function SecretsPage() {
     }
   }
 
-  if (loadError) {
-    return (
-      <div className="max-w-3xl space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Secrets Vault</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage encrypted credentials for plugins and integrations
-          </p>
-        </div>
-        <div className="flex h-40 flex-col items-center justify-center gap-3 text-muted-foreground">
-          <p className="text-sm text-destructive">Failed to load secrets.</p>
-          <Button variant="outline" size="sm" onClick={load}>
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
@@ -172,19 +152,6 @@ export default function SecretsPage() {
           }}
         />
       </div>
-
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {revealedValue && (
@@ -231,7 +198,27 @@ export default function SecretsPage() {
         )}
       </AnimatePresence>
 
-      {loading ? (
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {error}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {loadError ? (
+        <div className="flex h-40 flex-col items-center justify-center gap-3 text-muted-foreground">
+          <p className="text-sm text-destructive">Failed to load secrets.</p>
+          <Button variant="outline" size="sm" onClick={load}>
+            Retry
+          </Button>
+        </div>
+      ) : loading ? (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
