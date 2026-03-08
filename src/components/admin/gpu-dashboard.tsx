@@ -385,7 +385,7 @@ export function GpuDashboard() {
 
             {nodes.map((node) => {
               const vramPct =
-                node.memoryTotalMib && node.memoryUsedMib
+                node.memoryTotalMib != null && node.memoryUsedMib != null
                   ? ((node.memoryUsedMib / node.memoryTotalMib) * 100).toFixed(0)
                   : null;
               const busy = actionInFlight === node.id;

@@ -1,4 +1,4 @@
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchRaw } from "./api";
 
 // ---- Types ----
 
@@ -52,22 +52,24 @@ export async function listGpuNodes(): Promise<GpuNode[]> {
 }
 
 export async function getGpuNode(id: string): Promise<GpuNode> {
-  return apiFetch<GpuNode>(`/admin/gpu/${id}`);
+  return apiFetch<GpuNode>(`/admin/gpu/${encodeURIComponent(id)}`);
 }
 
 export async function provisionGpuNode(req: ProvisionRequest): Promise<GpuNode> {
   return apiFetch<GpuNode>("/admin/gpu", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),
   });
 }
 
 export async function destroyGpuNode(id: string): Promise<void> {
-  await apiFetch<void>(`/admin/gpu/${id}`, { method: "DELETE" });
+  const res = await apiFetchRaw(`/admin/gpu/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(await res.text());
 }
 
 export async function rebootGpuNode(id: string): Promise<GpuNode> {
-  return apiFetch<GpuNode>(`/admin/gpu/${id}/reboot`, { method: "POST" });
+  return apiFetch<GpuNode>(`/admin/gpu/${encodeURIComponent(id)}/reboot`, { method: "POST" });
 }
 
 export async function listGpuRegions(): Promise<GpuRegion[]> {

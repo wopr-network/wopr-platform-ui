@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// ---- Mock apiFetch ----
-const { mockApiFetch } = vi.hoisted(() => ({
+// ---- Mock apiFetch and apiFetchRaw ----
+const { mockApiFetch, mockApiFetchRaw } = vi.hoisted(() => ({
   mockApiFetch: vi.fn(),
+  mockApiFetchRaw: vi.fn(),
 }));
 
 vi.mock("@/lib/api", () => ({
   apiFetch: mockApiFetch,
+  apiFetchRaw: mockApiFetchRaw,
 }));
 
 import type { GpuNode, GpuRegion, GpuSize } from "@/lib/admin-gpu-api";
@@ -102,6 +104,7 @@ describe("provisionGpuNode", () => {
 
     expect(mockApiFetch).toHaveBeenCalledWith("/admin/gpu", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: "new-node", region: "nyc3", size: "gpu-h100x1" }),
     });
     expect(result).toEqual(node);
@@ -117,15 +120,18 @@ describe("provisionGpuNode", () => {
 
 describe("destroyGpuNode", () => {
   it("DELETEs /admin/gpu/:id", async () => {
-    mockApiFetch.mockResolvedValue(undefined);
+    mockApiFetchRaw.mockResolvedValue({ ok: true } as Response);
 
     await destroyGpuNode("gpu-1");
 
-    expect(mockApiFetch).toHaveBeenCalledWith("/admin/gpu/gpu-1", { method: "DELETE" });
+    expect(mockApiFetchRaw).toHaveBeenCalledWith("/admin/gpu/gpu-1", { method: "DELETE" });
   });
 
   it("throws when destroy fails", async () => {
-    mockApiFetch.mockRejectedValue(new Error("Destroy failed"));
+    mockApiFetchRaw.mockResolvedValue({
+      ok: false,
+      text: () => Promise.resolve("Destroy failed"),
+    } as unknown as Response);
     await expect(destroyGpuNode("gpu-1")).rejects.toThrow("Destroy failed");
   });
 });
