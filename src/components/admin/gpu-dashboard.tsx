@@ -213,7 +213,7 @@ export function GpuDashboard() {
       setShowProvision(false);
       toast.success(`GPU node "${req.name}" is provisioning`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to provision GPU node");
+      toast.error(toUserMessage(e, "Failed to provision GPU node"));
     }
   };
 
@@ -224,7 +224,7 @@ export function GpuDashboard() {
       setNodes((prev) => prev.map((n) => (n.id === id ? updated : n)));
       toast.success(`Rebooting "${name}"`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Reboot failed");
+      toast.error(toUserMessage(e, "Reboot failed"));
     } finally {
       setActionInFlight(null);
     }
@@ -238,7 +238,7 @@ export function GpuDashboard() {
       setNodes((prev) => prev.filter((n) => n.id !== id));
       toast.success(`GPU node "${name}" destroyed`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Destroy failed");
+      toast.error(toUserMessage(e, "Destroy failed"));
     } finally {
       setActionInFlight(null);
     }
