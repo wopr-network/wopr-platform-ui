@@ -26,6 +26,7 @@ vi.mock("next/link", () => ({
 
 // Mock API — mode never resolves (stays null)
 vi.mock("@/lib/api", () => ({
+  apiFetch: vi.fn(),
   getInferenceMode: () =>
     new Promise((_resolve) => {
       /* never resolves */
@@ -39,13 +40,8 @@ test("hostedOnly nav item is hidden (not just invisible) while mode is loading",
     </BillingLayout>,
   );
 
-  const hostedLink = screen.queryByText("Hosted Usage");
-  // With "hidden" class, the element should not be in the document at all (display:none)
-  // With "invisible" class, it WOULD be found but not visible — that's the bug
-  if (hostedLink) {
-    const li = hostedLink.closest("li");
-    expect(li?.className).toMatch(/\bhidden\b/);
-    expect(li?.className).not.toMatch(/\binvisible\b/);
-  }
-  // Either not rendered or has hidden class — both acceptable
+  const hostedLink = screen.getByText("Hosted Usage");
+  const li = hostedLink.closest("li");
+  expect(li?.className).toMatch(/\bhidden\b/);
+  expect(li?.className).not.toMatch(/\binvisible\b/);
 });
