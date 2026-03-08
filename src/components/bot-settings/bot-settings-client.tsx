@@ -228,7 +228,17 @@ export function BotSettingsClient({ botId }: { botId: string }) {
         <div
           className={`transition-all duration-500 ${statusChanged ? "ring-2 ring-terminal/30 rounded-full" : ""}`}
         >
-          <StatusBadge status={settings.status === "archived" ? "stopped" : settings.status} />
+          {pendingAction === "restart" ? (
+            <Badge
+              variant="outline"
+              className="gap-1.5 bg-yellow-500/15 text-yellow-500 border-yellow-500/25"
+            >
+              <Loader2 className="size-3 animate-spin" />
+              Restarting
+            </Badge>
+          ) : (
+            <StatusBadge status={settings.status === "archived" ? "stopped" : settings.status} />
+          )}
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{settings.identity.name}</h1>
         <div className="flex gap-2 ml-auto">
@@ -247,7 +257,7 @@ export function BotSettingsClient({ botId }: { botId: string }) {
               Start
             </Button>
           )}
-          {settings.status === "running" && (
+          {settings.status === "running" && pendingAction !== "restart" && (
             <>
               <Button
                 size="sm"
