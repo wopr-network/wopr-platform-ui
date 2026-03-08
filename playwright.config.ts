@@ -23,9 +23,7 @@ export default defineConfig({
     // is evaluated during `next build`, not at server startup). The CI workflow
     // sets this env var on the Build step. Locally, set it before running `pnpm build`.
     //
-    // Use the standalone server directly — `next start` warns and may not work correctly
-    // when output is set to "standalone" in next.config.ts.
-    command: "node .next/standalone/server.js",
+    command: "pnpm start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
