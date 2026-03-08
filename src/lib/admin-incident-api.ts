@@ -6,7 +6,7 @@ export type IncidentSeverity = "SEV1" | "SEV2" | "SEV3";
 
 export interface SeveritySignals {
   stripeReachable: boolean;
-  webhooksReceiving: boolean | null;
+  webhooksReceiving?: boolean | null;
   gatewayErrorRate: number;
   creditDeductionFailures: number;
   dlqDepth: number;
@@ -61,13 +61,13 @@ export interface PostmortemInput {
   resolvedAt: string | null;
   affectedSystems: string[];
   affectedTenantCount: number;
-  revenueImpactCents: number | null;
+  revenueImpactDollars: number | null;
 }
 
 // --- API calls ---
 
 export async function classifyIncidentSeverity(signals: SeveritySignals): Promise<SeverityResult> {
-  const result = await apiFetch<{ success: boolean } & SeverityResult>(
+  const result = await apiFetch<{ success: boolean; error?: string } & SeverityResult>(
     "/admin/incidents/severity",
     {
       method: "POST",
@@ -75,6 +75,7 @@ export async function classifyIncidentSeverity(signals: SeveritySignals): Promis
       body: JSON.stringify(signals),
     },
   );
+  if (!result.success) throw new Error(result.error ?? "Request failed");
   return result;
 }
 
@@ -93,19 +94,21 @@ export async function getResponseProcedure(
 export async function getCommunicationTemplates(
   context: CommunicateContext,
 ): Promise<CommunicationTemplates> {
-  const result = await apiFetch<{ success: boolean; templates: CommunicationTemplates }>(
-    "/admin/incidents/communicate",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(context),
-    },
-  );
+  const result = await apiFetch<{
+    success: boolean;
+    templates: CommunicationTemplates;
+    error?: string;
+  }>("/admin/incidents/communicate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(context),
+  });
+  if (!result.success) throw new Error(result.error ?? "Request failed");
   return result.templates;
 }
 
 export async function generatePostmortem(input: PostmortemInput): Promise<string> {
-  const result = await apiFetch<{ success: boolean; report: string }>(
+  const result = await apiFetch<{ success: boolean; report: string; error?: string }>(
     "/admin/incidents/postmortem",
     {
       method: "POST",
@@ -113,5 +116,6 @@ export async function generatePostmortem(input: PostmortemInput): Promise<string
       body: JSON.stringify(input),
     },
   );
+  if (!result.success) throw new Error(result.error ?? "Request failed");
   return result.report;
 }

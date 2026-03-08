@@ -55,7 +55,6 @@ function SeverityClassifierPanel() {
   const [result, setResult] = useState<SeverityResult | null>(null);
   const [signals, setSignals] = useState<SeveritySignals>({
     stripeReachable: true,
-    webhooksReceiving: null,
     gatewayErrorRate: 0,
     creditDeductionFailures: 0,
     dlqDepth: 0,
@@ -251,7 +250,10 @@ function EscalationPanel() {
             <button
               key={s}
               type="button"
-              onClick={() => setSeverity(s)}
+              onClick={() => {
+                setSeverity(s);
+                setResult(null);
+              }}
               className={cn(
                 "text-xs px-3 py-1 rounded border transition-colors font-mono",
                 severity === s
@@ -340,8 +342,8 @@ function ResponseProcedurePanel() {
         </div>
         {procedure && (
           <ol className="space-y-2 list-decimal list-inside">
-            {procedure.steps.map((step: string) => (
-              <li key={step} className="text-sm text-muted-foreground">
+            {procedure.steps.map((step: string, index: number) => (
+              <li key={`${index}-${step.slice(0, 20)}`} className="text-sm text-muted-foreground">
                 {step}
               </li>
             ))}
@@ -429,6 +431,14 @@ function CommunicationPanel() {
             />
           </div>
           <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Started At (ISO)</Label>
+            <Input
+              value={form.startedAt}
+              onChange={(e) => setForm((f) => ({ ...f, startedAt: e.target.value }))}
+              className="h-7 text-xs font-mono"
+            />
+          </div>
+          <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">
               Affected Systems (comma-separated)
             </Label>
@@ -502,7 +512,7 @@ function PostmortemPanel() {
     resolvedAt: null,
     affectedSystems: [],
     affectedTenantCount: 0,
-    revenueImpactCents: null,
+    revenueImpactDollars: null,
   });
   const [affectedSystemsText, setAffectedSystemsText] = useState("");
 
@@ -626,17 +636,15 @@ function PostmortemPanel() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">
-              Revenue Impact (cents, optional)
-            </Label>
+            <Label className="text-xs text-muted-foreground">Revenue Impact (USD, optional)</Label>
             <Input
               type="number"
               min={0}
-              value={form.revenueImpactCents ?? ""}
+              value={form.revenueImpactDollars ?? ""}
               onChange={(e) =>
                 setForm((f) => ({
                   ...f,
-                  revenueImpactCents: e.target.value ? Number.parseInt(e.target.value, 10) : null,
+                  revenueImpactDollars: e.target.value ? Number.parseFloat(e.target.value) : null,
                 }))
               }
               placeholder="Leave blank if unknown"
