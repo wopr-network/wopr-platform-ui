@@ -396,6 +396,15 @@ function IdentityTab({
   const [name, setName] = useState(settings.identity.name);
   const [personality, setPersonality] = useState(settings.identity.personality);
   const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) {
+        clearTimeout(savedTimerRef.current);
+      }
+    };
+  }, []);
 
   const saveFn = useCallback(
     async (payload: { name: string; avatar: string; personality: string }) => {
@@ -403,7 +412,7 @@ function IdentityTab({
         const updated = await updateBotIdentity(botId, payload);
         onUpdate({ ...settings, identity: updated });
         setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
+        savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
       } catch {
         throw new Error("Failed to save \u2014 please try again.");
       }
