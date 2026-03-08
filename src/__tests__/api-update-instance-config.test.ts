@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const mockFetch = vi.fn().mockResolvedValue({
   ok: true,
   status: 200,
+  headers: { get: vi.fn().mockReturnValue(null) },
   json: () => Promise.resolve({ id: "bot-1", name: "test-bot" }),
 });
 vi.stubGlobal("fetch", mockFetch);
