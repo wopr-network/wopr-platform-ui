@@ -4,6 +4,16 @@ import { motion } from "framer-motion";
 import { AlertTriangle, RefreshCw, Trash2, Zap } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import type { GpuNode, GpuRegion, GpuSize, ProvisionRequest } from "@/lib/admin-gpu-api";
 import {
@@ -83,7 +93,7 @@ interface ProvisionFormProps {
 
 function ProvisionForm({ regions, sizes, onProvision, onCancel }: ProvisionFormProps) {
   const [name, setName] = useState("");
-  const [region, setRegion] = useState(regions[0]?.slug ?? "");
+  const [region, setRegion] = useState(regions.find((r) => r.available)?.slug ?? "");
   const [size, setSize] = useState(sizes[0]?.slug ?? "");
   const [submitting, setSubmitting] = useState(false);
 
@@ -185,7 +195,8 @@ export function GpuDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showProvision, setShowProvision] = useState(false);
-  const [actionInFlight, setActionInFlight] = useState<string | null>(null);
+  const [actionsInFlight, setActionsInFlight] = useState<Set<string>>(new Set());
+  const [pendingDestroy, setPendingDestroy] = useState<{ id: string; name: string } | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -222,7 +233,7 @@ export function GpuDashboard() {
   };
 
   const handleReboot = async (id: string, name: string) => {
-    setActionInFlight(id);
+    setActionsInFlight((prev) => new Set(prev).add(id));
     try {
       const updated = await rebootGpuNode(id);
       setNodes((prev) => prev.map((n) => (n.id === id ? updated : n)));
@@ -230,13 +241,16 @@ export function GpuDashboard() {
     } catch (e) {
       toast.error(toUserMessage(e, "Reboot failed"));
     } finally {
-      setActionInFlight(null);
+      setActionsInFlight((prev) => {
+        const s = new Set(prev);
+        s.delete(id);
+        return s;
+      });
     }
   };
 
   const handleDestroy = async (id: string, name: string) => {
-    if (!confirm(`Destroy GPU node "${name}"? This cannot be undone.`)) return;
-    setActionInFlight(id);
+    setActionsInFlight((prev) => new Set(prev).add(id));
     try {
       await destroyGpuNode(id);
       setNodes((prev) => prev.filter((n) => n.id !== id));
@@ -244,7 +258,11 @@ export function GpuDashboard() {
     } catch (e) {
       toast.error(toUserMessage(e, "Destroy failed"));
     } finally {
-      setActionInFlight(null);
+      setActionsInFlight((prev) => {
+        const s = new Set(prev);
+        s.delete(id);
+        return s;
+      });
     }
   };
 
@@ -403,7 +421,7 @@ export function GpuDashboard() {
                 node.memoryTotalMib != null && node.memoryUsedMib != null && node.memoryTotalMib > 0
                   ? `${Math.round((node.memoryUsedMib / node.memoryTotalMib) * 100)}%`
                   : null;
-              const busy = actionInFlight === node.id;
+              const busy = actionsInFlight.has(node.id);
 
               return (
                 <div
@@ -461,7 +479,7 @@ export function GpuDashboard() {
                       variant="ghost"
                       size="xs"
                       disabled={busy || node.status === "provisioning"}
-                      onClick={() => handleDestroy(node.id, node.name)}
+                      onClick={() => setPendingDestroy({ id: node.id, name: node.name })}
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       title="Destroy"
                     >
@@ -498,6 +516,37 @@ export function GpuDashboard() {
           API.
         </p>
       </div>
+
+      {/* Destroy confirmation dialog */}
+      <AlertDialog
+        open={pendingDestroy != null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDestroy(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Destroy GPU Node</AlertDialogTitle>
+            <AlertDialogDescription>
+              Destroy GPU node &ldquo;{pendingDestroy?.name}&rdquo;? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDestroy) {
+                  handleDestroy(pendingDestroy.id, pendingDestroy.name);
+                  setPendingDestroy(null);
+                }
+              }}
+            >
+              Destroy
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

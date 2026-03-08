@@ -36,6 +36,7 @@ export interface GpuSize {
   memoryMib: number;
   gpuCount: number;
   gpuModel: string;
+  /** Monthly price in USD (whole dollars, matching DigitalOcean convention) */
   priceMonthly: number;
 }
 
