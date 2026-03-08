@@ -59,7 +59,7 @@ type TierEntry = (typeof TIERS)[number];
 export function ResourcesTab({ botId }: { botId: string }) {
   const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [confirmTier, setConfirmTier] = useState<TierEntry | null>(null);
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,16 +68,29 @@ export function ResourcesTab({ botId }: { botId: string }) {
   const retryRef = useRef<() => void>(() => {});
 
   useEffect(() => {
+    let cancelled = false;
     function loadTier() {
       setLoading(true);
-      setLoadError(false);
+      setLoadError(null);
       getResourceTier(botId)
-        .then((res) => setCurrentTier(res.tier))
-        .catch(() => setLoadError(true))
-        .finally(() => setLoading(false));
+        .then((res) => {
+          if (!cancelled) setCurrentTier(res.tier);
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            setCurrentTier(null);
+            setLoadError(toUserMessage(err, "Failed to load resource tier. Please refresh."));
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
     }
     retryRef.current = loadTier;
     loadTier();
+    return () => {
+      cancelled = true;
+    };
   }, [botId]);
 
   async function handleConfirm() {
@@ -102,7 +115,7 @@ export function ResourcesTab({ botId }: { botId: string }) {
   if (loadError) {
     return (
       <div className="flex items-center gap-2 text-sm text-destructive">
-        <span>Failed to load resource tier.</span>
+        <span>{loadError}</span>
         <Button size="sm" variant="outline" onClick={() => retryRef.current()}>
           Retry
         </Button>
