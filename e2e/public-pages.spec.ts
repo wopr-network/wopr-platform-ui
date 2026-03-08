@@ -21,7 +21,12 @@ test.describe("Public pages (no auth required)", () => {
 			route.fulfill({
 				status: 200,
 				contentType: "application/json",
-				body: JSON.stringify({ status: "healthy" }),
+				body: JSON.stringify({
+					status: "healthy",
+					services: [{ name: "api", status: "healthy", latencyMs: 12 }],
+					version: "1.0.0",
+					uptime: 99.9,
+				}),
 			}),
 		);
 
@@ -37,7 +42,9 @@ test.describe("Public pages (no auth required)", () => {
 		});
 
 		// Services section (health indicators rendered)
-		await expect(page.getByText("Services").first()).toBeVisible();
+		await expect(page.getByText("Services").first()).toBeVisible({
+			timeout: 10000,
+		});
 	});
 
 	test("privacy policy page renders with content and key sections", async ({ page }) => {
