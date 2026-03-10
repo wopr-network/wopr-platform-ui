@@ -10,8 +10,8 @@ export async function getChangeset(id: string): Promise<ChangesetDetail> {
 export async function submitChangesetReview(
   id: string,
   review: { status: "approved" | "rejected" | "changes_requested"; body?: string },
-): Promise<void> {
-  await apiFetch<void>(`/v1/changesets/${encodeURIComponent(id)}/reviews`, {
+): Promise<unknown> {
+  return apiFetch<unknown>(`/v1/changesets/${encodeURIComponent(id)}/reviews`, {
     method: "POST",
     body: JSON.stringify(review),
   });
@@ -21,8 +21,8 @@ export async function submitChangesetReview(
 export async function addChangesetComment(
   id: string,
   comment: { body: string; filePath?: string; lineNumber?: number },
-): Promise<void> {
-  await apiFetch<void>(`/v1/changesets/${encodeURIComponent(id)}/comments`, {
+): Promise<unknown> {
+  return apiFetch<unknown>(`/v1/changesets/${encodeURIComponent(id)}/comments`, {
     method: "POST",
     body: JSON.stringify(comment),
   });

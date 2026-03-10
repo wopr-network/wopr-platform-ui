@@ -88,12 +88,14 @@ function DiffBlock({ patch }: { patch: string }) {
     <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed">
       {lines.map((line, idx) => {
         let lineClass = "text-muted-foreground";
-        if (line.startsWith("+")) {
+        if (line.startsWith("@@")) {
+          lineClass = "text-blue-400";
+        } else if (line.startsWith("+++") || line.startsWith("---")) {
+          lineClass = "text-muted-foreground";
+        } else if (line.startsWith("+")) {
           lineClass = "text-emerald-400 bg-emerald-500/10";
         } else if (line.startsWith("-")) {
           lineClass = "text-red-400 bg-red-500/10";
-        } else if (line.startsWith("@@")) {
-          lineClass = "text-blue-400";
         }
         return (
           <div key={`${idx}-${line.slice(0, 20)}`} className={lineClass}>
@@ -389,7 +391,7 @@ function FileCard({ file }: { file: ChangesetFile }) {
         )}
         {!hasDiff && (
           <div className="border-t px-4 py-2">
-            <span className="text-xs text-muted-foreground">Binary file — no diff available</span>
+            <span className="text-xs text-muted-foreground">No diff available</span>
           </div>
         )}
       </Collapsible>
