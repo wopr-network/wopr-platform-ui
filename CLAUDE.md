@@ -22,6 +22,7 @@ src/
   app/
     (auth)/           # Login, register, OAuth
     (dashboard)/      # Main app shell (authenticated)
+      changesets/     # Changeset list (/changesets) and detail (/changesets/[id]) pages
     auth/             # Auth API routes
     channels/         # Channel management pages
     fleet/            # Multi-bot fleet view
@@ -45,7 +46,7 @@ src/
     sidebar.tsx       # App sidebar
     ui/               # Base design system components
   hooks/              # Custom React hooks
-  lib/                # Shared utilities, auth config
+  lib/                # Shared utilities, auth config, feature API modules (e.g. changeset-api.ts, changeset-types.ts)
   proxy.ts            # Auth middleware (better-auth)
 ```
 
