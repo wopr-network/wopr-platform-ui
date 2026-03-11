@@ -4,6 +4,7 @@ import { useImageStatus } from "@/hooks/use-image-status";
 
 vi.mock("@/lib/api", () => ({
   getImageStatus: vi.fn(),
+  apiFetch: vi.fn(),
 }));
 
 import { getImageStatus } from "@/lib/api";
@@ -27,18 +28,35 @@ describe("useImageStatus", () => {
     expect(result.current.updateAvailable).toBe(true);
   });
 
-  it("sets error on fetch failure", async () => {
-    mockGetImageStatus.mockRejectedValue(new Error("Network error"));
+  it("sets error when getImageStatus returns null", async () => {
+    mockGetImageStatus.mockResolvedValue(null);
     const { result } = renderHook(() => useImageStatus("inst-1"));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.error).toBe("Network error");
+    expect(result.current.error).toBe("Failed to fetch image status");
+    expect(result.current.updateAvailable).toBe(false);
+  });
+
+  it("clears stale data when getImageStatus returns null", async () => {
+    mockGetImageStatus.mockResolvedValueOnce({
+      updateAvailable: true,
+      currentDigest: "sha256:abc",
+      latestDigest: "sha256:def",
+    });
+    const { result } = renderHook(() => useImageStatus("inst-1"));
+    await waitFor(() => expect(result.current.updateAvailable).toBe(true));
+
+    mockGetImageStatus.mockResolvedValue(null);
+    await act(async () => {
+      await result.current.refresh();
+    });
+    expect(result.current.error).toBe("Failed to fetch image status");
     expect(result.current.updateAvailable).toBe(false);
   });
 
   it("clears error on successful retry after failure", async () => {
-    mockGetImageStatus.mockRejectedValueOnce(new Error("fail"));
+    mockGetImageStatus.mockResolvedValueOnce(null);
     const { result } = renderHook(() => useImageStatus("inst-1"));
-    await waitFor(() => expect(result.current.error).toBe("fail"));
+    await waitFor(() => expect(result.current.error).toBe("Failed to fetch image status"));
 
     mockGetImageStatus.mockResolvedValue({
       updateAvailable: false,
@@ -49,13 +67,6 @@ describe("useImageStatus", () => {
       await result.current.refresh();
     });
     expect(result.current.error).toBeNull();
-  });
-
-  it("handles non-Error thrown values", async () => {
-    mockGetImageStatus.mockRejectedValue("string error");
-    const { result } = renderHook(() => useImageStatus("inst-1"));
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.error).toBe("string error");
   });
 
   it("returns error: null when id is null", () => {

@@ -11,15 +11,16 @@ export function useImageStatus(id: string | null) {
   const refresh = useCallback(async () => {
     if (!id) return;
     setLoading(true);
-    try {
-      const result = await getImageStatus(id);
+    setError(null);
+    const result = await getImageStatus(id);
+    if (result === null) {
+      setError("Failed to fetch image status");
+      setData(null);
+    } else {
       setData(result);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }, [id]);
 
   useEffect(() => {
