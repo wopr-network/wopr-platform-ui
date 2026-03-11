@@ -17,6 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { createSetupIntent } from "@/lib/api";
 import { logger } from "@/lib/logger";
+import { createOrgSetupIntent } from "@/lib/org-billing-api";
 
 const log = logger("billing:add-payment-method");
 
@@ -30,12 +31,14 @@ interface AddPaymentMethodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  orgId?: string;
 }
 
 export function AddPaymentMethodDialog({
   open,
   onOpenChange,
   onSuccess,
+  orgId,
 }: AddPaymentMethodDialogProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,14 +48,14 @@ export function AddPaymentMethodDialog({
     setLoading(true);
     setError(null);
     try {
-      const { clientSecret: cs } = await createSetupIntent();
-      setClientSecret(cs);
+      const result = orgId ? await createOrgSetupIntent(orgId) : await createSetupIntent();
+      setClientSecret(result.clientSecret);
     } catch {
       setError("Failed to initialize payment form. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     if (open) {
@@ -67,7 +70,7 @@ export function AddPaymentMethodDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add payment method</DialogTitle>
+          <DialogTitle>{orgId ? "Add org payment method" : "Add payment method"}</DialogTitle>
           <DialogDescription>
             Your card details are handled securely by Stripe. We never see or store your card
             number.

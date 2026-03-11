@@ -71,3 +71,7 @@ export async function createOrgTopupCheckout(
 ) {
   return trpcVanilla.org.orgTopupCheckout.mutate({ orgId, priceId, successUrl, cancelUrl });
 }
+
+export async function createOrgSetupIntent(orgId: string): Promise<{ clientSecret: string }> {
+  return trpcVanilla.org.orgSetupIntent.mutate({ orgId });
+}
