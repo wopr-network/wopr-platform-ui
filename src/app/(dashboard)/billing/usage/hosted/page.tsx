@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditDetailed } from "@/components/ui/credit-detailed";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -53,19 +55,28 @@ export default function HostedUsageDetailPage() {
   const [sortField, setSortField] = useState<SortField>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [error, setError] = useState<string | null>(null);
+  const [dateFrom, setDateFrom] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  });
+  const [dateTo, setDateTo] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getHostedUsageEvents();
+      const data = await getHostedUsageEvents({
+        from: dateFrom || undefined,
+        to: dateTo || undefined,
+      });
       setEvents(data);
     } catch {
       setError("Failed to load usage events.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [dateFrom, dateTo]);
 
   useEffect(() => {
     load();
@@ -195,6 +206,32 @@ export default function HostedUsageDetailPage() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="date-from" className="text-xs text-muted-foreground">
+                  From
+                </Label>
+                <Input
+                  id="date-from"
+                  type="date"
+                  aria-label="From date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="h-9 w-36"
+                />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="date-to" className="text-xs text-muted-foreground">
+                  To
+                </Label>
+                <Input
+                  id="date-to"
+                  type="date"
+                  aria-label="To date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="h-9 w-36"
+                />
+              </div>
               <Select value={capabilityFilter} onValueChange={setCapabilityFilter}>
                 <SelectTrigger aria-label="Filter by capability">
                   <SelectValue placeholder="All capabilities" />
