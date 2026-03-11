@@ -1,6 +1,6 @@
 import * as http from "node:http";
 
-const E2E_ADMIN_TOKEN = "e2e-admin-token";
+export const E2E_ADMIN_TOKEN = "e2e-admin-token";
 
 function parseSessionToken(cookieHeader: string | undefined): string | null {
 	if (!cookieHeader) return null;
@@ -76,6 +76,7 @@ export function stopMockApiServer(): Promise<void> {
 			resolve();
 			return;
 		}
+		server.closeAllConnections();
 		server.close(() => resolve());
 		server = null;
 	});

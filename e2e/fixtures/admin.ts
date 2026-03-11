@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { E2E_ADMIN_TOKEN } from "../mock-api-server";
 
 const PLATFORM_BASE_URL =
 	process.env.NEXT_PUBLIC_API_URL ?? process.env.BASE_URL ?? "http://localhost:3001";
@@ -268,7 +269,7 @@ export async function mockAdminSession(page: Page) {
 	await page.context().addCookies([
 		{
 			name: "better-auth.session_token",
-			value: "e2e-admin-token",
+			value: E2E_ADMIN_TOKEN,
 			domain: "localhost",
 			path: "/",
 			httpOnly: true,
@@ -301,7 +302,7 @@ export async function mockAdminSession(page: Page) {
 							session: {
 								id: "e2e-session-id",
 								userId: "e2e-user-id",
-								token: "e2e-admin-token",
+								token: E2E_ADMIN_TOKEN,
 								expiresAt: new Date(Date.now() + 86400000).toISOString(),
 							},
 						}
