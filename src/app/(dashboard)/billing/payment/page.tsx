@@ -100,8 +100,8 @@ export default function PaymentPage() {
         setOrgPaymentMethods(data.paymentMethods);
         setOrgInvoices(data.invoices);
       })
-      .catch(() => {
-        setOrgBillingError("Failed to load organization billing information.");
+      .catch((err) => {
+        setOrgBillingError(toUserMessage(err, "Failed to load organization billing information."));
       })
       .finally(() => setOrgLoading(false));
   }, []);
