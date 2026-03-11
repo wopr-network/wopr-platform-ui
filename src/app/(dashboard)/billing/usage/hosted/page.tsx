@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -39,15 +38,6 @@ const CAPABILITY_LABELS: Record<HostedCapability, string> = {
 type SortField = "date" | "capability" | "provider" | "units" | "cost";
 type SortDir = "asc" | "desc";
 
-const staggerRow = {
-  hidden: { opacity: 0, x: -12 },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: { delay: Math.min(i, 20) * 0.05, duration: 0.3, ease: "easeOut" as const },
-  }),
-};
-
 export default function HostedUsageDetailPage() {
   const [events, setEvents] = useState<HostedUsageEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,9 +48,9 @@ export default function HostedUsageDetailPage() {
   const [dateFrom, setDateFrom] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
-    return d.toISOString().slice(0, 10);
+    return d.toLocaleDateString("en-CA");
   });
-  const [dateTo, setDateTo] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [dateTo, setDateTo] = useState<string>(() => new Date().toLocaleDateString("en-CA"));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -215,6 +205,7 @@ export default function HostedUsageDetailPage() {
                   type="date"
                   aria-label="From date"
                   value={dateFrom}
+                  max={dateTo}
                   onChange={(e) => setDateFrom(e.target.value)}
                   className="h-9 w-36"
                 />
@@ -228,6 +219,7 @@ export default function HostedUsageDetailPage() {
                   type="date"
                   aria-label="To date"
                   value={dateTo}
+                  min={dateFrom}
                   onChange={(e) => setDateTo(e.target.value)}
                   className="h-9 w-36"
                 />
@@ -320,12 +312,8 @@ export default function HostedUsageDetailPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredEvents.map((event, index) => (
-                    <motion.tr
+                    <tr
                       key={event.id}
-                      variants={staggerRow}
-                      initial="hidden"
-                      animate="visible"
-                      custom={index}
                       className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                     >
                       <TableCell className="font-medium">
@@ -347,7 +335,7 @@ export default function HostedUsageDetailPage() {
                       <TableCell className="text-right font-medium min-w-[7rem]">
                         <CreditDetailed value={event.cost} />
                       </TableCell>
-                    </motion.tr>
+                    </tr>
                   ))}
                 </TableBody>
               </Table>

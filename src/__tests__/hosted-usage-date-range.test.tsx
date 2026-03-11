@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock the API module
 vi.mock("@/lib/api", () => ({
   getHostedUsageEvents: vi.fn().mockResolvedValue([]),
+  apiFetch: vi.fn(),
 }));
 
 // Mock framer-motion to avoid animation issues in tests
@@ -42,10 +43,12 @@ describe("HostedUsageDetailPage date range", () => {
     render(<HostedUsageDetailPage />);
     const fromInput = await screen.findByLabelText("From date");
     fireEvent.change(fromInput, { target: { value: "2025-01-01" } });
-    expect(getHostedUsageEvents).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        from: "2025-01-01",
-      }),
+    await waitFor(() =>
+      expect(getHostedUsageEvents).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          from: "2025-01-01",
+        }),
+      ),
     );
   });
 });
