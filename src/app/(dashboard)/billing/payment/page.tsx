@@ -29,6 +29,7 @@ import {
   updateBillingEmail,
 } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
+import { toUserMessage } from "@/lib/errors";
 import { formatCreditStandard } from "@/lib/format-credit";
 import { getOrganization } from "@/lib/org-api";
 import { getOrgBillingInfo } from "@/lib/org-billing-api";
@@ -117,8 +118,8 @@ export default function PaymentPage() {
         setOrgContext(ctx);
         loadOrgBilling(org.id);
       })
-      .catch(() => {
-        // Silently degrade — org billing section will not render
+      .catch((err) => {
+        setError(toUserMessage(err, "Failed to load payment information."));
       })
       .finally(() => setOrgChecked(true));
   }, [session?.user?.email, loadOrgBilling]);
@@ -130,8 +131,8 @@ export default function PaymentPage() {
       const data = await getBillingInfo();
       setInfo(data);
       setBillingEmail(data.email);
-    } catch {
-      setError("Failed to load billing information.");
+    } catch (err) {
+      setError(toUserMessage(err, "Failed to load billing information."));
     } finally {
       setLoading(false);
     }
@@ -429,7 +430,7 @@ export default function PaymentPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => loadOrgBilling(orgContext.orgId)}
+                    onClick={() => orgContext && loadOrgBilling(orgContext.orgId)}
                   >
                     Retry
                   </Button>
@@ -479,7 +480,7 @@ export default function PaymentPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => loadOrgBilling(orgContext.orgId)}
+                  onClick={() => orgContext && loadOrgBilling(orgContext.orgId)}
                 >
                   Retry
                 </Button>
