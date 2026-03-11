@@ -89,6 +89,21 @@ export default function PaymentPage() {
   >([]);
   const [orgChecked, setOrgChecked] = useState(false);
   const [orgLoading, setOrgLoading] = useState(false);
+  const [orgBillingError, setOrgBillingError] = useState<string | null>(null);
+
+  const loadOrgBilling = useCallback((orgId: string) => {
+    setOrgBillingError(null);
+    setOrgLoading(true);
+    getOrgBillingInfo(orgId)
+      .then((data) => {
+        setOrgPaymentMethods(data.paymentMethods);
+        setOrgInvoices(data.invoices);
+      })
+      .catch(() => {
+        setOrgBillingError("Failed to load organization billing information.");
+      })
+      .finally(() => setOrgLoading(false));
+  }, []);
 
   useEffect(() => {
     getOrganization()
@@ -100,22 +115,13 @@ export default function PaymentPage() {
           isAdmin: currentMember?.role === "owner" || currentMember?.role === "admin",
         };
         setOrgContext(ctx);
-        setOrgLoading(true);
-        getOrgBillingInfo(org.id)
-          .then((data) => {
-            setOrgPaymentMethods(data.paymentMethods);
-            setOrgInvoices(data.invoices);
-          })
-          .catch(() => {
-            // Silently degrade — payment methods and invoices default to empty
-          })
-          .finally(() => setOrgLoading(false));
+        loadOrgBilling(org.id);
       })
       .catch(() => {
         // Silently degrade — org billing section will not render
       })
       .finally(() => setOrgChecked(true));
-  }, [session?.user?.email]);
+  }, [session?.user?.email, loadOrgBilling]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -387,7 +393,7 @@ export default function PaymentPage() {
                   </div>
                 ))}
               </div>
-            ) : orgPaymentMethods.length === 0 ? (
+            ) : orgBillingError ? null : orgPaymentMethods.length === 0 ? (
               <p className="text-sm text-muted-foreground">No org payment methods on file.</p>
             ) : (
               <div className="space-y-3">
@@ -411,6 +417,25 @@ export default function PaymentPage() {
                 ))}
               </div>
             )}
+            <AnimatePresence>
+              {orgBillingError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive flex items-center justify-between"
+                >
+                  <span>{orgBillingError}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadOrgBilling(orgContext.orgId)}
+                  >
+                    Retry
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {orgContext.isAdmin && (
               <>
                 <Button variant="outline" onClick={() => setShowOrgAddPayment(true)}>
@@ -419,18 +444,7 @@ export default function PaymentPage() {
                 <AddPaymentMethodDialog
                   open={showOrgAddPayment}
                   onOpenChange={setShowOrgAddPayment}
-                  onSuccess={() => {
-                    setOrgLoading(true);
-                    getOrgBillingInfo(orgContext.orgId)
-                      .then((data) => {
-                        setOrgPaymentMethods(data.paymentMethods);
-                        setOrgInvoices(data.invoices);
-                      })
-                      .catch(() => {
-                        /* refresh failed — stale data is acceptable */
-                      })
-                      .finally(() => setOrgLoading(false));
-                  }}
+                  onSuccess={() => loadOrgBilling(orgContext.orgId)}
                   orgId={orgContext.orgId}
                 />
               </>
@@ -458,6 +472,17 @@ export default function PaymentPage() {
                     <Skeleton className="h-4 w-20" />
                   </div>
                 ))}
+              </div>
+            ) : orgBillingError ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-4 text-muted-foreground">
+                <p className="text-sm text-destructive">{orgBillingError}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadOrgBilling(orgContext.orgId)}
+                >
+                  Retry
+                </Button>
               </div>
             ) : orgInvoices.length === 0 ? (
               <p className="text-sm text-muted-foreground">No org invoices yet.</p>
