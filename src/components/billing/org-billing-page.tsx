@@ -23,6 +23,8 @@ import { formatCreditStandard } from "@/lib/format-credit";
 import type { OrgCreditBalance, OrgMemberUsageRow } from "@/lib/org-billing-api";
 import { getOrgBillingInfo, getOrgCreditBalance, getOrgMemberUsage } from "@/lib/org-billing-api";
 
+const stripeBackendReady = Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
 interface OrgPaymentMethod {
   id: string;
   brand: string;
@@ -271,7 +273,7 @@ export function OrgBillingPage({ orgId, orgName, isAdmin }: OrgBillingPageProps)
                 ))}
               </div>
             )}
-            {isAdmin && (
+            {isAdmin && stripeBackendReady && (
               <>
                 <Button variant="outline" className="mt-4" onClick={() => setShowAddPayment(true)}>
                   Add payment method
