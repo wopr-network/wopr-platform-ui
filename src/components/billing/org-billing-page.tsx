@@ -276,13 +276,14 @@ export function OrgBillingPage({ orgId, orgName, isAdmin }: OrgBillingPageProps)
             {isAdmin && stripeBackendReady && (
               <>
                 <Button variant="outline" className="mt-4" onClick={() => setShowAddPayment(true)}>
-                  Add payment method
+                  Add org payment method
                 </Button>
                 <AddPaymentMethodDialog
                   open={showAddPayment}
                   onOpenChange={setShowAddPayment}
                   onSuccess={load}
                   orgId={orgId}
+                  returnUrl="/billing/credits"
                 />
               </>
             )}

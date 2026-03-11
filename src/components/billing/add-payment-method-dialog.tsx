@@ -32,6 +32,7 @@ interface AddPaymentMethodDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   orgId?: string;
+  returnUrl?: string;
 }
 
 export function AddPaymentMethodDialog({
@@ -39,6 +40,7 @@ export function AddPaymentMethodDialog({
   onOpenChange,
   onSuccess,
   orgId,
+  returnUrl = "/billing/payment",
 }: AddPaymentMethodDialogProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -167,6 +169,7 @@ export function AddPaymentMethodDialog({
                     onSuccess();
                   }}
                   onCancel={() => onOpenChange(false)}
+                  returnUrl={returnUrl}
                 />
               </Elements>
             </motion.div>
@@ -189,7 +192,15 @@ export function AddPaymentMethodDialog({
   );
 }
 
-function SetupForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
+function SetupForm({
+  onSuccess,
+  onCancel,
+  returnUrl,
+}: {
+  onSuccess: () => void;
+  onCancel: () => void;
+  returnUrl: string;
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -205,7 +216,7 @@ function SetupForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: (
     const result = await stripe.confirmSetup({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/billing/payment`,
+        return_url: `${window.location.origin}${returnUrl}`,
       },
       redirect: "if_required",
     });

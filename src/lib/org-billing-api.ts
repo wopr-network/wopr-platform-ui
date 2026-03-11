@@ -73,5 +73,9 @@ export async function createOrgTopupCheckout(
 }
 
 export async function createOrgSetupIntent(orgId: string): Promise<{ clientSecret: string }> {
-  return trpcVanilla.org.orgSetupIntent.mutate({ orgId });
+  const result = await trpcVanilla.org.orgSetupIntent.mutate({ orgId });
+  if (!result?.clientSecret || typeof result.clientSecret !== "string") {
+    throw new Error("orgSetupIntent: missing clientSecret in response");
+  }
+  return result as { clientSecret: string };
 }
