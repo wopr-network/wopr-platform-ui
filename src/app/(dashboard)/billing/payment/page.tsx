@@ -66,6 +66,7 @@ export default function PaymentPage() {
   const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [orgError, setOrgError] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [showOrgAddPayment, setShowOrgAddPayment] = useState(false);
 
@@ -102,6 +103,8 @@ export default function PaymentPage() {
       })
       .catch((err) => {
         setOrgBillingError(toUserMessage(err, "Failed to load organization billing information."));
+        setOrgPaymentMethods([]);
+        setOrgInvoices([]);
       })
       .finally(() => setOrgLoading(false));
   }, []);
@@ -119,7 +122,7 @@ export default function PaymentPage() {
         loadOrgBilling(org.id);
       })
       .catch((err) => {
-        setError(toUserMessage(err, "Failed to load payment information."));
+        setOrgError(toUserMessage(err, "Failed to load payment information."));
       })
       .finally(() => setOrgChecked(true));
   }, [session?.user?.email, loadOrgBilling]);
@@ -371,6 +374,13 @@ export default function PaymentPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Org context error (shown as warning, does not gate the page) */}
+      {orgChecked && orgError && (
+        <div className="rounded-md border border-yellow-500/50 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400">
+          {orgError}
+        </div>
+      )}
 
       {/* Org Payment Methods (when in org context) */}
       {orgChecked && orgContext && (
