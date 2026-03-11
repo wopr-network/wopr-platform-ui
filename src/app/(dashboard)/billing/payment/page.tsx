@@ -29,6 +29,7 @@ import {
   updateBillingEmail,
 } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
+import { toUserMessage } from "@/lib/errors";
 import { formatCreditStandard } from "@/lib/format-credit";
 import { getOrganization } from "@/lib/org-api";
 import { getOrgBillingInfo } from "@/lib/org-billing-api";
@@ -90,6 +91,7 @@ export default function PaymentPage() {
   const [orgChecked, setOrgChecked] = useState(false);
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgBillingError, setOrgBillingError] = useState<string | null>(null);
+  const [orgContextError, setOrgContextError] = useState<string | null>(null);
 
   const loadOrgBilling = useCallback((orgId: string) => {
     setOrgBillingError(null);
@@ -99,13 +101,15 @@ export default function PaymentPage() {
         setOrgPaymentMethods(data.paymentMethods);
         setOrgInvoices(data.invoices);
       })
-      .catch(() => {
-        setOrgBillingError("Failed to load organization billing information.");
+      .catch((err) => {
+        setOrgBillingError(toUserMessage(err, "Failed to load organization billing information."));
       })
       .finally(() => setOrgLoading(false));
   }, []);
 
-  useEffect(() => {
+  const fetchOrgContext = useCallback(() => {
+    setOrgContextError(null);
+    setOrgChecked(false);
     getOrganization()
       .then((org) => {
         const currentMember = org.members.find((m) => m.email === session?.user?.email);
@@ -117,11 +121,15 @@ export default function PaymentPage() {
         setOrgContext(ctx);
         loadOrgBilling(org.id);
       })
-      .catch(() => {
-        // Silently degrade — org billing section will not render
+      .catch((err) => {
+        setOrgContextError(toUserMessage(err, "Failed to load organization information."));
       })
       .finally(() => setOrgChecked(true));
   }, [session?.user?.email, loadOrgBilling]);
+
+  useEffect(() => {
+    fetchOrgContext();
+  }, [fetchOrgContext]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -370,6 +378,20 @@ export default function PaymentPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Org context load error */}
+      {orgChecked && !orgContext && orgContextError && (
+        <Card>
+          <CardContent className="py-6">
+            <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+              <p className="text-sm text-destructive">{orgContextError}</p>
+              <Button variant="outline" size="sm" onClick={fetchOrgContext}>
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Org Payment Methods (when in org context) */}
       {orgChecked && orgContext && (
