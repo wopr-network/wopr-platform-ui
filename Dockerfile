@@ -11,7 +11,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-RUN pnpm build
+# Load WOPR brand configuration at build time (NEXT_PUBLIC_* vars are baked in)
+RUN set -a && . ./.env.brand && set +a && pnpm build
 
 FROM node:20-alpine AS runtime
 WORKDIR /app
