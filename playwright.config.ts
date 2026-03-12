@@ -34,6 +34,10 @@ export default defineConfig({
       NEXT_PUBLIC_API_URL: "http://localhost:3001",
       // Skip production URL validation — localhost is intentional in e2e.
       E2E_MOCK_API: "true",
+      // Disable app-domain redirect so middleware doesn't redirect to an
+      // unresolvable production domain (e.g. app.wopr.bot) during e2e.
+      NEXT_PUBLIC_BRAND_APP_DOMAIN: "",
+      NEXT_PUBLIC_APP_DOMAIN: "",
     },
   },
 });
