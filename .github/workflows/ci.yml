@@ -70,10 +70,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Load brand config
-        run: |
-          if [ -f .env.brand ]; then
-            grep -v '^#' .env.brand | grep '=' | sed 's/="\(.*\)"/=\1/' >> "$GITHUB_ENV"
-          fi
+        run: cp .env.brand .env.local
 
       - name: Clean previous build
         run: rm -rf .next
