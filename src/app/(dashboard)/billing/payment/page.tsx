@@ -134,8 +134,8 @@ export default function PaymentPage() {
       const data = await getBillingInfo();
       setInfo(data);
       setBillingEmail(data.email);
-    } catch (err) {
-      setError(toUserMessage(err, "Failed to load billing information."));
+    } catch {
+      setError("Failed to load billing information.");
     } finally {
       setLoading(false);
     }
