@@ -37,12 +37,6 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Load brand config
-        run: |
-          if [ -f .env.brand ]; then
-            grep -v '^#' .env.brand | grep '=' >> "$GITHUB_ENV"
-          fi
-
       - name: Build
         run: pnpm run build
         env:
