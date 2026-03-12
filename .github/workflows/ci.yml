@@ -70,12 +70,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Load brand config
-        run: |
-          cp .env.brand .env.local
-          echo "--- .env.local contents ---"
-          cat .env.local
-          echo "--- env check ---"
-          node -e "console.log('PRODUCT_NAME:', process.env.NEXT_PUBLIC_BRAND_PRODUCT_NAME || '(not set)')"
+        run: cp .env.brand .env.local
 
       - name: Clean previous build
         run: rm -rf .next

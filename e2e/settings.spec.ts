@@ -251,7 +251,7 @@ test.describe("Settings: Brain", () => {
     await page.goto("/settings/brain");
 
     await expect(page.getByRole("heading", { name: "Brain" }).first()).toBeVisible();
-    await expect(page.getByText("Choose which AI model powers your WOPR").first()).toBeVisible();
+    await expect(page.getByText("Choose which AI model powers your WOPR Bot").first()).toBeVisible();
 
     // Current model card should be visible
     await expect(page.getByTestId("current-model").first()).toBeVisible();
