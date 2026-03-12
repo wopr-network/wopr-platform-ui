@@ -79,6 +79,10 @@ jobs:
         run: pnpm run build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001
+          # Override app-domain redirect — unresolvable in CI (app.wopr.bot).
+          # NEXT_PUBLIC_ vars are inlined at build time, so this must be set here.
+          NEXT_PUBLIC_BRAND_APP_DOMAIN: ""
+          NEXT_PUBLIC_APP_DOMAIN: ""
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
