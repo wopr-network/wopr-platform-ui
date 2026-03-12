@@ -6,6 +6,7 @@ import {
   listInstances,
 } from "@/lib/api";
 import { installPlugin } from "@/lib/bot-settings-data";
+import { brandName, eventName, getBrandConfig, productName } from "@/lib/brand-config";
 import { listMarketplacePlugins } from "@/lib/marketplace-data";
 
 /** Actions that require UI confirmation before executing. */
@@ -18,11 +19,11 @@ const DESTRUCTIVE_ACTIONS = new Set(["destroy"]);
 export type ConfirmCallback = (message: string) => Promise<boolean>;
 
 export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
+  const t = getBrandConfig().toolPrefix;
   return [
     {
-      name: "wopr_list_instances",
-      description:
-        "List all WOPR bot instances with their status, uptime, template, provider, and installed plugins.",
+      name: `${t}_list_instances`,
+      description: `List all ${productName()} instances with their status, uptime, template, provider, and installed plugins.`,
       inputSchema: {
         type: "object",
         properties: {},
@@ -37,8 +38,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_create_instance",
-      description: "Create a new WOPR bot instance from a preset.",
+      name: `${t}_create_instance`,
+      description: `Create a new ${productName()} instance from a preset.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -80,9 +81,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_control_instance",
-      description:
-        "Control a WOPR bot instance: start, stop, or restart it. The 'destroy' action requires UI confirmation.",
+      name: `${t}_control_instance`,
+      description: `Control a ${productName()} instance: start, stop, or restart it. The 'destroy' action requires UI confirmation.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -117,8 +117,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_install_plugin",
-      description: "Install a plugin on a WOPR bot instance.",
+      name: `${t}_install_plugin`,
+      description: `Install a plugin on a ${productName()} instance.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -157,9 +157,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_browse_plugins",
-      description:
-        "Browse available plugins in the WOPR marketplace. Optionally filter by category.",
+      name: `${t}_browse_plugins`,
+      description: `Browse available plugins in the ${brandName()} marketplace. Optionally filter by category.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -193,9 +192,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_get_instance_health",
-      description:
-        "Get detailed health information for a WOPR bot instance, including uptime, session count, plugin health, and provider status.",
+      name: `${t}_get_instance_health`,
+      description: `Get detailed health information for a ${productName()} instance, including uptime, session count, plugin health, and provider status.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -213,8 +211,8 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
       },
     },
     {
-      name: "wopr_view_logs",
-      description: "View recent logs for a WOPR bot instance. Optionally filter by log level.",
+      name: `${t}_view_logs`,
+      description: `View recent logs for a ${productName()} instance. Optionally filter by log level.`,
       inputSchema: {
         type: "object",
         properties: {
@@ -254,13 +252,13 @@ export function getWebMCPTools(confirm: ConfirmCallback): ModelContextTool[] {
  */
 export function getChatWebMCPTools(): ModelContextTool[] {
   function dispatch(tool: string, args: Record<string, unknown> = {}) {
-    window.dispatchEvent(new CustomEvent("wopr-chat-tool-call", { detail: { tool, args } }));
+    window.dispatchEvent(new CustomEvent(eventName("chat-tool-call"), { detail: { tool, args } }));
   }
 
   return [
     {
       name: "chat_expand",
-      description: "Open the WOPR chat panel.",
+      description: `Open the ${brandName()} chat panel.`,
       inputSchema: { type: "object", properties: {} },
       handler: async () => {
         dispatch("chat.expand");
@@ -269,7 +267,7 @@ export function getChatWebMCPTools(): ModelContextTool[] {
     },
     {
       name: "chat_collapse",
-      description: "Minimize the WOPR chat to the ambient dot.",
+      description: `Minimize the ${brandName()} chat to the ambient dot.`,
       inputSchema: { type: "object", properties: {} },
       handler: async () => {
         dispatch("chat.collapse");
@@ -278,7 +276,7 @@ export function getChatWebMCPTools(): ModelContextTool[] {
     },
     {
       name: "chat_fullscreen",
-      description: "Expand the WOPR chat to full screen mode for setup sequences.",
+      description: `Expand the ${brandName()} chat to full screen mode for setup sequences.`,
       inputSchema: { type: "object", properties: {} },
       handler: async () => {
         dispatch("chat.fullscreen");

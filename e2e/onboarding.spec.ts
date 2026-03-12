@@ -21,8 +21,12 @@ async function setupFreshUser(page: Page) {
 	// Navigate to establish origin, then clear onboarding state
 	await page.goto("/onboarding");
 	await page.evaluate(() => {
+		// Remove both brand-prefixed keys since storageKey() may resolve to
+		// "wopr" or "platform" depending on build-time env availability.
 		localStorage.removeItem("wopr-onboarding-complete");
 		localStorage.removeItem("wopr-onboarding");
+		localStorage.removeItem("platform-onboarding-complete");
+		localStorage.removeItem("platform-onboarding");
 	});
 }
 

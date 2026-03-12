@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import plugin from "../lib/plugin";
 
-describe("wopr-plugin-platform-ui", () => {
+describe("platform-ui plugin", () => {
   it("has the correct name", () => {
-    expect(plugin.name).toBe("wopr-plugin-platform-ui");
+    expect(plugin.name).toBe("platform-ui");
   });
 
   it("has a version string", () => {
@@ -37,7 +37,7 @@ describe("wopr-plugin-platform-ui", () => {
   });
 
   it("exports toolDefinitions for external consumption", async () => {
-    const { platformUIToolDefinitions } = await import("../lib/plugin/tool-definitions");
-    expect(platformUIToolDefinitions.length).toBeGreaterThan(0);
+    const { getPlatformUIToolDefinitions } = await import("../lib/plugin/tool-definitions");
+    expect(getPlatformUIToolDefinitions().length).toBeGreaterThan(0);
   });
 });

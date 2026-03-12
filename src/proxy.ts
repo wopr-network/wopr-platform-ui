@@ -182,16 +182,17 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users from "/" to the app subdomain if on the marketing domain.
-  // On app.wopr.bot, redirect to /marketplace. On wopr.bot, redirect to app.wopr.bot/marketplace.
+  // On the app subdomain, redirect to /marketplace. On the base domain, redirect to app subdomain.
   // NOTE: This check requires the Better Auth server to set the session cookie with
-  // domain=".wopr.bot" so it is visible on both app.wopr.bot and wopr.bot.
+  // domain=".<base-domain>" so it is visible on both the app and marketing subdomains.
   // See: wopr-platform/src/auth/better-auth.ts advanced.cookies.session_token.attributes.domain
   if (pathname === "/") {
     const sessionToken =
       request.cookies.get("better-auth.session_token") ??
       request.cookies.get("__Secure-better-auth.session_token");
     if (sessionToken?.value.trim()) {
-      const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN;
+      const appDomain =
+        process.env.NEXT_PUBLIC_BRAND_APP_DOMAIN || process.env.NEXT_PUBLIC_APP_DOMAIN;
       if (appDomain && !host.startsWith("app.")) {
         // On marketing domain — redirect to the app subdomain
         return withCsp(NextResponse.redirect(new URL(`https://${appDomain}/marketplace`)));

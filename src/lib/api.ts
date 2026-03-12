@@ -1,4 +1,5 @@
 import { API_BASE_URL, PLATFORM_BASE_URL } from "./api-config";
+import { envKey, getBrandConfig } from "./brand-config";
 import { ApiError } from "./errors";
 import { handleUnauthorized } from "./fetch-utils";
 import { logger } from "./logger";
@@ -60,6 +61,8 @@ export interface Instance {
   plugins: PluginInfo[];
   uptime: number | null;
   createdAt: string;
+  subdomain?: string;
+  nodeId?: string;
 }
 
 export interface PluginInfo {
@@ -92,6 +95,8 @@ export interface InstanceDetail extends Instance {
     memoryMb: number;
     cpuPercent: number;
   };
+  budgetCents?: number;
+  perAgentCents?: number;
 }
 
 // --- API client ---
@@ -219,9 +224,9 @@ export interface BotStatusResponse {
   [key: string]: unknown;
 }
 
-/** Parse channel IDs from bot env vars (WOPR_PLUGINS_CHANNELS is comma-separated). */
+/** Parse channel IDs from bot env vars ({PREFIX}_PLUGINS_CHANNELS is comma-separated). */
 export function parseChannelsFromEnv(env: Record<string, string> | undefined): string[] {
-  const raw = env?.WOPR_PLUGINS_CHANNELS;
+  const raw = env?.[envKey("PLUGINS_CHANNELS")];
   if (!raw) return [];
   return raw
     .split(",")
@@ -229,11 +234,15 @@ export function parseChannelsFromEnv(env: Record<string, string> | undefined): s
     .filter(Boolean);
 }
 
-/** Parse plugin IDs from bot env vars (WOPR_PLUGINS_OTHER + WOPR_PLUGINS_VOICE are comma-separated). */
+/** Parse plugin IDs from bot env vars ({PREFIX}_PLUGINS_OTHER, {PREFIX}_PLUGINS_VOICE, {PREFIX}_PLUGINS_PROVIDERS are comma-separated). */
 export function parsePluginsFromEnv(env: Record<string, string> | undefined): PluginInfo[] {
   if (!env) return [];
   const ids = new Set<string>();
-  for (const key of ["WOPR_PLUGINS_OTHER", "WOPR_PLUGINS_VOICE", "WOPR_PLUGINS_PROVIDERS"]) {
+  for (const key of [
+    envKey("PLUGINS_OTHER"),
+    envKey("PLUGINS_VOICE"),
+    envKey("PLUGINS_PROVIDERS"),
+  ]) {
     const raw = env[key];
     if (raw) {
       for (const id of raw
@@ -249,7 +258,7 @@ export function parsePluginsFromEnv(env: Record<string, string> | undefined): Pl
 
 /** Extract the LLM provider from bot env vars. */
 export function getProviderFromEnv(env?: Record<string, string>): string {
-  const val = env?.WOPR_LLM_PROVIDER;
+  const val = env?.[envKey("LLM_PROVIDER")];
   return typeof val === "string" ? val : "";
 }
 
@@ -314,6 +323,7 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
     id,
   })) as BotStatusResponse;
   const uptimeMs = bot.uptime ? new Date(bot.uptime).getTime() : NaN;
+  const extra = bot as Record<string, unknown>;
   return {
     id: bot.id,
     name: bot.name,
@@ -323,6 +333,8 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
     plugins: parsePluginsFromEnv(bot.env as Record<string, string> | undefined),
     uptime: Number.isNaN(uptimeMs) ? null : Math.floor((Date.now() - uptimeMs) / 1000),
     createdAt: (bot.createdAt as string | undefined) ?? new Date().toISOString(),
+    subdomain: (extra.subdomain as string | undefined) ?? undefined,
+    nodeId: (extra.nodeId as string | undefined) ?? undefined,
     config: bot.env ?? {},
     channelDetails: [],
     sessions: [],
@@ -330,6 +342,8 @@ export async function getInstance(id: string): Promise<InstanceDetail> {
       memoryMb: bot.stats?.memoryUsageMb ?? 0,
       cpuPercent: bot.stats?.cpuPercent ?? 0,
     },
+    budgetCents: typeof extra.budgetCents === "number" ? extra.budgetCents : undefined,
+    perAgentCents: typeof extra.perAgentCents === "number" ? extra.perAgentCents : undefined,
   };
 }
 
@@ -363,12 +377,12 @@ export interface DeployBotPayload {
 
 /**
  * Deploy a new bot instance via tRPC fleet.createInstance.
- * Uses the default stable WOPR image. tenantId is injected server-side.
+ * Uses the default stable image from brand config. tenantId is injected server-side.
  */
 export async function deployInstance(payload: DeployBotPayload): Promise<Instance> {
   const input = {
     name: payload.name,
-    image: "ghcr.io/wopr-network/wopr:stable",
+    image: getBrandConfig().defaultImage || "ghcr.io/wopr-network/wopr:stable",
     description: payload.description ?? "",
     env: payload.env ?? {},
   };
@@ -454,6 +468,18 @@ export async function updateInstanceConfig(id: string, env: Record<string, strin
   await fleetFetch(`/bots/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ env }),
+  });
+}
+
+/** PUT /api/provision/budget — Update instance spending budget. */
+export async function updateInstanceBudget(
+  id: string,
+  budgetCents: number,
+  perAgentCents?: number,
+): Promise<void> {
+  await apiFetch("/provision/budget", {
+    method: "PUT",
+    body: JSON.stringify({ instanceId: id, budgetCents, perAgentCents }),
   });
 }
 

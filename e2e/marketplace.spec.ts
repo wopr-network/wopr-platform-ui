@@ -5,9 +5,12 @@ import { createFleetMockState, DISCORD_MANIFEST, mockFleetAPI } from "./fixtures
 async function loginToMarketplace(page: import("@playwright/test").Page) {
   await page.goto("/login?callbackUrl=/marketplace");
   await bypassOnboarding(page);
-  // Also bypass first-visit hero overlay
+  // Also bypass first-visit hero overlay — set both brand-prefixed keys
+  // since storageKey() may resolve to "wopr" or "platform" depending on
+  // whether NEXT_PUBLIC_BRAND_STORAGE_PREFIX is available at build time.
   await page.evaluate(() => {
     localStorage.setItem("wopr-marketplace-visited", "1");
+    localStorage.setItem("platform-marketplace-visited", "1");
   });
   await page.getByLabel("Email").fill("e2e@wopr.test");
   await page.getByLabel("Password").fill("TestPassword123!");

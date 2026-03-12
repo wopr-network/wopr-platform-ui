@@ -218,7 +218,10 @@ export async function mockAuthAPI(page: Page) {
  */
 export async function bypassOnboarding(page: Page) {
 	await page.evaluate(() => {
+		// Set both brand-prefixed keys since storageKey() may resolve to
+		// "wopr" or "platform" depending on build-time env availability.
 		localStorage.setItem("wopr-onboarding-complete", "1");
+		localStorage.setItem("platform-onboarding-complete", "1");
 	});
 }
 
