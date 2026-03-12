@@ -192,6 +192,23 @@ const MOCK_BILLING_INFO: BillingInfo = {
   ],
 };
 
+// Mock @/lib/org-api so getOrganization resolves successfully
+vi.mock("@/lib/org-api", () => ({
+  getOrganization: vi.fn().mockResolvedValue({
+    id: "org-1",
+    name: "Acme",
+    members: [],
+  }),
+}));
+
+// Mock @/lib/org-billing-api so loadOrgBilling resolves successfully
+vi.mock("@/lib/org-billing-api", () => ({
+  getOrgBillingInfo: vi.fn().mockResolvedValue({
+    paymentMethods: [],
+    invoices: [],
+  }),
+}));
+
 // Mock @/lib/api with BYOK mode by default (for backward compat with existing tests)
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api")>();
