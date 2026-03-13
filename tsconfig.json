@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@core/*": ["./node_modules/@wopr-network/platform-ui-core/src/*"]
     }
   },
   "include": [

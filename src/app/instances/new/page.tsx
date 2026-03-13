@@ -1,4 +1,4 @@
-import { CreateInstanceClient } from "./create-instance-client";
+import { CreateInstanceClient } from "@core/app/instances/new/create-instance-client";
 
 export default function NewInstancePage() {
   return (

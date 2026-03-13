@@ -1,6 +1,8 @@
-import { InstanceDetailClient } from "./instance-detail-client";
+import { InstanceDetailClient } from "@core/app/instances/[id]/instance-detail-client";
 
-export default async function InstanceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function InstanceDetailPage({
+  params,
+}: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return (
     <div className="p-6">

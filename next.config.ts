@@ -5,6 +5,7 @@ const isSecureOrigin =
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  transpilePackages: ["@wopr-network/platform-ui-core"],
   headers: async () => [
     {
       source: "/:path*",
