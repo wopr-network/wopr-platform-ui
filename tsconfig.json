@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*", "./node_modules/@wopr-network/platform-ui-core/src/*"],
       "@core/*": ["./node_modules/@wopr-network/platform-ui-core/src/*"]
     }
   },
