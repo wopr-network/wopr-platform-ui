@@ -1,5 +1,1 @@
-import { InferenceDashboard } from "@/components/admin/inference-dashboard";
-
-export default function AdminInferencePage() {
-  return <InferenceDashboard />;
-}
+export { default } from "@core/app/admin/inference/page";

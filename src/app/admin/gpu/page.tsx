@@ -1,5 +1,1 @@
-import { GpuDashboard } from "@/components/admin/gpu-dashboard";
-
-export default function AdminGpuPage() {
-  return <GpuDashboard />;
-}
+export { default } from "@core/app/admin/gpu/page";

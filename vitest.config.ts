@@ -7,12 +7,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
+      "@core": resolve(__dirname, "./node_modules/@wopr-network/platform-ui-core/src"),
     },
   },
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/__tests__/setup.ts"],
+    setupFiles: [],
     exclude: ["node_modules", "e2e/**"],
     testTimeout: 15000,
     coverage: {

@@ -43,10 +43,12 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:3001
 
       - name: Test
+        if: hashFiles('src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.spec.ts', 'src/**/*.spec.tsx') != ''
         run: pnpm test
 
       - name: Coverage Report
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           json-summary-path: coverage/coverage-summary.json

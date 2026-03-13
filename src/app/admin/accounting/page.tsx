@@ -1,5 +1,1 @@
-import { AccountingDashboard } from "@/components/admin/accounting-dashboard";
-
-export default function AdminAccountingPage() {
-  return <AccountingDashboard />;
-}
+export { default } from "@core/app/admin/accounting/page";

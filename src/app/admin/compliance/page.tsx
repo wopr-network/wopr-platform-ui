@@ -1,5 +1,1 @@
-import { ComplianceDashboard } from "@/components/admin/compliance-dashboard";
-
-export default function AdminCompliancePage() {
-  return <ComplianceDashboard />;
-}
+export { default } from "@core/app/admin/compliance/page";

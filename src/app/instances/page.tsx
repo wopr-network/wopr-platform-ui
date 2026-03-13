@@ -1,4 +1,4 @@
-import { InstanceListClient } from "./instance-list-client";
+import { InstanceListClient } from "@core/app/instances/instance-list-client";
 
 export default function InstancesPage() {
   return (

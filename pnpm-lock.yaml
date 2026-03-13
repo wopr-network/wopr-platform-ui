@@ -26,6 +26,9 @@ importers:
       '@trpc/react-query':
         specifier: ^11.10.0
         version: 11.10.0(@tanstack/react-query@5.90.21(react@19.2.3))(@trpc/client@11.10.0(@trpc/server@11.10.0(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.10.0(typescript@5.9.3))(react@19.2.3)(typescript@5.9.3)
+      '@wopr-network/platform-ui-core':
+        specifier: ^1.0.0
+        version: 1.0.0(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
       better-auth:
         specifier: ^1.4.18
         version: 1.4.18(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
@@ -2111,6 +2114,9 @@ packages:
 
   '@vitest/utils@4.0.18':
     resolution: {integrity: sha512-msMRKLMVLWygpK3u2Hybgi4MNjcYJvwTb0Ru09+fOyCXIgT5raYP041DRRdiJiI3k/2U6SEbAETB3YtBrUkCFA==}
+
+  '@wopr-network/platform-ui-core@1.0.0':
+    resolution: {integrity: sha512-kEcHPWmSRPo3UO0xeKm0C7dEATcnnWx5zuv+kKXVi80NqRwraSIQ+fMrU5V8YAHEGYuGcExE+FS+fEAb1CE/mw==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -6175,6 +6181,65 @@ snapshots:
     dependencies:
       '@vitest/pretty-format': 4.0.18
       tinyrainbow: 3.0.3
+
+  '@wopr-network/platform-ui-core@1.0.0(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))':
+    dependencies:
+      '@hookform/resolvers': 5.2.2(react-hook-form@7.71.2(react@19.2.3))
+      '@stripe/react-stripe-js': 5.6.0(@stripe/stripe-js@8.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@stripe/stripe-js': 8.8.0
+      '@tanstack/react-query': 5.90.21(react@19.2.3)
+      '@trpc/client': 11.10.0(@trpc/server@11.10.0(typescript@5.9.3))(typescript@5.9.3)
+      '@trpc/react-query': 11.10.0(@tanstack/react-query@5.90.21(react@19.2.3))(@trpc/client@11.10.0(@trpc/server@11.10.0(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.10.0(typescript@5.9.3))(react@19.2.3)(typescript@5.9.3)
+      better-auth: 1.4.18(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      framer-motion: 12.34.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      lucide-react: 0.563.0(react@19.2.3)
+      next: 16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      next-themes: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      qrcode.react: 4.2.0(react@19.2.3)
+      radix-ui: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      react-hook-form: 7.71.2(react@19.2.3)
+      react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.3)
+      recharts: 3.7.0(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react-is@19.2.4)(react@19.2.3)(redux@5.0.1)
+      rehype-sanitize: 6.0.0
+      remark-gfm: 4.0.1
+      sonner: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      tailwind-merge: 3.4.0
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@emotion/is-prop-valid'
+      - '@lynx-js/react'
+      - '@opentelemetry/api'
+      - '@playwright/test'
+      - '@prisma/client'
+      - '@sveltejs/kit'
+      - '@tanstack/react-start'
+      - '@tanstack/solid-start'
+      - '@trpc/server'
+      - '@types/react'
+      - '@types/react-dom'
+      - babel-plugin-macros
+      - babel-plugin-react-compiler
+      - better-sqlite3
+      - drizzle-kit
+      - drizzle-orm
+      - mongodb
+      - mysql2
+      - pg
+      - prisma
+      - react-is
+      - redux
+      - sass
+      - solid-js
+      - supports-color
+      - svelte
+      - typescript
+      - vitest
+      - vue
 
   accepts@2.0.0:
     dependencies:
