@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures/auth";
-import { pricingData } from "../src/lib/pricing-data";
+import { pricingData } from "@wopr-network/platform-ui-core/lib/pricing-data";
 
 const MOCK_ORG = {
   id: "e2e-org-id",
