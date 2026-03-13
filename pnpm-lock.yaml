@@ -27,8 +27,8 @@ importers:
         specifier: ^11.10.0
         version: 11.10.0(@tanstack/react-query@5.90.21(react@19.2.3))(@trpc/client@11.10.0(@trpc/server@11.10.0(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.10.0(typescript@5.9.3))(react@19.2.3)(typescript@5.9.3)
       '@wopr-network/platform-ui-core':
-        specifier: ^1.0.0
-        version: 1.0.0(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
+        specifier: ^1.0.1
+        version: 1.0.1(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
       better-auth:
         specifier: ^1.4.18
         version: 1.4.18(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))
@@ -2115,8 +2115,8 @@ packages:
   '@vitest/utils@4.0.18':
     resolution: {integrity: sha512-msMRKLMVLWygpK3u2Hybgi4MNjcYJvwTb0Ru09+fOyCXIgT5raYP041DRRdiJiI3k/2U6SEbAETB3YtBrUkCFA==}
 
-  '@wopr-network/platform-ui-core@1.0.0':
-    resolution: {integrity: sha512-kEcHPWmSRPo3UO0xeKm0C7dEATcnnWx5zuv+kKXVi80NqRwraSIQ+fMrU5V8YAHEGYuGcExE+FS+fEAb1CE/mw==}
+  '@wopr-network/platform-ui-core@1.0.1':
+    resolution: {integrity: sha512-H2iJXQM6d8voeuW75dYHlY9u3abmNZbN5zk7TyyArz19P4TtgpTVyl9ZmCA6Q7la1/bPh94FWvR6BFEfnggobA==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -6182,7 +6182,7 @@ snapshots:
       '@vitest/pretty-format': 4.0.18
       tinyrainbow: 3.0.3
 
-  '@wopr-network/platform-ui-core@1.0.0(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))':
+  '@wopr-network/platform-ui-core@1.0.1(@babel/core@7.29.0)(@playwright/test@1.58.2)(@trpc/server@11.10.0(typescript@5.9.3))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-is@19.2.4)(redux@5.0.1)(typescript@5.9.3)(vitest@4.0.18(@types/node@20.19.33)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@20.19.33)(typescript@5.9.3)))':
     dependencies:
       '@hookform/resolvers': 5.2.2(react-hook-form@7.71.2(react@19.2.3))
       '@stripe/react-stripe-js': 5.6.0(@stripe/stripe-js@8.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
