@@ -117,8 +117,6 @@ test.describe("Settings: Security", () => {
     // 2FA section renders with disabled state
     await expect(page.getByText("Two-Factor Authentication").first()).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("Two-factor authentication is not enabled").first()).toBeVisible({ timeout: 10000 });
-    // Wait for network to settle before checking the button (profile tRPC query may still be in-flight)
-    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("button", { name: "Enable 2FA" }).first()).toBeVisible({ timeout: 10000 });
   });
 
@@ -128,7 +126,6 @@ test.describe("Settings: Security", () => {
 
     await page.goto("/settings/security");
 
-    await page.waitForLoadState("networkidle");
     await expect(
       page.getByText("Two-factor authentication is active").first(),
     ).toBeVisible({ timeout: 10000 });

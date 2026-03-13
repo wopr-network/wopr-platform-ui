@@ -10,7 +10,7 @@
     "lint": "biome check src/",
     "format": "biome format --write src/",
     "check": "biome check src/ && tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "test:e2e": "playwright test"
   },
   "dependencies": {
