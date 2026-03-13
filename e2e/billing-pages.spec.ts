@@ -1,6 +1,8 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures/auth";
-import { pricingData } from "../node_modules/@wopr-network/platform-ui-core/src/lib/pricing-data";
+// Inline the values used from platform-ui-core's pricingData to avoid
+// Playwright's inability to transform TypeScript in node_modules.
+const pricingData = { bot_price: { amount: 5, period: "month" }, signup_credit: 5 } as const;
 
 const MOCK_ORG = {
   id: "e2e-org-id",
