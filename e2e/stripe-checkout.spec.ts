@@ -110,7 +110,7 @@ async function readCreditBalance(page: import("@playwright/test").Page): Promise
     await mockBillingForStripe(page);
     await page.goto("/billing/credits");
   }
-  await expect(page.getByRole("heading", { name: /Credits/ })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole("heading", { name: /Credits/ }).first()).toBeVisible({ timeout: 15000 });
   await expect(page.getByText("Credit Balance").first()).toBeVisible({ timeout: 10000 });
 
   // The balance is rendered as "$XX.XX" inside a div with class text-4xl font-bold font-mono.
@@ -133,7 +133,7 @@ async function readCreditBalance(page: import("@playwright/test").Page): Promise
 async function startCheckout(page: import("@playwright/test").Page): Promise<void> {
   await mockBillingForStripe(page);
   await page.goto("/billing/credits");
-  await expect(page.getByText("Buy Credits")).toBeVisible({ timeout: 15000 });
+  await expect(page.getByText("Buy Credits").first()).toBeVisible({ timeout: 15000 });
 
   // Select the first available credit tier
   const firstTier = page
@@ -143,7 +143,7 @@ async function startCheckout(page: import("@playwright/test").Page): Promise<voi
   await firstTier.click();
 
   // Click "Buy credits"
-  await page.getByRole("button", { name: "Buy credits" }).click();
+  await page.getByRole("button", { name: "Buy credits" }).first().click();
 
   // Wait for redirect to Stripe Checkout
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 20000 });
@@ -205,7 +205,7 @@ test.describe("Stripe Checkout: Full Flow", () => {
     await page.waitForURL(/\/billing\/credits\?checkout=success/, { timeout: 30000 });
 
     // Verify we're back on credits page
-    await expect(page.getByRole("heading", { name: /Credits/ })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Credits/ }).first()).toBeVisible({ timeout: 15000 });
 
     // Read balance AFTER purchase — should have increased
     // readCreditBalance polls until animation settles; no fixed timeout needed
@@ -240,7 +240,7 @@ test.describe("Stripe Checkout: Full Flow", () => {
 
     // Navigate back to credits page manually
     await page.goto("/billing/credits");
-    await expect(page.getByRole("heading", { name: /Credits/ })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Credits/ }).first()).toBeVisible({ timeout: 15000 });
 
     // Balance should be unchanged
     const balanceAfter = await readCreditBalance(page);
@@ -274,7 +274,7 @@ test.describe("Stripe Checkout: Full Flow", () => {
     // After 3DS, Stripe completes payment and redirects back
     await page.waitForURL(/\/billing\/credits\?checkout=success/, { timeout: 30000 });
 
-    await expect(page.getByRole("heading", { name: /Credits/ })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Credits/ }).first()).toBeVisible({ timeout: 15000 });
 
     // Verify balance increased
     const balanceAfter = await readCreditBalance(page);
@@ -300,7 +300,7 @@ test.describe("Stripe Checkout: Full Flow", () => {
 
     // Should be back on credits page (with ?checkout=cancel)
     await page.waitForURL(/\/billing\/credits/, { timeout: 15000 });
-    await expect(page.getByRole("heading", { name: /Credits/ })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Credits/ }).first()).toBeVisible({ timeout: 15000 });
 
     // Balance unchanged
     const balanceAfter = await readCreditBalance(page);

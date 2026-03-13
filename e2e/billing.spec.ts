@@ -117,7 +117,7 @@ test.describe("Billing: Credit Checkout", () => {
 
     await page.goto("/billing/credits");
 
-    await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Credits" }).first()).toBeVisible();
     await expect(page.getByRole("main").getByText("Buy Credits", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /\$10/ }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: /\$25/ }).first()).toBeVisible();
@@ -199,7 +199,7 @@ test.describe("Billing: Credit Checkout", () => {
 
     await page.goto("/billing/credits");
 
-    await expect(page.getByText("Buy Credits")).toBeVisible();
+    await expect(page.getByText("Buy Credits").first()).toBeVisible();
 
     // Select the first available tier
     const firstTier = page
@@ -208,7 +208,7 @@ test.describe("Billing: Credit Checkout", () => {
       .first();
     await firstTier.click();
 
-    await page.getByRole("button", { name: "Buy credits" }).click();
+    await page.getByRole("button", { name: "Buy credits" }).first().click();
 
     // Should redirect to Stripe Checkout
     await page.waitForURL(/checkout\.stripe\.com/, { timeout: 15000 });
@@ -240,7 +240,7 @@ test.describe("Billing: Credit Checkout", () => {
       timeout: 30000,
     });
 
-    await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Credits" }).first()).toBeVisible();
   });
 });
 
@@ -287,7 +287,7 @@ test.describe("Billing: Dashboard Display", () => {
     await page.goto("/billing/credits");
 
     // Credits heading visible (personal billing view)
-    await expect(page.getByRole("heading", { name: "Credits" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Credits" }).first()).toBeVisible();
 
     // Credit Balance card visible with correct amount
     await expect(page.getByText("Credit Balance").first()).toBeVisible();
