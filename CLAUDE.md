@@ -133,7 +133,7 @@ For tRPC endpoints, use the `trpc` client in `src/lib/trpc.ts` — it shares the
 
 - **No tenant ID in localStorage.** Always use the cookie-based tenant context (`src/lib/tenant-context.tsx`).
 - **Validate redirects.** The middleware (`src/proxy.ts`) is the auth gate — it checks session cookies and redirects unauthenticated users to `/login` with a `callbackUrl` param. Never bypass it.
-- **CSRF protection** is enforced in middleware for mutation requests (`POST`/`PUT`/`PATCH`/`DELETE`) on `/api` routes (except `/api/auth`). Origin/Referer headers are validated.
+- **CSRF protection** is enforced in middleware for mutation requests (`POST`/`PUT`/`PATCH`/`DELETE`) on `/api` routes. Origin/Referer headers are validated. OAuth callback paths (`/api/auth/callback/{github,google,discord}`) are exempt for POST only — adding a new provider requires updating `CSRF_EXEMPT_PATHS` in `src/proxy.ts`.
 - **CSP headers** are configured in `next.config.ts` — includes script-src, connect-src, frame-src allowlists. Update CSP if adding new external services.
 - **Admin routes** (`/admin/*`) are server-side gated in middleware — only `platform_admin` role can access.
 

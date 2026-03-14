@@ -66,15 +66,20 @@ const publicExactPaths = new Set([
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 /**
- * Mutation paths under /api/auth that are exempt from CSRF origin validation.
- * OAuth identity providers POST to callback URLs cross-origin — these cannot
+ * Exact OAuth callback paths exempt from CSRF origin validation.
+ * OAuth identity providers POST to these URLs cross-origin — they cannot
  * carry a matching Origin header, so we must allow them through.
  * All other /api/auth mutations (sign-in, sign-up, sign-out, etc.) are
  * validated like any other /api route.
+ *
+ * SECURITY: Adding a path here requires explicit review. Only add paths for
+ * OAuth providers configured in the platform backend (SUPPORTED_OAUTH_PROVIDERS).
  */
-const CSRF_EXEMPT_AUTH_PATHS = [
-  "/api/auth/callback", // e.g. /api/auth/callback/google, /api/auth/callback/github
-];
+const CSRF_EXEMPT_PATHS = new Set([
+  "/api/auth/callback/github",
+  "/api/auth/callback/google",
+  "/api/auth/callback/discord",
+]);
 
 const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -173,9 +178,7 @@ export default async function middleware(request: NextRequest) {
   // CSRF protection: validate Origin/Referer on state-changing API requests.
   if (pathname.startsWith("/api") && MUTATION_METHODS.has(request.method)) {
     // OAuth callback endpoints receive cross-origin POSTs from identity providers (POST only)
-    const isCsrfExempt =
-      CSRF_EXEMPT_AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`)) &&
-      request.method === "POST";
+    const isCsrfExempt = CSRF_EXEMPT_PATHS.has(pathname) && request.method === "POST";
     if (!isCsrfExempt && !validateCsrfOrigin(request)) {
       return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 });
     }
