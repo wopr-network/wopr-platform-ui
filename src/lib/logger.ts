@@ -7,10 +7,12 @@ interface Logger {
   error: LogFn;
 }
 
-const noop: LogFn = () => {
-  /* intentional noop */
-};
-
-export function logger(_namespace: string): Logger {
-  return { debug: noop, info: noop, warn: noop, error: noop };
+export function logger(namespace: string): Logger {
+  const prefix = `[wopr-ui:${namespace}]`;
+  return {
+    debug: (...args) => console.info(prefix, ...args),
+    info: (...args) => console.info(prefix, ...args),
+    warn: (...args) => console.warn(prefix, ...args),
+    error: (...args) => console.error(prefix, ...args),
+  };
 }
