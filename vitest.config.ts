@@ -1,7 +1,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
-import type { Plugin } from "vite";
+import type { Plugin } from "vitest/config";
 import { defineConfig } from "vitest/config";
 
 // Use realpathSync to follow symlinks — the worktree's node_modules symlinks
@@ -32,7 +32,7 @@ function coreInternalAliasPlugin(): Plugin {
     name: "core-internal-alias",
     resolveId: {
       order: "pre",
-      handler(source, importer) {
+      handler(source: string, importer: string | undefined) {
         if (!source.startsWith("@/")) return null;
         const isFromCore =
           importer !== undefined &&
