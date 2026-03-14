@@ -5,10 +5,16 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
-      "@core": resolve(__dirname, "./node_modules/@wopr-network/platform-ui-core/src"),
-    },
+    alias: [
+      {
+        find: "@core",
+        replacement: resolve(__dirname, "./node_modules/@wopr-network/platform-ui-core/src"),
+      },
+      {
+        find: "@",
+        replacement: resolve(__dirname, "./node_modules/@wopr-network/platform-ui-core/src"),
+      },
+    ],
   },
   test: {
     environment: "jsdom",
