@@ -5,9 +5,9 @@ const PLATFORM_BASE_URL = process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_UR
 
 /**
  * E2E login credentials.
- * Override via .env.test.local (gitignored):
- *   E2E_USER=custom@example.com
- *   E2E_PASSWORD=CustomPassword123!
+ * Override via shell environment variables (Playwright does not auto-load .env files):
+ *   export E2E_USER=custom@example.com
+ *   export E2E_PASSWORD=CustomPassword123!
  */
 export const E2E_USER = process.env.E2E_USER ?? "e2e@wopr.test";
 export const E2E_PASSWORD = process.env.E2E_PASSWORD ?? "TestPassword123!";
@@ -83,7 +83,7 @@ export async function mockAuthAPI(page: Page) {
 				user: {
 					id: "e2e-user-id",
 					name: "E2E Test User",
-					email: "e2e@wopr.test",
+					email: E2E_USER,
 					emailVerified: true,
 					createdAt: new Date().toISOString(),
 					updatedAt: new Date().toISOString(),
@@ -114,7 +114,7 @@ export async function mockAuthAPI(page: Page) {
 							user: {
 								id: "e2e-user-id",
 								name: "E2E Test User",
-								email: "e2e@wopr.test",
+								email: E2E_USER,
 								emailVerified: true,
 								twoFactorEnabled: false,
 								createdAt: new Date().toISOString(),
@@ -186,8 +186,8 @@ export async function mockAuthAPI(page: Page) {
 		id: "e2e-org-id",
 		name: "E2E Test Org",
 		slug: "e2e-test-org",
-		billingEmail: "e2e@wopr.test",
-		members: [{ userId: "e2e-user-id", role: "admin", email: "e2e@wopr.test" }],
+		billingEmail: E2E_USER,
+		members: [{ userId: "e2e-user-id", role: "admin", email: E2E_USER }],
 		invites: [],
 	};
 	const TRPC_MOCKS: Record<string, unknown> = {
