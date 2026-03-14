@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures/auth";
+import { E2E_USER, expect, test } from "./fixtures/auth";
 
 const PLATFORM_BASE_URL =
   process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -216,7 +216,7 @@ test.describe("Billing: Credit Checkout", () => {
     // Fill Stripe test card
     const emailField = page.locator('input[name="email"]');
     if (await emailField.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await emailField.fill("e2e@wopr.test");
+      await emailField.fill(E2E_USER);
     }
 
     await page.locator('input[name="cardNumber"]').fill("4242424242424242");

@@ -1,4 +1,4 @@
-import { bypassOnboarding, expect, mockAuthAPI, test } from "./fixtures/auth";
+import { E2E_PASSWORD, E2E_USER, bypassOnboarding, expect, mockAuthAPI, test } from "./fixtures/auth";
 import { createFleetMockState, DISCORD_MANIFEST, mockFleetAPI } from "./fixtures/fleet";
 
 /** Login helper — navigates to /login, bypasses onboarding, fills creds, signs in. */
@@ -12,8 +12,8 @@ async function loginToMarketplace(page: import("@playwright/test").Page) {
     localStorage.setItem("wopr-marketplace-visited", "1");
     localStorage.setItem("platform-marketplace-visited", "1");
   });
-  await page.getByLabel("Email").fill("e2e@wopr.test");
-  await page.getByLabel("Password").fill("TestPassword123!");
+  await page.getByLabel("Email").fill(E2E_USER);
+  await page.getByLabel("Password").fill(E2E_PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL("**/marketplace");
 }

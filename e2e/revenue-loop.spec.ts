@@ -1,4 +1,4 @@
-import { bypassOnboarding, expect, mockAuthAPI, test } from "./fixtures/auth";
+import { E2E_PASSWORD, E2E_USER, bypassOnboarding, expect, mockAuthAPI, test } from "./fixtures/auth";
 import { createFleetMockState, mockFleetAPI } from "./fixtures/fleet";
 
 test.describe("Core revenue loop", () => {
@@ -12,8 +12,8 @@ test.describe("Core revenue loop", () => {
 		// Login
 		await page.goto("/login?callbackUrl=/marketplace");
 		await bypassOnboarding(page);
-		await page.getByLabel("Email").fill("e2e@wopr.test");
-		await page.getByLabel("Password").fill("TestPassword123!");
+		await page.getByLabel("Email").fill(E2E_USER);
+		await page.getByLabel("Password").fill(E2E_PASSWORD);
 		await page.getByRole("button", { name: "Sign in" }).click();
 		await page.waitForURL("**/marketplace");
 
