@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures/auth";
+import { E2E_USER, expect, test } from "./fixtures/auth";
 
 const PLATFORM_BASE_URL =
   process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -152,7 +152,7 @@ async function startCheckout(page: Page): Promise<void> {
 async function fillStripeCard(page: Page, cardNumber: string): Promise<void> {
   const emailField = page.locator('input[name="email"]');
   if (await emailField.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await emailField.fill("e2e@wopr.test");
+    await emailField.fill(E2E_USER);
   }
 
   // Stripe renders card fields inside cross-origin iframes — use frameLocator to reach them

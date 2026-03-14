@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures/auth";
+import { E2E_USER, expect, test } from "./fixtures/auth";
 
 /**
  * Full Stripe Checkout e2e tests.
@@ -160,7 +160,7 @@ async function fillStripeCard(
   // Email field (may be pre-filled or hidden)
   const emailField = page.locator('input[name="email"]');
   if (await emailField.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await emailField.fill("e2e@wopr.test");
+    await emailField.fill(E2E_USER);
   }
 
   await page.locator('input[name="cardNumber"]').fill(cardNumber);

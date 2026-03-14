@@ -4,6 +4,15 @@ import { randomUUID } from "node:crypto";
 const PLATFORM_BASE_URL = process.env.BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 /**
+ * E2E login credentials.
+ * Override via .env.test.local (gitignored):
+ *   E2E_USER=custom@example.com
+ *   E2E_PASSWORD=CustomPassword123!
+ */
+export const E2E_USER = process.env.E2E_USER ?? "e2e@wopr.test";
+export const E2E_PASSWORD = process.env.E2E_PASSWORD ?? "TestPassword123!";
+
+/**
  * Intercept Better Auth API calls and return mock success responses.
  * This avoids needing a running backend for E2E tests.
  */
@@ -240,8 +249,8 @@ export const test = base.extend<{ authedPage: Page }>({
 		await bypassOnboarding(page);
 
 		// Perform login via the form
-		await page.getByLabel("Email").first().fill("e2e@wopr.test");
-		await page.getByLabel("Password").first().fill("TestPassword123!");
+		await page.getByLabel("Email").first().fill(E2E_USER);
+		await page.getByLabel("Password").first().fill(E2E_PASSWORD);
 		await page.getByRole("button", { name: "Sign in" }).click();
 
 		// Wait for redirect to complete (middleware redirects / -> /marketplace)

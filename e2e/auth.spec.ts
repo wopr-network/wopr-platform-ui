@@ -1,4 +1,4 @@
-import { bypassOnboarding, expect, mockAuthAPI, test, testEmail } from "./fixtures/auth";
+import { E2E_PASSWORD, E2E_USER, bypassOnboarding, expect, mockAuthAPI, test, testEmail } from "./fixtures/auth";
 
 test.describe("Auth critical path", () => {
 	test("unauthenticated user is redirected to /login from /dashboard", async ({ page }) => {
@@ -85,8 +85,8 @@ test.describe("Auth critical path", () => {
 		await bypassOnboarding(page);
 
 		// Fill login form
-		await page.getByLabel("Email").first().fill("e2e@wopr.test");
-		await page.getByLabel("Password").first().fill("TestPassword123!");
+		await page.getByLabel("Email").first().fill(E2E_USER);
+		await page.getByLabel("Password").first().fill(E2E_PASSWORD);
 
 		// Submit
 		await page.getByRole("button", { name: "Sign in" }).click();
