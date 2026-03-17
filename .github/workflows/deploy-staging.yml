@@ -57,6 +57,7 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             cd /opt/wopr-platform
+            docker tag ghcr.io/${{ github.repository }}:staging ghcr.io/${{ github.repository }}:staging-previous 2>/dev/null || true
             docker compose pull platform-ui
             docker compose up -d --force-recreate platform-ui
             docker image prune -f
@@ -91,5 +92,5 @@ jobs:
           script: |
             echo "Rolling back platform-ui to previous version..."
             cd /opt/wopr-platform
-            docker compose pull platform-ui
+            docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging
             docker compose up -d --force-recreate platform-ui
