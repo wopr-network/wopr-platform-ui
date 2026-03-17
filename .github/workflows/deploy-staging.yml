@@ -92,5 +92,9 @@ jobs:
           script: |
             echo "Rolling back platform-ui to previous version..."
             cd /opt/wopr-platform
-            docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging
+            if docker image inspect ghcr.io/${{ github.repository }}:staging-previous > /dev/null 2>&1; then
+              docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging
+            else
+              echo "No previous image to roll back to"
+            fi
             docker compose up -d --force-recreate platform-ui
