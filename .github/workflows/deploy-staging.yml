@@ -48,7 +48,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to staging VPS
+      - name: Deploy to VPS
         id: deploy
         uses: appleboy/ssh-action@v1
         with:
@@ -56,13 +56,10 @@ jobs:
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            if [ ! -f /opt/wopr-platform-ui/docker-compose.yml ]; then
-              echo "::error::docker-compose.yml not found at /opt/wopr-platform-ui/"
-              exit 1
-            fi
-            cd /opt/wopr-platform-ui
-            docker compose pull
-            docker compose up -d --remove-orphans
+            cd /opt/wopr-platform
+            docker tag ghcr.io/${{ github.repository }}:staging ghcr.io/${{ github.repository }}:staging-previous 2>/dev/null || true
+            docker compose pull platform-ui
+            docker compose up -d --force-recreate platform-ui
             docker image prune -f
 
       - name: Verify deployment health
@@ -74,15 +71,15 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             for i in $(seq 1 12); do
-              if curl -sf ${{ secrets.STAGING_HEALTH_CHECK_URL }} > /dev/null 2>&1; then
-                echo "Staging is healthy"
+              if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+                echo "Platform UI is healthy"
                 exit 0
               fi
               echo "Waiting for health check... ($i/12)"
               sleep 5
             done
             echo "Health check timed out"
-            docker compose -f /opt/wopr-platform-ui/docker-compose.yml logs --tail=50
+            docker compose -f /opt/wopr-platform/docker-compose.yml logs --tail=50 platform-ui
             exit 1
 
       - name: Rollback on failure
@@ -93,9 +90,7 @@ jobs:
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            echo "Rolling back to previous version..."
-            cd /opt/wopr-platform-ui
-            docker compose down
-            docker compose pull ghcr.io/${{ github.repository }}:staging-previous || echo "No previous version found"
-            docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging || true
-            docker compose up -d --remove-orphans
+            echo "Rolling back platform-ui to previous version..."
+            cd /opt/wopr-platform
+            docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging
+            docker compose up -d --force-recreate platform-ui
