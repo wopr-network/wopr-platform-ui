@@ -1,12 +1,12 @@
-FROM node:20-alpine AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.27.0 --activate
+RUN corepack enable && corepack prepare pnpm@10 --activate
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-FROM node:20-alpine AS build
+FROM node:24-bookworm-slim AS build
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.27.0 --activate
+RUN corepack enable && corepack prepare pnpm@10 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_API_URL
@@ -14,10 +14,10 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 # Load WOPR brand configuration at build time (NEXT_PUBLIC_* vars are baked in)
 RUN set -a && . ./.env.brand && set +a && pnpm build
 
-FROM node:20-alpine AS runtime
+FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 
-RUN addgroup -S wopr && adduser -S wopr -G wopr
+RUN groupadd wopr && useradd -g wopr -m wopr
 
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
