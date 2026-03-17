@@ -81,7 +81,11 @@ const CSRF_EXEMPT_PATHS = new Set([
   "/api/auth/callback/discord",
 ]);
 
-const PLATFORM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+// Server-side API URL for session validation (not baked in at build time).
+// INTERNAL_API_URL is set to the Docker-internal hostname (e.g. http://platform-api:3100).
+// Falls back to NEXT_PUBLIC_API_URL (baked in) which works when not behind a reverse proxy.
+const PLATFORM_BASE_URL =
+  process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 /**
  * Validate that a state-changing request originates from this application.
