@@ -28,8 +28,8 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          username: ${{ secrets.SSH_DEPLOY_USER || 'root' }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             DEPLOYED_SHA=$(docker inspect ghcr.io/${{ github.repository }}:staging --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' 2>/dev/null || echo "")
             if [ "$DEPLOYED_SHA" != "${{ inputs.staging_ref }}" ]; then
@@ -101,8 +101,8 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          username: ${{ secrets.SSH_DEPLOY_USER || 'root' }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             if [ ! -f /opt/paperclip-platform/docker-compose.yml ]; then
               echo "::error::docker-compose.yml not found at /opt/paperclip-platform/"
@@ -118,8 +118,8 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          username: ${{ secrets.SSH_DEPLOY_USER || 'root' }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             for i in $(seq 1 15); do
               if curl -sf http://localhost:3000 > /dev/null 2>&1; then
@@ -138,8 +138,8 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          username: ${{ secrets.SSH_DEPLOY_USER || 'root' }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             echo "Rolling back to previous version..."
             cd /opt/paperclip-platform
