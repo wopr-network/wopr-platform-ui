@@ -9,9 +9,8 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.31.0 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-# Load WOPR brand configuration at build time (NEXT_PUBLIC_* vars are baked in)
+# API URL is derived from hostname at runtime — not baked at build time.
+# Brand config (NEXT_PUBLIC_BRAND_*) is loaded from .env.brand.
 RUN set -a && . ./.env.brand && set +a && pnpm build
 
 FROM node:24-bookworm-slim AS runtime
