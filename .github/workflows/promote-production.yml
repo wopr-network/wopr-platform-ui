@@ -100,15 +100,15 @@ jobs:
         id: deploy
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            if [ ! -f /opt/wopr-platform-ui/docker-compose.yml ]; then
-              echo "::error::docker-compose.yml not found at /opt/wopr-platform-ui/"
+            if [ ! -f /opt/paperclip-platform/docker-compose.yml ]; then
+              echo "::error::docker-compose.yml not found at /opt/paperclip-platform/"
               exit 1
             fi
-            cd /opt/wopr-platform-ui
+            cd /opt/paperclip-platform
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
@@ -117,12 +117,12 @@ jobs:
         id: health_check
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             for i in $(seq 1 15); do
-              if curl -sf ${{ secrets.PRODUCTION_HEALTH_CHECK_URL }} > /dev/null 2>&1; then
+              if curl -sf http://localhost:3000 > /dev/null 2>&1; then
                 echo "Production is healthy"
                 exit 0
               fi
@@ -130,19 +130,19 @@ jobs:
               sleep 5
             done
             echo "Health check timed out"
-            docker compose -f /opt/wopr-platform-ui/docker-compose.yml logs --tail=50
+            docker compose -f /opt/paperclip-platform/docker-compose.yml logs --tail=50
             exit 1
 
       - name: Rollback on failure
         if: failure() && steps.health_check.outcome == 'failure'
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             echo "Rolling back to previous version..."
-            cd /opt/wopr-platform-ui
+            cd /opt/paperclip-platform
             docker compose down
             docker compose pull ghcr.io/${{ github.repository }}:production-previous || echo "No previous version found"
             docker tag ghcr.io/${{ github.repository }}:production-previous ghcr.io/${{ github.repository }}:production || true

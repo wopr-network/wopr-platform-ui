@@ -56,7 +56,8 @@ jobs:
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            cd /opt/wopr-platform
+            COMPOSE_DIR="${STAGING_COMPOSE_DIR:-/opt/wopr-platform}"
+            cd "$COMPOSE_DIR"
             docker tag ghcr.io/${{ github.repository }}:staging ghcr.io/${{ github.repository }}:staging-previous 2>/dev/null || true
             docker compose pull platform-ui
             docker compose up -d --force-recreate platform-ui
@@ -79,7 +80,8 @@ jobs:
               sleep 5
             done
             echo "Health check timed out"
-            docker compose -f /opt/wopr-platform/docker-compose.yml logs --tail=50 platform-ui
+            COMPOSE_DIR="${STAGING_COMPOSE_DIR:-/opt/wopr-platform}"
+            docker compose -f "$COMPOSE_DIR/docker-compose.yml" logs --tail=50 platform-ui
             exit 1
 
       - name: Rollback on failure
@@ -91,7 +93,8 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             echo "Rolling back platform-ui to previous version..."
-            cd /opt/wopr-platform
+            COMPOSE_DIR="${STAGING_COMPOSE_DIR:-/opt/wopr-platform}"
+            cd "$COMPOSE_DIR"
             if docker image inspect ghcr.io/${{ github.repository }}:staging-previous > /dev/null 2>&1; then
               docker tag ghcr.io/${{ github.repository }}:staging-previous ghcr.io/${{ github.repository }}:staging
             else
