@@ -104,11 +104,11 @@ jobs:
           username: ${{ secrets.SSH_DEPLOY_USER }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            if [ ! -f /opt/wopr-platform-ui/docker-compose.yml ]; then
-              echo "::error::docker-compose.yml not found at /opt/wopr-platform-ui/"
+            if [ ! -f /opt/paperclip-platform/docker-compose.yml ]; then
+              echo "::error::docker-compose.yml not found at /opt/paperclip-platform/"
               exit 1
             fi
-            cd /opt/wopr-platform-ui
+            cd /opt/paperclip-platform
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
@@ -130,7 +130,7 @@ jobs:
               sleep 5
             done
             echo "Health check timed out"
-            docker compose -f /opt/wopr-platform-ui/docker-compose.yml logs --tail=50
+            docker compose -f /opt/paperclip-platform/docker-compose.yml logs --tail=50
             exit 1
 
       - name: Rollback on failure
@@ -142,7 +142,7 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             echo "Rolling back to previous version..."
-            cd /opt/wopr-platform-ui
+            cd /opt/paperclip-platform
             docker compose down
             docker compose pull ghcr.io/${{ github.repository }}:production-previous || echo "No previous version found"
             docker tag ghcr.io/${{ github.repository }}:production-previous ghcr.io/${{ github.repository }}:production || true
